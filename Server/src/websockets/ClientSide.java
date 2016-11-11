@@ -3,6 +3,7 @@ package websockets;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 
 import javax.websocket.ClientEndpoint;
@@ -19,14 +20,42 @@ import org.glassfish.tyrus.client.ClientManager;
 public class ClientSide {
 
 	private static CountDownLatch latch;
+	
+	public static int tryConnect()
+	{
+		try {
+			ClientManager client = ClientManager.createClient();
+			URI uri;
+			
+			uri = new URI("ws://localhost:8080/websockets/echo");
+			
+			client.connectToServer(ClientSide.class, uri);
+			
+			Scanner sc = new Scanner(System.in);
+			String mess="";
+			
+			while(!mess.equals("exit")){
+				System.out.println("Something to send?");
+				mess = sc.nextLine();
+				if (sess != null) sess.getBasicRemote().sendText(mess);
+				else System.out.println("Schnauze!");
+			}
+			
+			
+			System.out.println("Closing session");
+			sess.close();
+			
+			} catch (URISyntaxException | IOException | DeploymentException e) {
+				return -1;
+			}
+		return 0;
+	}
 
-	public static void main(String[] args) throws URISyntaxException, DeploymentException, InterruptedException, IOException {
-		latch = new CountDownLatch(1);
-
-		ClientManager client = ClientManager.createClient();
-		URI uri = new URI("ws://localhost:8080/websockets/echo");
-		client.connectToServer(ClientSide.class, uri);
-		latch.await();
+	public static void main(String[] args) throws InterruptedException {
+		while (tryConnect() < 0) {
+			System.out.println("Failed");
+			Thread.sleep(500);
+		}
 	}
 
 	@OnOpen
@@ -34,18 +63,16 @@ public class ClientSide {
 		System.out.println("Connected, SessionId: " + session.getId());
 		sess=session;
 		session.getBasicRemote().sendText("Message");
+		
+		
 	}
 	
 	private int i = 0;
-	private Session sess;
+	private static Session sess;
 	
 	@OnMessage
-	public String onMessage(String message, Session session) throws IOException {
+	public void onMessage(String message, Session session) throws IOException {
 		System.out.println("Received: " + message);
-		sess.getBasicRemote().sendText("Sessss");
-		if(i==1) session.close();
-		i++;
-		return "Heeeeey";
 	}
 
 	@OnClose
