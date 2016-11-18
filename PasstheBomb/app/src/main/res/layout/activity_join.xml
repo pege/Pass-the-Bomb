@@ -15,5 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:onClick="onClickRefresh"
-        android:text="@string/refresh"/>
+        android:drawableLeft="@drawable/ic_refresh_black_48dp"
+        android:text="@string/refresh"
+        android:paddingLeft="100dp"
+        android:paddingRight="100dp"/>
 </RelativeLayout>
