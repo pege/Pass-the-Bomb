@@ -15,6 +15,7 @@
     <string name="tutorial">How to Play</string>
     <string name="start">Start Game!</string>
     <string name="back_to_main_menu">Back to Main Menu</string>
+    <string name="refresh">Refresh</string>
 
     <!-- text field stuff -->
     <string name="request_username">Enter desired username</string>
