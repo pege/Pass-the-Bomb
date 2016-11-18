@@ -16,6 +16,11 @@
         android:gravity="center_horizontal"
         android:text="@string/app_name" />
 
+    <!-- Note that although singleLine is deprecated,
+         it is needed as maxLines=1 does not change the
+         "next line" into a "done" button
+         and we do not want multiple lines for the username
+    -->
     <EditText android:id="@+id/text_field"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
