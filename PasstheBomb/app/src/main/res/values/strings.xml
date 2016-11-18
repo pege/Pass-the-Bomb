@@ -7,6 +7,7 @@
     <!-- toast stuff -->
     <string name="username_required">Please enter your username.</string>
     <string name="game_name_required">Please enter your game\'s name.</string>
+    <string name="too_little_players">You need at least two players to start the game!</string>
 
     <!--button stuff -->
     <string name="create">Create</string>
