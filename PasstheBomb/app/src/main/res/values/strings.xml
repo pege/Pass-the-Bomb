@@ -3,14 +3,26 @@
     <string name="open_games">Open Games</string>
     <string name="game_settings">Game Settings</string>
     <string name="scoreboard">Scoreboard</string>
-    <string name="username_required">Please enter your username.</string>
 
+    <!-- toast stuff -->
+    <string name="username_required">Please enter your username.</string>
+    <string name="game_name_required">Please enter your game\'s name.</string>
+
+    <!--button stuff -->
     <string name="create">Create</string>
     <string name="join">Join</string>
     <string name="tutorial">How to Play</string>
-    <string name="request_username">Enter Username</string>
-
+    <string name="start">Start Game!</string>
     <string name="back_to_main_menu">Back to Main Menu</string>
+
+    <!-- text field stuff -->
+    <string name="request_username">Enter desired username</string>
+    <string name="request_game_name">Enter your game\'s name</string>
+    <string name="request_password">Enter desired password</string>
+
+    <!-- other text stuff -->
+    <string name="game_name">Game name:</string>
+    <string name="password">Password</string>
 
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="action_settings">Settings</string>

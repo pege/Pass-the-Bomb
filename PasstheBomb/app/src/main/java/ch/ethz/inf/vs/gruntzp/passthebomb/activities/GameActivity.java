@@ -74,4 +74,14 @@ public class GameActivity extends AppCompatActivity {
                     });
         }
     }
+
+    /* TODO? if user somehow manages to bring back the navigation bar,
+    ** should it not do anything, or
+    ** should it bring them back to the main menu or something
+    ** and kick him out of the game?
+    */
+    @Override
+    public void onBackPressed(){
+        super.onBackPressed(); //to change?
+    }
 }
