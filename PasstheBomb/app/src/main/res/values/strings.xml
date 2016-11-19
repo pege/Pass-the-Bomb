@@ -8,6 +8,7 @@
     <string name="username_required">Please enter your username.</string>
     <string name="game_name_required">Please enter your game\'s name.</string>
     <string name="too_little_players">You need at least two players to start the game!</string>
+    <string name="password_required">Please enter a password.</string>
 
     <!--button stuff -->
     <string name="create">Create</string>
@@ -21,10 +22,14 @@
     <string name="request_username">Enter desired username</string>
     <string name="request_game_name">Enter your game\'s name</string>
     <string name="request_password">Enter desired password</string>
+    <string name="no_games_message">There are no games available. σ(￣∇￣;)</string>
 
     <!-- other text stuff -->
-    <string name="game_name">Game name:</string>
+    <string name="game_name">Game name</string>
+    <string name="game_name_with_colon">Game name:</string>
+    <string name="colon">:</string>
     <string name="password">Password</string>
+    <string name="players">Players</string>
 
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="action_settings">Settings</string>

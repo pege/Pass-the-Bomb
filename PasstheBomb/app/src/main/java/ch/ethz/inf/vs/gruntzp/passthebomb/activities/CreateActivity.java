@@ -52,16 +52,22 @@ public class CreateActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(this, R.string.game_name_required, Toast.LENGTH_SHORT);
             toast.show();
         }else {
-            Intent myIntent = new Intent(this, LobbyActivity.class);
-            myIntent.putExtra("creator", true);
-            Bundle extras = getIntent().getExtras();
-            myIntent.putExtra("creator_name", extras.getString("creator_name"));
-            myIntent.putExtra("game_name", gameName.getText().toString());
-            myIntent.putExtra("passwordChecked", passwordSwitch.isChecked());
-            if (passwordSwitch.isChecked()) {
-                myIntent.putExtra("password", passwordField.getText().toString());
+            //require password
+            if(passwordSwitch.isChecked() && passwordField.getText().toString().isEmpty()){
+                Toast toast = Toast.makeText(this, R.string.password_required, Toast.LENGTH_SHORT);
+                toast.show();
+            }else {
+                Intent myIntent = new Intent(this, LobbyActivity.class);
+                myIntent.putExtra("creator", true);
+                Bundle extras = getIntent().getExtras();
+                myIntent.putExtra("creator_name", extras.getString("creator_name"));
+                myIntent.putExtra("game_name", gameName.getText().toString());
+                myIntent.putExtra("passwordChecked", passwordSwitch.isChecked());
+                if (passwordSwitch.isChecked()) {
+                    myIntent.putExtra("password", passwordField.getText().toString());
+                }
+                this.startActivity(myIntent);
             }
-            this.startActivity(myIntent);
         }
     }
 }
