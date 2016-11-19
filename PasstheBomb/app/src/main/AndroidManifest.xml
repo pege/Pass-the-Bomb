@@ -11,6 +11,7 @@
         <activity
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait"
             android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,27 +21,32 @@
         </activity>
         <activity
             android:name=".JoinActivity"
-            android:label="@string/open_games"/>
+            android:label="@string/open_games"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".CreateActivity"
-            android:label="@string/game_settings"/>
+            android:label="@string/game_settings"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".LobbyActivity"/>
         <activity
             android:name=".ScoreboardActivity"
-            android:label="@string/scoreboard"/>
+            android:label="@string/scoreboard"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".TutorialActivity"
             android:label="@string/title_activity_tutorial"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ch.ethz.inf.vs.gruntzp.passthebomb.activities.MainActivity" />
         </activity>
         <activity
             android:name=".GameActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="landscape"/>
     </application>
 
 </manifest>
