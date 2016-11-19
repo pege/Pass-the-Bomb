@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.util.LinkedList;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+
 public class CreateActivity extends AppCompatActivity {
 
     private Switch passwordSwitch;
@@ -58,14 +62,21 @@ public class CreateActivity extends AppCompatActivity {
                 toast.show();
             }else {
                 Intent myIntent = new Intent(this, LobbyActivity.class);
-                myIntent.putExtra("creator", true);
+
+                //create the game
+                String name = gameName.getText().toString();
                 Bundle extras = getIntent().getExtras();
-                myIntent.putExtra("creator_name", extras.getString("creator_name"));
-                myIntent.putExtra("game_name", gameName.getText().toString());
-                myIntent.putExtra("passwordChecked", passwordSwitch.isChecked());
-                if (passwordSwitch.isChecked()) {
-                    myIntent.putExtra("password", passwordField.getText().toString());
-                }
+                String creatorName = extras.getString("creator_name");
+                LinkedList<String> players = new LinkedList<>();
+                players.addFirst(creatorName);
+                Boolean locked = passwordSwitch.isChecked();
+                String password = passwordField.getText().toString();
+                Game game = new Game(name, creatorName, players, locked, password);
+
+                // give GameActivity extra information
+                myIntent.putExtra("creator", true);
+                myIntent.putExtra("game", game);
+
                 this.startActivity(myIntent);
             }
         }
