@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.gruntzp.websocketsclient;
 
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +13,7 @@ import android.widget.TextView;
 import java.util.concurrent.CountDownLatch;
 
 
-public class Main extends AppCompatActivity {
+public class Main extends AppCompatActivity implements MessageListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Client.Subscribe(this);
 
         //initialize GUI
         messageLatch = new CountDownLatch(1);
@@ -47,8 +49,8 @@ public class Main extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ip[0] = ipText.getText().toString();
-                Connection conn = new Connection(ip[0]);
-                conn.execute();
+                Client.openConnection(ip[0]);
+                Client.connection.execute();
             }
         });
 
@@ -57,10 +59,13 @@ public class Main extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String mess = editText.getText().toString();
-                Client.messageToSend = mess;
-                Client.sendMessage();
+                Client.sendMessage(mess);
             }
         });
     }
 
- }
+    @Override
+    public void onMessage(String message) {
+        textView.setText(message);
+    }
+}

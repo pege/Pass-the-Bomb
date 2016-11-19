@@ -27,17 +27,17 @@ public class ClientSide {
 			ClientManager client = ClientManager.createClient();
 			URI uri;
 			
-			uri = new URI("ws://localhost:8080/websockets/echo");
+			uri = new URI("ws://10.2.134.220:8080/websockets/echo");
 			
 			client.connectToServer(ClientSide.class, uri);
 			
 			Scanner sc = new Scanner(System.in);
 			String mess="";
 			
-			while(!mess.equals("exit")){
+			while(!mess.equals("exit") && sess.isOpen()){
 				System.out.println("Something to send?");
 				mess = sc.nextLine();
-				if (sess != null) sess.getBasicRemote().sendText(mess);
+				if (sess != null && sess.isOpen()) sess.getBasicRemote().sendText(mess);
 				else System.out.println("Schnauze!");
 			}
 			
@@ -67,7 +67,6 @@ public class ClientSide {
 		
 	}
 	
-	private int i = 0;
 	private static Session sess;
 	
 	@OnMessage
@@ -78,7 +77,6 @@ public class ClientSide {
 	@OnClose
 	public void onClose(Session session, CloseReason closeReason) {
 		System.out.printf("Session close because of %s", closeReason);
-		latch.countDown();
 	}
 
 }
