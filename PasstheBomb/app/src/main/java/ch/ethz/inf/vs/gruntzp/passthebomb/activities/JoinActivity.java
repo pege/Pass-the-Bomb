@@ -197,6 +197,10 @@ public class JoinActivity extends AppCompatActivity {
                             ViewGroup.LayoutParams.WRAP_CONTENT);
                     mPopupWindow.setElevation(10.0f);
 
+                    // make the background darker (the rest of the screen)
+                    final RelativeLayout blackout = (RelativeLayout) findViewById(R.id.blackout);
+                    blackout.setVisibility(View.VISIBLE);
+
                     // Get a reference for the popup window view join button
                     Button joinButton = (Button) passwordPopUp.findViewById(R.id.join_game_button);
 
@@ -214,6 +218,9 @@ public class JoinActivity extends AppCompatActivity {
                                 if (inputPassword.getText().toString().equals(thisGame.getPassword())) {
                                     // Dismiss the popup window
                                     mPopupWindow.dismiss();
+
+                                    // Make the screen colour turn back to normal
+                                    blackout.setVisibility(View.INVISIBLE);
 
                                     // Start LobbyActivity
                                     Intent myIntent = new Intent(view.getContext(), LobbyActivity.class);
@@ -237,6 +244,9 @@ public class JoinActivity extends AppCompatActivity {
                         public void onClick(View view) {
                             // Dismiss the popup window
                             mPopupWindow.dismiss();
+
+                            // Make the screen colour turn back to normal
+                            blackout.setVisibility(View.INVISIBLE);
                         }
                     });
 

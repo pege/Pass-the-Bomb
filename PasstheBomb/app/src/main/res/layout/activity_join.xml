@@ -4,7 +4,6 @@
     android:id="@+id/activity_join"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.JoinActivity">
 
     <TableLayout android:id="@+id/games_table"
@@ -48,11 +47,23 @@
         android:layout_centerInParent="true"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:layout_alignParentBottom="true"
         android:onClick="onClickRefresh"
         android:drawableStart="@drawable/ic_refresh_black_48dp"
         android:text="@string/refresh"
         android:paddingLeft="100dp"
         android:paddingRight="100dp"/>
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/blackout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:visibility="invisible"
+        android:elevation="10dp"
+        tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.CreateActivity"/>
+
 </RelativeLayout>
