@@ -63,15 +63,14 @@ public class CreateActivity extends AppCompatActivity {
             }else {
                 Intent myIntent = new Intent(this, LobbyActivity.class);
 
+                //TODO give the server the game information
                 //create the game
-                String name = gameName.getText().toString();
+                String name = gameName.getText().toString(); //TODO fix game name if conflict arises
                 Bundle extras = getIntent().getExtras();
                 String creatorName = extras.getString("creator_name");
-                LinkedList<String> players = new LinkedList<>();
-                players.addFirst(creatorName);
                 Boolean locked = passwordSwitch.isChecked();
                 String password = passwordField.getText().toString();
-                Game game = new Game(name, creatorName, players, locked, password);
+                Game game = new Game(name, creatorName, locked, password);
 
                 // give GameActivity extra information
                 myIntent.putExtra("creator", true);
