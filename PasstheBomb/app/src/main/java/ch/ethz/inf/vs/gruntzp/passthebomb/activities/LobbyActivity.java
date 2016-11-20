@@ -1,41 +1,50 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.content.Intent;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class LobbyActivity extends AppCompatActivity {
-
-    private int numberOfPlayers; //TODO count players
-    private Button startButton;
+// TODO: get information from server about the players and put it into the global variable 'game'
+    // TODO (cont.) at a regular interval
+    // TODO (cont.) and update the table with updateTable()
+    private Game game;
+    private Player thisPlayer;
+    private Boolean isCreator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
-        startButton = (Button) findViewById(R.id.start_game);
+        // initialize global variables
+        Bundle extras = getIntent().getExtras();
+        game = (Game) extras.get("game");
+        thisPlayer = (Player) extras.get("thisPlayer");
+        isCreator = extras.getBoolean("isCreator");
 
         setLobbyTitle();
         setStartButton();
+        updateTable();
 
-        //TODO add the list of players
     }
 
     private void setLobbyTitle(){
-        Bundle extras = getIntent().getExtras();
-        Game game = (Game) extras.get("game");
         String gameName = game.getName();
         setTitle(gameName);
     }
 
     private void setStartButton(){
-        Bundle extras = getIntent().getExtras();
-        Boolean isCreator = extras.getBoolean("isCreator");
+        Button startButton = (Button) findViewById(R.id.start_game);
         if (isCreator){
             startButton.setVisibility(View.VISIBLE);
         } else
@@ -44,13 +53,59 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
+    // updates Table based on information from the global variable 'game'
+    public void updateTable(){
+        TableLayout tableLayout = (TableLayout) findViewById(R.id.players_table);
+
+        // places player names
+        for (int i = 1; i<=game.getPlayers().size(); i++){
+            TextView text = (TextView) ((TableRow)tableLayout.getChildAt(i)).getChildAt(0);
+            text.setText(game.getPlayers().get(i-1).getName());
+            if(Build.VERSION.SDK_INT >= 23) {
+                text.setTextColor(getColor(R.color.black));
+            }else{
+                //noinspection deprecation
+                text.setTextColor(getResources().getColor(R.color.black));
+            }
+        }
+
+        // fills out empty spots
+        for (int i = game.getPlayers().size() + 1; i<=5; i++){
+            TextView text = (TextView) ((TableRow)tableLayout.getChildAt(i)).getChildAt(0);
+            text.setText(getString(R.string.empty_player_field));
+            if(Build.VERSION.SDK_INT >= 23) {
+                text.setTextColor(getColor(R.color.grey));
+            }else{
+                //noinspection deprecation
+                text.setTextColor(getResources().getColor(R.color.grey));
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed(){
+        if (isCreator) {
+            //TODO: send the server information to kick everyone else from the screen
+            // --> basically force them to call onBackPressed()
+            //TODO: and tell the server to delete the game from the list of available games
+        } else {
+            //TODO: send server information that this player has exited the game
+
+            //not sure if this is necessary as it seems to be only local?
+            //Depends how you client people want to handle things...
+            game.removePlayer(thisPlayer);
+        }
+
+        finish();
+    }
+
     /* Starts the game.
     ** All other intents should be destroyed,
     ** because they won't be called though the back button anymore
     ** and thus would be stuck on the stack
      */
     public void onClickStart(View view) {
-        if(numberOfPlayers<2){
+        if(game.getPlayers().size()<2){
             Toast toast = Toast.makeText(this, R.string.too_little_players, Toast.LENGTH_SHORT);
             toast.show();
         }else {

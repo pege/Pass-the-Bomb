@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class CreateActivity extends AppCompatActivity {
 
@@ -72,6 +73,8 @@ public class CreateActivity extends AppCompatActivity {
                 // give GameActivity extra information
                 myIntent.putExtra("isCreator", true);
                 myIntent.putExtra("game", game);
+                Player thisPlayer = new Player(extras.getString("creator_name"));
+                myIntent.putExtra("thisPlayer", thisPlayer);
 
                 this.startActivity(myIntent);
             }
