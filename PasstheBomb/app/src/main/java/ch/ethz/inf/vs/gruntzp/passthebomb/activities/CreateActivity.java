@@ -10,7 +10,6 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import java.util.LinkedList;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 
