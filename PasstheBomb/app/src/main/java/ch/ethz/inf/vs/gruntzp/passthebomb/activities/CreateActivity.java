@@ -70,7 +70,7 @@ public class CreateActivity extends AppCompatActivity {
                 Game game = new Game(name, creatorName, locked, password);
 
                 // give GameActivity extra information
-                myIntent.putExtra("creator", true);
+                myIntent.putExtra("isCreator", true);
                 myIntent.putExtra("game", game);
 
                 this.startActivity(myIntent);

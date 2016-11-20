@@ -35,7 +35,7 @@ public class LobbyActivity extends AppCompatActivity {
 
     private void setStartButton(){
         Bundle extras = getIntent().getExtras();
-        Boolean isCreator = extras.getBoolean("creator");
+        Boolean isCreator = extras.getBoolean("isCreator");
         if (isCreator){
             startButton.setVisibility(View.VISIBLE);
         } else

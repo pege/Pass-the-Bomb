@@ -218,7 +218,7 @@ public class JoinActivity extends AppCompatActivity {
                                     // Start LobbyActivity
                                     Intent myIntent = new Intent(view.getContext(), LobbyActivity.class);
                                     myIntent.putExtra("game", thisGame);
-                                    myIntent.putExtra("creator", false);
+                                    myIntent.putExtra("isCreator", false);
                                     view.getContext().startActivity(myIntent);
                                 } else {
                                     Toast toast = Toast.makeText(view.getContext(), R.string.wrong_password, Toast.LENGTH_SHORT);
