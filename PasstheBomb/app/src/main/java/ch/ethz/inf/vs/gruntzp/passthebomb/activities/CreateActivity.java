@@ -9,8 +9,6 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
-
-
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 
 public class CreateActivity extends AppCompatActivity {

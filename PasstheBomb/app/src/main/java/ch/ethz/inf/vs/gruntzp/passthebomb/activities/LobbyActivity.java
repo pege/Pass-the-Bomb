@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 
 public class LobbyActivity extends AppCompatActivity {
 
@@ -14,13 +15,20 @@ public class LobbyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
         setLobbyTitle();
+        setStartButton();
 
         //TODO add the list of players
     }
 
     private void setLobbyTitle(){
         Bundle extras = getIntent().getExtras();
-        setTitle(extras.getString("game_name"));
+        Game game = (Game) extras.get("game");
+        String gameName = game.getName();
+        setTitle(gameName);
+    }
+
+    private void setStartButton(){
+
     }
 
     /* Starts the game.

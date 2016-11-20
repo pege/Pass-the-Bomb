@@ -217,7 +217,8 @@ public class JoinActivity extends AppCompatActivity {
 
                                     // Start LobbyActivity
                                     Intent myIntent = new Intent(view.getContext(), LobbyActivity.class);
-                                    myIntent.putExtra("game_name", thisGame.getName());
+                                    myIntent.putExtra("game", thisGame);
+                                    myIntent.putExtra("creator", false);
                                     view.getContext().startActivity(myIntent);
                                 } else {
                                     Toast toast = Toast.makeText(view.getContext(), R.string.wrong_password, Toast.LENGTH_SHORT);
@@ -249,7 +250,8 @@ public class JoinActivity extends AppCompatActivity {
 
                 } else {
                     Intent myIntent = new Intent(v.getContext(), LobbyActivity.class);
-                    myIntent.putExtra("game_name", thisGame.getName());
+                    myIntent.putExtra("game", thisGame);
+                    myIntent.putExtra("creator", false);
                     v.getContext().startActivity(myIntent);
                 }
             }
