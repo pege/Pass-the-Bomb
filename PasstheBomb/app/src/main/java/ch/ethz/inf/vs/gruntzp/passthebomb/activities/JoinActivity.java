@@ -233,7 +233,6 @@ public class JoinActivity extends AppCompatActivity {
                                     myIntent.putExtra("thisPlayer", thisPlayer);
                                     // Start LobbyActivity
                                     view.getContext().startActivity(myIntent);
-                                    
                                     //TODO: pass information to server that the player is entering that game
                                 } else {
                                     Toast toast = Toast.makeText(view.getContext(), R.string.wrong_password, Toast.LENGTH_SHORT);
