@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_join"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.JoinActivity">
+
+    <TableLayout android:id="@+id/games_table"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:stretchColumns="0"
+        android:visibility="invisible">
+        <TableRow>
+            <TextView
+                android:text="@string/game_name"
+                android:padding="16dip"
+                android:textColor="#fff"
+                android:background="@drawable/cell_shape_dark"/>
+            <TextView
+                android:text="@string/players"
+                android:width="80dp"
+                android:padding="16dip"
+                android:textColor="#fff"
+                android:background="@drawable/cell_shape_dark" />
+            <TextView
+                android:width="35dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape_dark"/>
+            <TextView
+                android:width="60dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape_dark"/>
+        </TableRow>
+    </TableLayout>
+
+    <TextView android:id="@+id/no_games_message"
+        android:visibility="invisible"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="50dp"
+        android:text="@string/no_games_message"/>
+
+    <Button android:id="@+id/refresh"
+        android:layout_centerInParent="true"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_alignParentBottom="true"
+        android:onClick="onClickRefresh"
+        android:drawableStart="@drawable/ic_refresh_black_48dp"
+        android:text="@string/refresh"
+        android:paddingLeft="100dp"
+        android:paddingRight="100dp"/>
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/blackout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000"
+        android:visibility="invisible"
+        android:elevation="10dp"
+        tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.CreateActivity"/>
+
+</RelativeLayout>

@@ -16,8 +16,9 @@ public class Connection extends AsyncTask<Void, Void, Void> {
 
     private String ip;
 
+
     public Connection(String ip){
-        this.ip=ip;
+        this.ip = ip;
     }
 
     @Override
@@ -44,4 +45,6 @@ public class Connection extends AsyncTask<Void, Void, Void> {
 
         return null;
     }
+
+
 }
