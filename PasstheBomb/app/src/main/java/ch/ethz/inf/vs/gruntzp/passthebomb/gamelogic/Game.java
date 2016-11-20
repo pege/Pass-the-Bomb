@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.LinkedList;
-import java.util.StringTokenizer;
 
 /**
  * Created by Michelle on 19.11.2016.
@@ -15,14 +14,17 @@ public class Game implements Parcelable{
 
     private String name;
     private String creatorName;
-    private LinkedList<String> players;
+    private LinkedList<Player> players;
     private Boolean locked;
     private String password;
 
-    public Game(String name, String creatorName, LinkedList<String> players, Boolean locked, String password){
+    public Game(String name, String creatorName, Boolean locked, String password){
         this.name = name;
         this.creatorName = creatorName;
-        this.players = players;
+
+        this.players = new LinkedList<>();
+        players.addFirst(new Player(creatorName));
+
         this.locked = locked;
         this.password = password;
     }
@@ -30,9 +32,8 @@ public class Game implements Parcelable{
     public Game(Parcel in){
         name = in.readString();
         creatorName = in.readString();
-        LinkedList<String> myList = null;
-        in.readList(myList, String.class.getClassLoader());
-        players = myList;
+        players = new LinkedList<>();
+        in.readList(players, Player.class.getClassLoader());
         locked = in.readByte() != 0;
         password = in.readString();
     }
@@ -53,11 +54,11 @@ public class Game implements Parcelable{
         this.creatorName = creatorName;
     }
 
-    public LinkedList<String> getPlayers() {
+    public LinkedList<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(LinkedList<String> players) {
+    public void setPlayers(LinkedList<Player> players) {
         this.players = players;
     }
 
