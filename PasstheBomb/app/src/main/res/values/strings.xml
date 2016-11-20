@@ -10,7 +10,7 @@
     <string name="too_little_players">You need at least two players to start the game!</string>
     <string name="password_required">Please enter a password.</string>
     <string name="wrong_password">That\'s the wrong password! ι(｀ロ´)ノ</string>
-    <string name="empty_password_field">You need to input the password...(ー_ー;)</string>
+    <string name="empty_password_field">You need to input the password…(ー_ー;)</string>
 
     <!--button stuff -->
     <string name="create">Create</string>

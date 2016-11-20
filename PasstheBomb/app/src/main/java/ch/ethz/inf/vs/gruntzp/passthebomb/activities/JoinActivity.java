@@ -182,7 +182,6 @@ public class JoinActivity extends AppCompatActivity {
                 **           Before checking if the game is locked and, if it is, also
                 **           after the password was put in correctly?
                 */
-                //TODO: pass information to server that the player is entering that game
 
                 if(thisGame.getLocked()){
                     // Initialize a new instance of LayoutInflater service
@@ -227,6 +226,7 @@ public class JoinActivity extends AppCompatActivity {
                                     myIntent.putExtra("game", thisGame);
                                     myIntent.putExtra("isCreator", false);
                                     view.getContext().startActivity(myIntent);
+                                    //TODO: pass information to server that the player is entering that game
                                 } else {
                                     Toast toast = Toast.makeText(view.getContext(), R.string.wrong_password, Toast.LENGTH_SHORT);
                                     toast.show();
@@ -263,6 +263,9 @@ public class JoinActivity extends AppCompatActivity {
                     myIntent.putExtra("game", thisGame);
                     myIntent.putExtra("creator", false);
                     v.getContext().startActivity(myIntent);
+                    Toast toast = Toast.makeText(v.getContext(), R.string.joined_lobby + "\n" + thisGame.getName() + "\n" + R.string.happy, Toast.LENGTH_SHORT);
+                    toast.show();
+                    //TODO: pass information to server that the player is entering that game
                 }
             }
         });
