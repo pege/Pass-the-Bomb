@@ -5,8 +5,10 @@ import android.os.Parcelable;
 
 /**
  * Created by Michelle on 20.11.2016.
+ * Class that describes a player.
  */
 
+// implements Parcelable so that it can be put in putExtra()
 public class Player implements Parcelable{
 
     private String name;

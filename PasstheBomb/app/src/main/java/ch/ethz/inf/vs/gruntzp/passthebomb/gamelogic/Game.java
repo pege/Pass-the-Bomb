@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 /**
  * Created by Michelle on 19.11.2016.
+ * Class that describes a game.
  */
 
 // implements Parcelable so that it can be put in putExtra()
@@ -60,6 +61,14 @@ public class Game implements Parcelable{
 
     public void setPlayers(LinkedList<Player> players) {
         this.players = players;
+    }
+
+    public void addPlayer(Player player){
+        players.add(player);
+    }
+
+    public void removePlayer (Player player){
+        players.remove(player);
     }
 
     public Boolean getLocked() {
