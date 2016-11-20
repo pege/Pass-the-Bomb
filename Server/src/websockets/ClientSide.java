@@ -29,12 +29,9 @@ public class ClientSide {
 			ClientManager client = ClientManager.createClient();
 			URI uri;
 			
-<<<<<<< HEAD
 			//uri = new URI("ws://192.168.0.18:8080/websockets/echo");
 			uri = new URI("ws://localhost:8080/websockets/echo");
-=======
-			uri = new URI("ws://10.2.134.220:8080/websockets/echo");
->>>>>>> origin/master
+			//uri = new URI("ws://10.2.134.220:8080/websockets/echo");
 			
 			
 			client.connectToServer(ClientSide.class, uri);
@@ -42,7 +39,7 @@ public class ClientSide {
 			Scanner sc = new Scanner(System.in);
 			String mess="";
 			
-<<<<<<< HEAD
+
 			while(!mess.equals("exit")){
 				
 				System.out.println("Something to send?");
@@ -66,13 +63,12 @@ public class ClientSide {
 					//sess.getBasicRemote().sendText(sendObj.toJSONString());
 					sess.getBasicRemote().sendText(mess);
 					
-=======
-			while(!mess.equals("exit") && sess.isOpen()){
-				System.out.println("Something to send?");
-				mess = sc.nextLine();
-				if (sess != null && sess.isOpen()) sess.getBasicRemote().sendText(mess);
->>>>>>> origin/master
-				else System.out.println("Schnauze!");
+
+			//while(!mess.equals("exit") && sess.isOpen()){
+			//	System.out.println("Something to send?");
+			//	mess = sc.nextLine();
+			//	if (sess != null && sess.isOpen()) sess.getBasicRemote().sendText(mess);
+			//	else System.out.println("Schnauze!");
 			}
 			
 			
