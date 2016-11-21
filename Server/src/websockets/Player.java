@@ -10,13 +10,16 @@ public class Player {
 	private boolean hasBomb;
 	private boolean isConnected; //if connected or not
 	private Session session;
-	private boolean inGame; //if in a game or not
+	//private boolean inGame; //if in a game or not
+	private long lastPong;
+	private Game inGame;
 	
 	
 	public Player(String name, long uuid, Session session){
 		this.name = name;
 		this.uuid = uuid;
 		this.session = session;
+		setLastPong(System.currentTimeMillis());
 	}
 	
 	public String getName(){
@@ -51,13 +54,20 @@ public class Player {
 		return session;
 	}
 	
-	public void setGameStatus(boolean status){
-		inGame = status;
+	public void joinGame(Game game){
+		inGame = game;
 	}
 	
-	public boolean getGameStatus(){
+	public Game getJoinedGame(){
 		return inGame;
 	}
 
+	public synchronized void setLastPong(long time){
+		lastPong = time;
+	}
+	
+	public synchronized long getLastPong(){
+		return lastPong;
+	}
 
 }

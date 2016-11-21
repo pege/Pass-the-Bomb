@@ -57,6 +57,10 @@ public class Game {
 		return s;
 	}
 	
+	public Player getCreator(){
+		return creator;
+	}
+	
 	public Set<Player> getPlayers(){
 		return players;
 	}
