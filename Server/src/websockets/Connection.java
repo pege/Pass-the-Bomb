@@ -46,13 +46,17 @@ public class Connection {
 	public void onOpen(Session session) throws IOException {
 
 		System.out.println("Client Connected");
-
+		sendMess(session, "Connected but not registered");
 		map.put(session, null);
 		// sessions.add(session);
 		// TODO already in a game? - reconnect
 
 		// register("handy", 1111, session);
 		// createGame(session, "game1", "");
+	
+		sendMess(session,"Welcome to <<PASS THE BOMB>>");
+		sendMess(session,"Possible orders: register, create, refresh, join, leave, delete status");
+	
 	}
 
 	@OnMessage
@@ -134,17 +138,19 @@ public class Connection {
 		while (true) {
 			for (Session s : sessions) {
 				Player p = map.get(s);
-				if (p.getSession().isOpen() && p.isConnected()) {//TODO this if should be unnecessary
+				if (p.getSession().isOpen() && p.isConnected()) {// TODO this if
+																	// should be
+																	// unnecessary
 					// check last received pong
 					if (Math.abs(p.getLastPong() - System.currentTimeMillis()) > timeout) {
 						System.out.println("============Connection timeout==================");
-						// try {
-						//TODO
-						// p.getSession().close();
-						// } //catch (IOException e) {
-						// TODO Auto-generated catch block
-						// e.printStackTrace();
-						// }
+						try {
+							// TODO
+							p.getSession().close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					// send a Ping with the current Time
 					ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
@@ -189,6 +195,7 @@ public class Connection {
 		p.setLastPong(System.currentTimeMillis());
 		map.put(session, p);
 		sessions.add(session); // start pinging
+		sendMess(session, "Succesful Registered");
 	}
 
 	private void createGame(Session session, String gamename, String password) {
@@ -197,12 +204,7 @@ public class Connection {
 		int i = 0;
 		while (!uniqueGamename(gamename)) {
 			gamename = gamename + Integer.toString(i);
-			try {
-				session.getBasicRemote()
-						.sendText("A game with this gamename already exists, it was changed to: " + gamename);
-			} catch (IOException e) {
-				e.printStackTrace();
-			} // TODO too manys messsages will be sent
+			sendMess(session, "A game with this gamename already exists, it was changed to: " + gamename);
 			i++;
 		}
 
@@ -211,13 +213,7 @@ public class Connection {
 		Game game = new Game(creator, gamename, password);
 		creator.joinGame(game);
 		games.add(game);
-
-		try {
-			session.getBasicRemote().sendText("A game with gamename " + gamename + " was created");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		sendMess(session, "A game with gamename " + gamename + " was created");
 	}
 
 	private boolean uniqueGamename(String name) {
@@ -230,14 +226,13 @@ public class Connection {
 	}
 
 	private void getLobbyList(Session session) {
-		try {
-			for (Game g : games) {
-				session.getBasicRemote().sendText("Game: " + g.getGamename() + ", numberOfPlayers: "
-						+ g.numberOfPlayers() + ", playernames: " + g.getPlayersName());
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(games.size() == 0){
+			sendMess(session, "No games in Lobby, come later or create one");
+		}
+		
+		for (Game g : games) {
+			sendMess(session, "Game: " + g.getGamename() + ", numberOfPlayers: " + g.numberOfPlayers()
+					+ ", playernames: " + g.getPlayersName());
 		}
 
 	}
@@ -252,14 +247,17 @@ public class Connection {
 					p.joinGame(game);
 					game.addPlayer(p);
 					joined = true;
+					sendMess(session,"You joined successful the game: " + game.getGamename());
 					break;
 				} else {
+					sendMess(session,"Stupid? - Wrong Password");
 					System.out.println("Wrong password");
 				}
 			}
 		}
 
 		if (!joined)
+			sendMess(session,"No such gameroom found - it doesnt exist or already started");
 			System.out.println("No game with that name found - already started");
 	}
 
@@ -270,18 +268,21 @@ public class Connection {
 
 		if (p.getJoinedGame() == null) {
 			System.out.println("Player is in no game");
+			sendMess(session,"You cant leave, you aren't i a game");
 		}
 		for (Game game : games) {
 			if (game.playerInGame(p)) {
+				sendMess(session,"You left successful the game: " + game.getGamename());
 				game.removePlayer(p);
 				p.joinGame(null);
 				left = true;
 				break;
 			}
 		}
-		if (!left)
+		if (!left){
+			sendMess(session,"Error - you are actually in a game but it doesnt exist");
 			System.out.println("Error - no game found with this player");
-	}
+		}}
 
 	public void deleteGame(Session session) {
 		Player p = map.get(session);
@@ -304,39 +305,23 @@ public class Connection {
 
 	public void returnStatus(Session session) {
 		Player p = map.get(session);
-		try {
-			session.getBasicRemote().sendText("Your name is: " + p.getName());
-			session.getBasicRemote().sendText("Number of existing games: " + games.size());
-			
-			
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		sendMess(session,"Your name is: " + p.getName());
+		sendMess(session,"Number of existing games: " + games.size());
 		if (p.getJoinedGame() != null) {
-			try {
-				session.getBasicRemote().sendText("You're in a game");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			try {
-				session.getBasicRemote().sendText("you're in game: " + p.getJoinedGame().getGamename());
-				session.getBasicRemote().sendText("The creator is: " + p.getJoinedGame().getCreator().getName());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			sendMess(session,"you're in game: " + p.getJoinedGame().getGamename());
+			sendMess(session,"The creator is: " + p.getJoinedGame().getCreator().getName());
 		} else {
-			try {
-				session.getBasicRemote().sendText("You're not in a game");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			sendMess(session,"You're not in a game");
 		}
 
+	}
+
+	private void sendMess(Session s, String mess) {
+		try {
+			s.getBasicRemote().sendText(mess);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
