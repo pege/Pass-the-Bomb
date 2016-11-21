@@ -2,6 +2,7 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 /**
  * Created by Michelle on 20.11.2016.
@@ -9,7 +10,7 @@ import android.os.Parcelable;
  */
 
 // implements Parcelable so that it can be put in putExtra()
-public class Player implements Parcelable{
+public class Player implements Parcelable, Comparable<Player>{
 
     private String name;
     private int score;
@@ -17,6 +18,8 @@ public class Player implements Parcelable{
 
     public Player(String name){
         this.name = name;
+        this.score = 0;
+        this.hasBomb = false;
     }
 
     public Player(Parcel in){
@@ -73,4 +76,12 @@ public class Player implements Parcelable{
             return new Player[size];
         }
     };
+
+    @Override
+    public int compareTo(Player otherPlayer) {
+        int compareScore = otherPlayer.getScore();
+
+        //descending order
+        return compareScore - this.score;
+    }
 }
