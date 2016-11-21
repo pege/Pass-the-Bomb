@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -182,7 +183,6 @@ public class JoinActivity extends AppCompatActivity {
                 **           Before checking if the game is locked and, if it is, also
                 **           after the password was put in correctly?
                 */
-                //TODO: pass information to server that the player is entering that game
 
                 if(thisGame.getLocked()){
                     // Initialize a new instance of LayoutInflater service
@@ -222,11 +222,18 @@ public class JoinActivity extends AppCompatActivity {
                                     // Make the screen colour turn back to normal
                                     blackout.setVisibility(View.INVISIBLE);
 
-                                    // Start LobbyActivity
+                                    // create a new intent
                                     Intent myIntent = new Intent(view.getContext(), LobbyActivity.class);
+                                    // pass LobbyActivity extra information
+                                    Bundle extras = getIntent().getExtras();
+                                    Player thisPlayer = new Player(extras.getString("player_name"));
+                                    thisGame.addPlayer(thisPlayer);
                                     myIntent.putExtra("game", thisGame);
                                     myIntent.putExtra("isCreator", false);
+                                    myIntent.putExtra("thisPlayer", thisPlayer);
+                                    // Start LobbyActivity
                                     view.getContext().startActivity(myIntent);
+                                    //TODO: pass information to server that the player is entering that game
                                 } else {
                                     Toast toast = Toast.makeText(view.getContext(), R.string.wrong_password, Toast.LENGTH_SHORT);
                                     toast.show();
@@ -260,9 +267,18 @@ public class JoinActivity extends AppCompatActivity {
 
                 } else {
                     Intent myIntent = new Intent(v.getContext(), LobbyActivity.class);
+
+                    // give LobbyActivity extra information
+                    Bundle extras = getIntent().getExtras();
+                    Player thisPlayer = new Player(extras.getString("player_name"));
+                    thisGame.addPlayer(thisPlayer);
+                    myIntent.putExtra("thisPlayer", thisPlayer);
                     myIntent.putExtra("game", thisGame);
-                    myIntent.putExtra("creator", false);
+                    myIntent.putExtra("isCreator", false);
+
+                    // start LobbyActivity
                     v.getContext().startActivity(myIntent);
+                    //TODO: pass information to server that the player is entering that game
                 }
             }
         });

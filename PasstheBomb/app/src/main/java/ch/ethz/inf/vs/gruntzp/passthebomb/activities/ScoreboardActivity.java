@@ -6,10 +6,23 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class ScoreboardActivity extends AppCompatActivity {
 
     private int currentApiVersion;
+    private Game game;
 
     @Override
     @SuppressLint("NewApi")
@@ -19,7 +32,41 @@ public class ScoreboardActivity extends AppCompatActivity {
 
         hideNavigationBar();
 
-        //TODO: figure out how to put in the scoreboard.
+        displayScores();
+    }
+
+    public void displayScores(){
+        Bundle extras = getIntent().getExtras();
+        Game game = (Game)extras.get("game");
+
+        //game=new Game("herp derp", "theBest", false, ""); // only for testing purposes
+
+        //sort players by their scores
+        LinkedList<Player> sortedPlayers = new LinkedList<>(game.getPlayers());
+        Collections.sort(sortedPlayers);
+
+        TableLayout tableLayout = (TableLayout) findViewById(R.id.scores_table);
+
+        // display player and their score
+        for (int i = 0; i < sortedPlayers.size(); i++){
+            TableRow tableRow = (TableRow) tableLayout.getChildAt(i+1);
+
+            // display player's name
+            TextView playerName = (TextView) tableRow.getChildAt(0);
+            playerName.setText(sortedPlayers.get(i).getName());
+
+
+            // display player's score
+            TextView playerScore = (TextView) tableRow.getChildAt(1);
+            playerScore.setText(sortedPlayers.get(i).getScore() + "");
+
+        }
+
+        // remove redundant rows
+        for(int i = sortedPlayers.size(); i<5 ; i++){
+            tableLayout.removeViewAt(sortedPlayers.size()+1);
+
+        }
     }
 
     // This method makes sure navigation bar doesn't appear again
@@ -84,5 +131,6 @@ public class ScoreboardActivity extends AppCompatActivity {
     public void onClickBackToMainMenu(View view) {
         Intent myIntent = new Intent(this, MainActivity.class);
         this.startActivity(myIntent);
+        finish();
     }
 }

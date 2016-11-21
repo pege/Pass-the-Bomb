@@ -10,7 +10,7 @@
     <string name="too_little_players">You need at least two players to start the game!</string>
     <string name="password_required">Please enter a password.</string>
     <string name="wrong_password">That\'s the wrong password! ι(｀ロ´)ノ</string>
-    <string name="empty_password_field">You need to input the password...(ー_ー;)</string>
+    <string name="empty_password_field">You need to input the password…(ー_ー;)</string>
 
     <!--button stuff -->
     <string name="create">Create</string>
@@ -26,14 +26,18 @@
     <string name="request_game_name">Enter your game\'s name</string>
     <string name="request_password">Enter desired password</string>
     <string name="no_games_message">There are no games available. σ(￣∇￣;)</string>
+    <string name="require_password">Please enter the game\'s password:</string>
 
     <!-- other text stuff -->
     <string name="game_name">Game name</string>
     <string name="game_name_with_colon">Game name:</string>
     <string name="colon">:</string>
     <string name="password">Password</string>
+    <string name="player_name">Player name</string>
     <string name="players">Players</string>
-    <string name="require_password">Please enter the game\'s password:</string>
+    <string name="players_with_colon">Players:</string>
+    <string name="empty_player_field">(Empty)</string>
+    <string name="score">Score</string>
 
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="action_settings">Settings</string>
