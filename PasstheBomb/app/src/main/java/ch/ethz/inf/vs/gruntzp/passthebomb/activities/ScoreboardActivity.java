@@ -19,7 +19,7 @@ public class ScoreboardActivity extends AppCompatActivity {
 
         hideNavigationBar();
 
-        //TODO: figure out how to put in the scoreboard.
+        //TODO: update table with scores.
     }
 
     // This method makes sure navigation bar doesn't appear again
@@ -84,5 +84,6 @@ public class ScoreboardActivity extends AppCompatActivity {
     public void onClickBackToMainMenu(View view) {
         Intent myIntent = new Intent(this, MainActivity.class);
         this.startActivity(myIntent);
+        finish();
     }
 }

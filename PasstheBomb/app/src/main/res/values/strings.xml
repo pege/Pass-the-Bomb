@@ -33,9 +33,11 @@
     <string name="game_name_with_colon">Game name:</string>
     <string name="colon">:</string>
     <string name="password">Password</string>
+    <string name="player_name">Player name</string>
     <string name="players">Players</string>
     <string name="players_with_colon">Players:</string>
     <string name="empty_player_field">(Empty)</string>
+    <string name="score">Score</string>
 
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="action_settings">Settings</string>
