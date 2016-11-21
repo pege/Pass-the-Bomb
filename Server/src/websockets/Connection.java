@@ -152,7 +152,7 @@ public class Connection {
 					try {
 						// TODO getAsyncRemote the right choice?
 						p.getSession().getAsyncRemote().sendPing(buffer);
-						Thread.sleep(200);
+						Thread.sleep(timeBetweenPings);
 					} catch (IllegalArgumentException | IOException | InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
