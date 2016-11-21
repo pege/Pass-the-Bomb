@@ -32,7 +32,8 @@
         <activity
             android:name=".ScoreboardActivity"
             android:label="@string/scoreboard"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait">
+        </activity>
         <activity
             android:name=".TutorialActivity"
             android:label="@string/title_activity_tutorial"
@@ -46,7 +47,8 @@
         <activity
             android:name=".GameActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="landscape"/>
+            android:screenOrientation="landscape">
+        </activity>
     </application>
 
 </manifest>
