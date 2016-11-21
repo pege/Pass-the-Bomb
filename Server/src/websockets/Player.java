@@ -8,11 +8,10 @@ public class Player {
 	private String name;
 	private int score;
 	private boolean hasBomb;
-	private boolean isConnected; //if connected or not
+	private boolean isConnected; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
 	private Session session;
-	//private boolean inGame; //if in a game or not
 	private long lastPong;
-	private Game inGame;
+	private Game inGame; //null if in no game
 	
 	
 	public Player(String name, long uuid, Session session){

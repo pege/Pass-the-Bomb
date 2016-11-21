@@ -32,7 +32,7 @@ public class ServerSide {
 
 	public static void main(String[] args) throws DeploymentException, InterruptedException, IOException {
 
-		System.out.println(InetAddress.getLocalHost());
+		System.out.println("Server started at: " + InetAddress.getLocalHost());
 		Server server = new Server("localhost", 8080, "/websockets", null, Connection.class);
 		server.start();
 
