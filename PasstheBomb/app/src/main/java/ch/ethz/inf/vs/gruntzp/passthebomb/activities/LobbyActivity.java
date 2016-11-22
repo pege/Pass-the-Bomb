@@ -99,10 +99,8 @@ public class LobbyActivity extends AppCompatActivity {
         finish();
     }
 
-    /* Starts the game.
-    ** All other intents should be destroyed,
-    ** because they won't be called though the back button anymore
-    ** and thus would be stuck on the stack
+    /* Starts the game if there are enough players
+     * Sends a start command to the server if successful in starting
      */
     public void onClickStart(View view) {
         if(game.getPlayers().size()<2){
@@ -110,14 +108,30 @@ public class LobbyActivity extends AppCompatActivity {
             toast.show();
         }else {
             //TODO send start command to server
-            //TODO? do we need to send anything to the next activity?
-            Intent myIntent = new Intent(this, GameActivity.class);
-            this.startActivity(myIntent);
-
-            // destroy intent with MainActivity
-            getParent().getParent().finish();
-            // destroy intent with CreateActivity/LobbyActivity
-            getParent().finish();
+            startGame();
         }
+    }
+
+    /* Starts the game.
+    ** All other intents should be destroyed,
+    ** because they won't be called though the back button anymore
+    ** and thus would otherwise be stuck on the stack
+    **
+    ** Also, all other players should be forced to call this
+    *  when the creator starts the game
+     */
+    public void startGame(){
+        Intent myIntent = new Intent(this, GameActivity.class);
+
+        // give the next activity extra information
+        myIntent.putExtra("game", game);
+        myIntent.putExtra("thisPlayer", thisPlayer);
+
+        this.startActivity(myIntent);
+
+        // destroy intent with MainActivity
+        getParent().getParent().finish();
+        // destroy intent with CreateActivity/LobbyActivity
+        getParent().finish();
     }
 }

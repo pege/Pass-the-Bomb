@@ -38,6 +38,8 @@
     <string name="players_with_colon">Players:</string>
     <string name="empty_player_field">(Empty)</string>
     <string name="score">Score</string>
+    <string name="game_over">Game over!</string>
+    <string name="to_scoreboard">Continue to scoreboard</string>
 
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="action_settings">Settings</string>
