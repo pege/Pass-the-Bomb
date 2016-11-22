@@ -10,6 +10,8 @@ public class Game {
 
 	private String gameName;
 	private String password;
+	
+	private boolean started;
 
 	public Game(Player creator, String gamename, String password) {
 		this.gameName = gamename;
@@ -47,7 +49,7 @@ public class Game {
 
 		String s = "";
 		for (Player p : players) {
-			s = s + p.getName();
+			s = s + p.getName() + ", ";
 		}
 
 		return s;
@@ -68,4 +70,12 @@ public class Game {
 	public int numberOfPlayers() {
 		return players.size();
 	}
+	
+	public void startGame(){
+		started = true;
+	}
+	
+	//public void endGame(){
+	//	started = false;
+	//}
 }

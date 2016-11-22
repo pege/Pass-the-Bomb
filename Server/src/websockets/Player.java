@@ -8,6 +8,7 @@ public class Player {
 	private String name;
 	private int score;
 	private boolean hasBomb;
+	//TODO connected is same as registered => map points to player
 	private boolean isConnected; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
 	private Session session;
 	private long lastPong;
