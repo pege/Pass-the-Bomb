@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,14 +19,17 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/echo")
 public class Connection {
 
+	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
 	private static final long timeout = 5000; // timeout in ms
-	private static final long timeBetweenPings = 200; // time to wait between
+	//TODO second timeout =30secs or something
+	private static final long timeBetweenPings = 10; // time to wait between
 														// sending a ping
+	// max times of clients: timeout/timeBetweenPings
 
 	// games as a concurrent Set
 	static Set<Game> games = Collections.newSetFromMap(new ConcurrentHashMap<Game, Boolean>());
 	// All sessions
-	static Set<Session> sessions = Collections.newSetFromMap(new ConcurrentHashMap<Session, Boolean>());
+	static Set<Session> registeredSessions = Collections.newSetFromMap(new ConcurrentHashMap<Session, Boolean>());
 
 	// static Set<Game> games = new HashSet<>();
 
@@ -55,15 +59,14 @@ public class Connection {
 		// createGame(session, "game1", "");
 
 		sendMess(session, "Welcome to <<PASS THE BOMB>>");
-		sendMess(session, "Possible orders: register [name], create [gamename], refresh, join [gamename], leave or status");
+		sendMess(session,
+				"Possible orders: register [name], create [gamename], refresh, join [gamename], leave or status");
 
 	}
 
 	@OnMessage
 	public void onMessage(String message, Session session) {
 
-		
-		
 		long uuid = 1234;
 		String password = "password";
 		// System.out.println(Thread.currentThread());
@@ -82,34 +85,64 @@ public class Connection {
 		}
 
 		System.out.println("Message received: " + header + " " + body);
-		
-		if(!header.equals("register") && map.get(session) == null){
+
+		if (!header.equals("register") && map.get(session) == null) {
 			sendMess(session, "Please register yourself befor start gaming");
 			return;
 		}
-		
+
 		switch (header) {
 		case "register":
-			if(body.equals("")) register("Default Name", uuid, session); // create player and add to the
-			else  register(body, uuid, session);
+			if (body.equals(""))
+				register("Default Name", uuid, session); // create player and
+															// add to the
+			else
+				register(body, uuid, session);
 			break; // map
 		case "create":
-			if(body.equals(""))	createGame(session, "Default Gamename", password);// open a game and add the player as the creator
-			else createGame(session, body, password);
+			if (body.equals(""))
+				createGame(session, "Default Gamename", password);// open a game
+																	// and add
+																	// the
+																	// player as
+																	// the
+																	// creator
+			else
+				createGame(session, body, password);
 			break;
 		case "refresh": // or join
 			getLobbyList(session); // returns all current games
+			//TODO send password also
 			break;
 		case "join":
-			if(body.equals("")) sendMess(session, "Which game you wanna join?");
-			else joinGame(session, body, password); // adds the player to a game
+			if (body.equals(""))
+				sendMess(session, "Which game you wanna join?");
+			else
+				joinGame(session, body, password); // adds the player to a game
 			break;
-		case "leave"://TODO can u do it intentionally?, next creator random?
+		case "leave":// TODO can u do it intentionally?, next creator random?
 			leaveGame(session); // removes a player from a game
 			break;
 		case "status":
 			returnStatus(session);
 			break;
+		case "start":
+			startGame(session);
+			break;
+		case "sendBomb":
+			//TODO what do we receive from the client? id
+			sendBomb(session, "targetPlayername");
+		//TODO case MaybeLeft
+		//TODO case reconnect
+		//denied or gameupdate
+		//TODO new Bomb
+		//TODO end of round
+		//TODO passBomb(score,bomb)
+		//TODO Bomb exploded
+		//TODO update score
+		//TODO game finished
+		//TODO round finished
+		//TODO how to play HTML
 		default:
 		}
 		// System.out.println("Message from " + session.getId() + ": " +
@@ -124,9 +157,10 @@ public class Connection {
 	@OnClose
 	public void onClose(Session session) {
 		leaveGame(session);
-		sessions.remove(session);
-		
-		if (map.get(session) != null) System.out.println(map.get(session).getName() + " just left us :(");
+		registeredSessions.remove(session);
+
+		if (map.get(session) != null)
+			System.out.println(map.get(session).getName() + " just left us :(");
 		System.out.println("session closed");
 	}
 
@@ -137,12 +171,14 @@ public class Connection {
 
 	public static void checkConnection() {
 		while (true) {
-			for (Session s : sessions) {
-				Player p = map.get(s);
+			for (Session s : registeredSessions) {
+				Player p = map.get(s); // TODO can this be null?
 				if (p.getSession().isOpen() && p.isConnected()) {// TODO this if
 																	// should be
 																	// unnecessary
 					// check last received pong
+					// System.out.println(Math.abs(p.getLastPong() -
+					// System.currentTimeMillis()));
 					if (Math.abs(p.getLastPong() - System.currentTimeMillis()) > timeout) {
 						System.out.println("================================================");
 						System.out.println("============Connection timeout==================");
@@ -160,7 +196,7 @@ public class Connection {
 					buffer.asLongBuffer().put(System.currentTimeMillis());
 					try {
 						// TODO getAsyncRemote or getBasicRemote?
-						if(p.getSession().isOpen())
+						if (p.getSession().isOpen())
 							p.getSession().getBasicRemote().sendPing(buffer);
 						Thread.sleep(timeBetweenPings);
 					} catch (IllegalArgumentException | IOException | InterruptedException e) {
@@ -193,25 +229,25 @@ public class Connection {
 	private void register(String username, long uuid, Session session) {
 		// TODO player (uuid) already exist? - reconnect
 
-		if(map.get(session) != null){//already registered
+		if (map.get(session) != null) {// already registered
 			System.out.println("Second register try received");
 			sendMess(session, "This connection is already registered with name: " + map.get(session).getName());
-			return;		
+			return;
 		}
 		Player p = new Player(username, uuid, session);
 		p.setConnection(true);
 		p.joinGame(null); // unnecessary
 		p.setLastPong(System.currentTimeMillis());
 		map.put(session, p);
-		sessions.add(session); // start pinging
+		registeredSessions.add(session); // start pinging
 		sendMess(session, "Successful Registered");
 		System.out.println(username + " has been registered");
 	}
 
 	private void createGame(Session session, String gamename, String password) {
-		
+
 		Player creator = map.get(session);
-		if(creator.getJoinedGame()!=null){ //already in a Game
+		if (creator.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
 			return;
 		}
@@ -223,7 +259,6 @@ public class Connection {
 			i++;
 		}
 
-		
 		// creator.setLastPong(System.currentTimeMillis());
 		Game game = new Game(creator, gamename, password);
 		creator.joinGame(game);
@@ -254,14 +289,13 @@ public class Connection {
 	}
 
 	private void joinGame(Session session, String gamename, String password) {
-		
+		//TODO send all existing players that a new one joined
 		Player player = map.get(session);
-		if(player.getJoinedGame()!=null){ //already in a Game
+		if (player.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
 			return;
 		}
-		
-		
+
 		boolean joined = false;
 		for (Game game : games) {
 			if (game.getGamename().equals(gamename)) {
@@ -288,27 +322,28 @@ public class Connection {
 	private void leaveGame(Session session) {
 
 		Player player = map.get(session);
-		
-		if(player == null){ //left befor registerd
+
+		if (player == null) { // left befor registerd
 			return;
 		}
 		if (player.getJoinedGame() == null) {
 			System.out.println("Player is in no game");
 			sendMess(session, "You cant leave, you aren't in a game");
-		} else{
+		} else {
 			Game game = player.getJoinedGame();
 
-			if(game.numberOfPlayers() == 1){ //Only the player is in the game
+			if (game.numberOfPlayers() == 1) { // Only the player is in the game
 				game.removePlayer(player);
 				games.remove(game);
 				player.joinGame(null);
-			}else if (game.getCreator().equals(player)){ //The player is the creator
+			} else if (game.getCreator().equals(player)) { // The player is the
+															// creator
 				game.setNewCreator();
-				sendMess(game.getCreator().getSession(),"You're now the creator of the game: "+game.getGamename());
+				sendMess(game.getCreator().getSession(), "You're now the creator of the game: " + game.getGamename());
 				game.removePlayer(player);
-				player.joinGame(null);				
-			}else{//player is a normal player
-				game.removePlayer(player);				
+				player.joinGame(null);
+			} else {// player is a normal player
+				game.removePlayer(player);
 			}
 			sendMess(session, "You left successful the game: " + game.getGamename());
 			System.out.println(player.getName() + " left the game " + game.getGamename());
@@ -328,13 +363,56 @@ public class Connection {
 
 	}
 
+	private void startGame(Session session) {
+
+		Player player = map.get(session);
+		Game game = player.getJoinedGame();
+		if (game == null) {
+			sendMess(session, "You're in no game");
+		} else if (game.getCreator() != player) {// creator cant start the game
+			sendMess(session, "Only the creator can start the game");
+		} else {
+			// TODO synchronized
+			int startPlayer = new Random().nextInt(game.getPlayers().size());
+			int i = 0;
+			for (Player p : game.getPlayers()) {
+				sendMess(p.getSession(), "Game started");
+				if (i == startPlayer) {
+					sendBomb(p.getSession(), createBomb());
+				}
+				i++;
+			}
+			game.startGame();
+			System.out.println(game.getGamename() + " has started");
+		}
+
+	}
+
+	private void sendBomb(Session session, int bomb) {
+		sendMess(session, Integer.toString(bomb));
+		sendMess(session, "You received the bomb");
+		System.out.println("Bomb of game " + map.get(session).getJoinedGame().getGamename() + " has moved to "
+				+ map.get(session).getName());
+	}
+
+	private int createBomb() {
+		Random r = new Random();
+		return r.nextInt(lifetimeBomb);
+	}
+
 	private void sendMess(Session s, String mess) {
 		try {
-			if(s.isOpen())
+			if (s.isOpen())
 				s.getBasicRemote().sendText(mess);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	private void sendBomb(Session fromSession, String target){
+		
+		
+		
 	}
 }
