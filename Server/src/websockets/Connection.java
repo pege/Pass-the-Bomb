@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -20,8 +21,8 @@ import javax.websocket.server.ServerEndpoint;
 public class Connection {
 
 	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
-	private static final long timeout = 5000; // timeout in ms
-	//TODO second timeout =30secs or something
+	private static final long softTimeout = 5000; // timeout in ms
+	private static final long hardTimeout = 15000; // timeout in ms
 	private static final long timeBetweenPings = 10; // time to wait between
 														// sending a ping
 	// max times of clients: timeout/timeBetweenPings
@@ -51,13 +52,7 @@ public class Connection {
 
 		System.out.println("Client Connected");
 		sendMess(session, "Connected but not registered");
-		map.put(session, null);
-		// sessions.add(session);
-		// TODO already in a game? - reconnect
-
-		// register("handy", 1111, session);
-		// createGame(session, "game1", "");
-
+		// map.put(session, null); //TODO should we do that?
 		sendMess(session, "Welcome to <<PASS THE BOMB>>");
 		sendMess(session,
 				"Possible orders: register [name], create [gamename], refresh, join [gamename], leave or status");
@@ -67,7 +62,7 @@ public class Connection {
 	@OnMessage
 	public void onMessage(String message, Session session) {
 
-		long uuid = 1234;
+		// long uuid = 1234;
 		String password = "password";
 		// System.out.println(Thread.currentThread());
 		// Object jsonObject = (JSONObject)parser.parse(message);
@@ -94,10 +89,10 @@ public class Connection {
 		switch (header) {
 		case "register":
 			if (body.equals(""))
-				register("Default Name", uuid, session); // create player and
+				register("Default Name", 1234, session); // create player and
 															// add to the
 			else
-				register(body, uuid, session);
+				register(body, body.hashCode(), session);
 			break; // map
 		case "create":
 			if (body.equals(""))
@@ -112,7 +107,7 @@ public class Connection {
 			break;
 		case "refresh": // or join
 			getLobbyList(session); // returns all current games
-			//TODO send password also
+			// TODO send password also
 			break;
 		case "join":
 			if (body.equals(""))
@@ -130,37 +125,39 @@ public class Connection {
 			startGame(session);
 			break;
 		case "sendBomb":
-			//TODO what do we receive from the client? id
+			// TODO what do we receive from the client? id
 			sendBomb(session, "targetPlayername");
-		//TODO case MaybeLeft
-		//TODO case reconnect
-		//denied or gameupdate
-		//TODO new Bomb
-		//TODO end of round
-		//TODO passBomb(score,bomb)
-		//TODO Bomb exploded
-		//TODO update score
-		//TODO game finished
-		//TODO round finished
-		//TODO how to play HTML
+			// TODO case MaybeLeft
+			// TODO case reconnect
+			// denied or gameupdate
+			// TODO new Bomb
+			// TODO end of round
+			// TODO passBomb(score,bomb)
+			// TODO Bomb exploded
+			// TODO update score
+			// TODO game finished
+			// TODO round finished
+			// TODO how to play HTML
 		default:
 		}
 		// System.out.println("Message from " + session.getId() + ": " +
 		// message);
 		System.out.println("games:" + Integer.toString(games.size()));
+
 		// System.out.println(games.size());
-		// for (Game g : games) {
-		// System.out.println(g.getGamename() + ": " + g.getPlayers());
-		// }
+		for (Session s : registeredSessions) {
+			System.out.print("Player according to a registered session: ");
+			System.out.println(map.get(s)==null ? "null" : map.get(s).getName());
+		}
 	}
 
 	@OnClose
 	public void onClose(Session session) {
 		leaveGame(session);
-		registeredSessions.remove(session);
-
 		if (map.get(session) != null)
 			System.out.println(map.get(session).getName() + " just left us :(");
+		registeredSessions.remove(session);
+		map.remove(session);
 		System.out.println("session closed");
 	}
 
@@ -171,39 +168,64 @@ public class Connection {
 
 	public static void checkConnection() {
 		while (true) {
+			// System.out.println("number of registered sessions: " +
+			// registeredSessions.size());
 			for (Session s : registeredSessions) {
 				Player p = map.get(s); // TODO can this be null?
-				if (p.getSession().isOpen() && p.isConnected()) {// TODO this if
-																	// should be
-																	// unnecessary
-					// check last received pong
-					// System.out.println(Math.abs(p.getLastPong() -
-					// System.currentTimeMillis()));
-					if (Math.abs(p.getLastPong() - System.currentTimeMillis()) > timeout) {
-						System.out.println("================================================");
-						System.out.println("============Connection timeout==================");
-						System.out.println("================================================");
-						try {
-							// TODO
-							p.getSession().close();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					// send a Ping with the current Time
-					ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-					buffer.asLongBuffer().put(System.currentTimeMillis());
+				// check last received pong
+				if (Math.abs(p.getLastPong() - System.currentTimeMillis()) > hardTimeout) {
+					System.out.println("================================================");
+					System.out.println("============Connection timeout==================");
+					System.out.println("================================================");
 					try {
-						// TODO getAsyncRemote or getBasicRemote?
-						if (p.getSession().isOpen())
-							p.getSession().getBasicRemote().sendPing(buffer);
-						Thread.sleep(timeBetweenPings);
-					} catch (IllegalArgumentException | IOException | InterruptedException e) {
+						// TODO
+						p.getSession().close();
+					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
+
+				if (Math.abs(p.getLastPong() - System.currentTimeMillis()) > softTimeout && !p.isMaybeDisconnected()) {
+					System.out.println("==================================");
+					System.out.println("====Connection timeout (Maybe)====");
+					System.out.println("==================================");
+					p.setMaybeConnection(true);
+					// TODO send al others maybeDC
+					if (p.getJoinedGame() != null) {
+						for (Player otherP : p.getJoinedGame().getPlayers()) {
+							if (otherP != p) {
+								try {
+									p.getSession().getBasicRemote()
+											.sendText("Player " + p.getName() + " has a stupid connection");
+								} catch (IOException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+
+				}
+				// send a Ping with the current Time
+				ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+				buffer.asLongBuffer().put(System.currentTimeMillis());
+				try {
+					// TODO getAsyncRemote or getBasicRemote?
+					if (p.getSession().isOpen()) {
+						p.getSession().getAsyncRemote().sendPing(buffer);
+						// System.out.println("--Ping sended");
+					}
+					try {
+						Thread.sleep(timeBetweenPings);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				} catch (IllegalArgumentException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
 			}
 		}
 	}
@@ -232,16 +254,49 @@ public class Connection {
 		if (map.get(session) != null) {// already registered
 			System.out.println("Second register try received");
 			sendMess(session, "This connection is already registered with name: " + map.get(session).getName());
-			return;
+			return;// ?
 		}
+		// if uuid already exist -- Reconnect
+		Iterator<Player> it = map.values().iterator();
+		while (it.hasNext()) {
+			Player p = it.next();
+			if (p != null && p.getUuid() == uuid) {
+				System.out.println("Reconnect attempt");
+				//remove the old session
+				Session oldSession = p.getSession();
+				
+				map.put(oldSession, null);
+
+				// add the new one
+				map.put(session, p);
+				
+				p.setLastPong(System.currentTimeMillis());
+				p.setSession(session);
+				registeredSessions.add(session); // start pinging
+				
+				try {
+					oldSession.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				sendMess(session, "Successful Reconnected");
+				System.out.println("===" + username + " has reconnected===");
+				return;
+
+			}
+		}
+
 		Player p = new Player(username, uuid, session);
-		p.setConnection(true);
+		// p.setMaybeConnection(false);
 		p.joinGame(null); // unnecessary
 		p.setLastPong(System.currentTimeMillis());
 		map.put(session, p);
 		registeredSessions.add(session); // start pinging
 		sendMess(session, "Successful Registered");
 		System.out.println(username + " has been registered");
+
 	}
 
 	private void createGame(Session session, String gamename, String password) {
@@ -289,7 +344,6 @@ public class Connection {
 	}
 
 	private void joinGame(Session session, String gamename, String password) {
-		//TODO send all existing players that a new one joined
 		Player player = map.get(session);
 		if (player.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
@@ -304,6 +358,12 @@ public class Connection {
 					game.addPlayer(player);
 					joined = true;
 					sendMess(session, "You joined successful the game: " + game.getGamename());
+					// Send all others that a new player joined their game
+					for (Player joinedPl : game.getPlayers()) {
+						sendMess(joinedPl.getSession(), "Player " + player.getName() + " joined your game.");
+						sendMess(joinedPl.getSession(), "His id: " + Long.toString(player.getUuid()));
+					}
+
 					System.out.println(player.getName() + " joined the game " + game.getGamename());
 					break;
 				} else {
@@ -342,15 +402,24 @@ public class Connection {
 				sendMess(game.getCreator().getSession(), "You're now the creator of the game: " + game.getGamename());
 				game.removePlayer(player);
 				player.joinGame(null);
+				for (Player joinedPl : game.getPlayers()) { // Inform the other
+															// players
+					sendMess(joinedPl.getSession(), player.getName() + " left the game");
+				}
 			} else {// player is a normal player
 				game.removePlayer(player);
+				player.joinGame(null);
+				for (Player joinedPl : game.getPlayers()) { // Inform the other
+															// players
+					sendMess(joinedPl.getSession(), player.getName() + " left the game");
+				}
 			}
 			sendMess(session, "You left successful the game: " + game.getGamename());
 			System.out.println(player.getName() + " left the game " + game.getGamename());
 		}
 	}
 
-	public void returnStatus(Session session) {
+	private void returnStatus(Session session) {
 		Player p = map.get(session);
 		sendMess(session, "Your name is: " + p.getName());
 		sendMess(session, "Number of existing games: " + games.size());
@@ -409,10 +478,8 @@ public class Connection {
 			e.printStackTrace();
 		}
 	}
-	
-	private void sendBomb(Session fromSession, String target){
-		
-		
-		
+
+	private void sendBomb(Session fromSession, String target) {
+
 	}
 }
