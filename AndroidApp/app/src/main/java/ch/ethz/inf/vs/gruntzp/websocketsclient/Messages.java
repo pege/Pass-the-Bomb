@@ -14,7 +14,6 @@ public class Messages {
     public static String createGame(String game_id, String username, String user_id)
     {
         try {
-            JSONObject o = new JSONObject();
             JSONObject header = new JSONObject();
             header.put("game_id", game_id);
             header.put("user_id", user_id);
@@ -22,10 +21,7 @@ public class Messages {
             JSONObject body = new JSONObject();
             body.put("type", CREATE_GAME);
 
-            o.put("header", header);
-            o.put("body", body);
-
-            return o.toString();
+            return compose(header, body);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -35,19 +31,26 @@ public class Messages {
     public static String listGames()
     {
         try {
-            JSONObject o = new JSONObject();
-            JSONObject header = new JSONObject();
 
+            JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
             body.put("type", LIST_GAMES);
 
-            o.put("header", header);
-            o.put("body", body);
-
-            return o.toString();
+            return compose(header);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String compose(JSONObject header, JSONObject body) throws JSONException {
+        JSONObject o = new JSONObject();
+        o.put("header", header);
+        o.put("body", body);
+        return o.toString();
+    }
+
+    public static String compose(JSONObject header) throws JSONException {
+        return compose(header, new JSONObject());
     }
 }
