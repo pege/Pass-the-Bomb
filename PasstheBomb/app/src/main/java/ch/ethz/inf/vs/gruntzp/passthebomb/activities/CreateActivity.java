@@ -73,8 +73,7 @@ public class CreateActivity extends AppCompatActivity {
                 // give GameActivity extra information
                 myIntent.putExtra("isCreator", true);
                 myIntent.putExtra("game", game);
-                Player thisPlayer = new Player(extras.getString("creator_name"));
-                myIntent.putExtra("thisPlayer", thisPlayer);
+                myIntent.putExtra("thisPlayer", game.getPlayers().get(0));
 
                 this.startActivity(myIntent);
             }

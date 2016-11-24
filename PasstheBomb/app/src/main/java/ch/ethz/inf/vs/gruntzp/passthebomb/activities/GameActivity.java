@@ -5,8 +5,14 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
@@ -18,6 +24,9 @@ public class GameActivity extends AppCompatActivity {
     private int currentApiVersion;
     private Game game;
     private Player thisPlayer;
+    private RelativeLayout gameView;
+    private ImageView bomb;
+
 
     @Override
     @SuppressLint("NewApi")
@@ -26,12 +35,12 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         // initialize global variables
+        bomb = (ImageView) findViewById(R.id.bomb);
         Bundle extras = getIntent().getExtras();
         game = (Game) extras.get("game");
         thisPlayer = (Player) extras.get("thisPlayer");
+        //TODO get information on who has the bomb and set that in the variable 'game'
 
-        //GUI stuff
-        hideNavigationBar();
 
         //for testing only
         /*
@@ -39,8 +48,174 @@ public class GameActivity extends AppCompatActivity {
         game.addPlayer(new Player("Senpai"));
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
-        endGame();
+        thisPlayer.setHasBomb(true);
+        //endGame();
         */
+
+
+        //GUI stuff
+        hideNavigationBar();
+        gameView = (RelativeLayout) findViewById(R.id.game);
+        setUpBomb();
+        setUpPlayers();
+
+
+    }
+
+    private void setUpPlayers(){
+        int j = 0; //index for player field
+        for(int i=0; i<game.getPlayers().size(); i++){
+            if (thisPlayer != game.getPlayers().get(i)) {
+                Button player_field = (Button) gameView.getChildAt(j);
+                player_field.setVisibility(View.VISIBLE);
+                player_field.setText(game.getPlayers().get(i).getName());
+                j++;
+            }
+        }
+        setBombVisible();
+    }
+
+    private void setUpBomb(){
+        enableOnTouch();
+        bomb.setOnDragListener();
+
+    }
+
+    private void setBombVisible(){
+        if(thisPlayer.isHasBomb()){
+            bomb.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void enableOnTouch(){
+        bomb.setOnTouchListener(new RelativeLayout.OnTouchListener() {
+            private Boolean[] touch = {false, false, false, false};
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                for(int i=0; i<4; i++) {
+                    Button view = (Button) gameView.getChildAt(i);
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN: {
+
+                            if(checkInterSection(view, i,  event.getRawX(), event.getRawY())) {
+                                scaleIn(view, i);
+                                touch[i] = true;
+                                Log.i("down", "yes!");
+                            }
+                            break;
+                        }
+                        case MotionEvent.ACTION_MOVE: {
+                            if(checkInterSection(view, i, event.getRawX(), event.getRawY()) && !touch[i]) {
+                                scaleIn(view, i);
+                                touch[i] = true;
+
+                                Log.i("move", "yes!");
+                            } else if(!checkInterSection(view, i, event.getRawX(), event.getRawY()) && touch[i]) {
+                                // run scale animation and make it smaller
+                                scaleOut(view, i);
+                                touch[i] = false;
+
+                                Log.i("move", "no!");
+                            }
+                            break;
+                        }
+                        case MotionEvent.ACTION_UP: {
+                            if (touch[i]) {
+                                // run scale animation and make it smaller
+                                scaleOut(view, i);
+                                touch[i] = false;
+                                //TODO and if it was touching, then send server information to pass the bomb on
+                                Log.i("up", "no!");
+                            }
+                            break;
+                        }
+
+                    }
+                }
+                return true;
+            }
+        });
+    }
+
+
+    private void scaleIn(View v, int childID){
+        Animation anim;
+        switch (childID){
+            case 2:
+            {
+                anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_in_green);
+                break;
+            }
+            case 1:
+            {
+                anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_in_yellow);
+                break;
+            }
+            default:
+            {
+                anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_in_normally);
+                break;
+            }
+        }
+
+        v.startAnimation(anim);
+        anim.setFillAfter(true);
+    }
+
+    private void scaleOut(View v, int childID){
+        Animation anim;
+        switch (childID){
+            case 2:
+            {
+                anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_out_green);
+                break;
+            }
+            case 1:
+            {
+                anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_out_yellow);
+                break;
+            }
+            default:
+            {
+                anim = AnimationUtils.loadAnimation(v.getContext(), R.anim.scale_out_normally);
+                break;
+            }
+        }
+
+        v.startAnimation(anim);
+        anim.setFillAfter(true);
+    }
+
+
+    private boolean checkInterSection(View view, int childID, float rawX, float rawY) {
+        int[] location = new int[2];
+        view.getLocationOnScreen(location);
+        int x = location[0];
+        int y = location[1];
+        int width = view.getWidth();
+        int height = view.getHeight();
+        switch (childID){
+            case 1: //yellow field
+            {
+                y -= width ;
+                width = view.getHeight();
+                height = view.getWidth();
+                break;
+            }
+            case 2: //green field
+            {
+                x -= height;
+                width = view.getHeight();
+                height = view.getWidth();
+                break;
+            }
+            default: //case 0: red field or blue field
+            {
+                break;
+            }
+        }
+        //Check the intersection of point with rectangle achieved
+        return rawX > x && rawX < (x+width) && rawY>y && rawY <(y+height);
     }
 
     //TODO call this when the server sends information that the game has ended

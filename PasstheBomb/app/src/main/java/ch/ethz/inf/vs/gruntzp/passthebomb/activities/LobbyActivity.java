@@ -85,9 +85,9 @@ public class LobbyActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         if (isCreator) {
-            //TODO: send the server information to kick everyone else from the screen
-            // --> basically force them to call onBackPressed()
-            //TODO: and tell the server to delete the game from the list of available games
+            //TODO: send the server information to randomly select a new "creator"
+            // TODO (cont.) if there are still people in the lobby,
+            // TODO (cont.) else delete games from list of games available on server (but this is handled by the server)
         } else {
             //TODO: send server information that this player has exited the game
 
@@ -112,6 +112,8 @@ public class LobbyActivity extends AppCompatActivity {
         }
     }
 
+
+    //TODO call this when the creator starts the game
     /* Starts the game.
     ** All other intents should be destroyed,
     ** because they won't be called though the back button anymore
