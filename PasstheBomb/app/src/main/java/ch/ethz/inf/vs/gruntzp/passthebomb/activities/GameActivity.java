@@ -77,7 +77,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void setUpBomb(){
         enableOnTouch();
-        bomb.setOnDragListener();
+        //bomb.setOnDragListener();
 
     }
 
