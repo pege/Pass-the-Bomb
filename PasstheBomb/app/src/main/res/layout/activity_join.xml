@@ -6,34 +6,53 @@
     android:layout_height="match_parent"
     tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.JoinActivity">
 
-    <TableLayout android:id="@+id/games_table"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:stretchColumns="0"
-        android:visibility="invisible">
-        <TableRow>
-            <TextView
-                android:text="@string/game_name"
-                android:padding="16dip"
-                android:textColor="#fff"
-                android:background="@drawable/cell_shape_dark"/>
-            <TextView
-                android:text="@string/players"
-                android:width="80dp"
-                android:padding="16dip"
-                android:textColor="#fff"
-                android:background="@drawable/cell_shape_dark" />
-            <TextView
-                android:width="35dp"
-                android:layout_height="match_parent"
-                android:background="@drawable/cell_shape_dark"/>
-            <TextView
-                android:width="60dp"
-                android:layout_height="match_parent"
-                android:background="@drawable/cell_shape_dark"/>
-        </TableRow>
-    </TableLayout>
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:id="@+id/games_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:stretchColumns="0"
+                android:visibility="invisible">
+
+                <TableRow>
+
+                    <TextView
+                        android:background="@drawable/cell_shape_dark"
+                        android:padding="16dip"
+                        android:text="@string/game_name"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:width="80dp"
+                        android:background="@drawable/cell_shape_dark"
+                        android:padding="16dip"
+                        android:text="@string/players"
+                        android:textColor="#fff" />
+
+                    <TextView
+                        android:layout_height="match_parent"
+                        android:width="35dp"
+                        android:background="@drawable/cell_shape_dark" />
+
+                    <TextView
+                        android:layout_height="match_parent"
+                        android:width="60dp"
+                        android:background="@drawable/cell_shape_dark" />
+                </TableRow>
+            </TableLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <TextView android:id="@+id/no_games_message"
         android:visibility="invisible"
