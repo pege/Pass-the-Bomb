@@ -15,6 +15,7 @@ public class Player implements Parcelable, Comparable<Player>{
     private String name;
     private int score;
     private boolean hasBomb;
+    //TODO add unique player ID here (and make set and get methods)
 
     public Player(String name){
         this.name = name;

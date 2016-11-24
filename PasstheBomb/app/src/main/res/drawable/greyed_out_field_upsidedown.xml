@@ -3,13 +3,15 @@
     android:width="216dp"
     android:height="56dp"
     android:viewportWidth="216"
-    android:viewportHeight="56" >
-    <group>
+    android:viewportHeight="56">
+    <group
+        android:name="triangleGroup">
         <path
-            android:fillColor="#ffd900"
-            android:strokeColor="#534700"
+            android:name="triangle"
+            android:fillColor="#868686"
+            android:strokeColor="#484848"
             android:strokeWidth="3"
-            android:pathData="M0,0 L210,0 L180,50 L30,50 z"/>
+            android:pathData="M0,56 L210,56 L180,6 L30,6 z"/>
 
     </group>
 </vector>

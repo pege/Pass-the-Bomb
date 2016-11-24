@@ -2,10 +2,13 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -47,6 +50,9 @@ public class GameActivity extends AppCompatActivity {
         /*
         game = new Game("herp derp", "theBest", false, "");
         game.addPlayer(new Player("Senpai"));
+        game.addPlayer(new Player("herp"));
+        game.addPlayer(new Player("derp"));
+        game.addPlayer(new Player("somebody"));
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
@@ -60,6 +66,43 @@ public class GameActivity extends AppCompatActivity {
         setUpBomb();
         setUpPlayers();
 
+
+
+    }
+
+    /* When a player gets disconnected call this method.
+     * This method greys out the given player's field.
+     */
+    public void showDisconnected(){
+        /** TODO add player ID in the parameter
+         ** -> iterate over the list of players and check which player has the same ID
+         *  then if game.getPlayers.get(i) has it call
+         *
+         *  Button playerField = (Button) gameView.getChildAt(i);
+         *
+         *  if i is smaller than where thisPlayer is in the list of players
+         *  else use i-1
+         *
+         *  and then call
+         *
+         *  playerField.setBackground(getDrawable(R.drawable.greyed_out_field)));
+         *
+         *  if i != 3, else use R.drawable.greyed_out_field_upsidedown instead
+         **/
+
+
+        /* Testing that the positions of the fields don't get messed up
+         *
+          for(int i = 0; i<game.getPlayers().size()-1; i++){
+            Button playerField = (Button) gameView.getChildAt(i);
+            if(i!=3) {
+                playerField.setBackground(getDrawable(R.drawable.greyed_out_field));
+            }else{
+                playerField.setBackground(getDrawable(R.drawable.greyed_out_field_upsidedown));
+            }
+         }
+         *
+         */
 
     }
 
@@ -78,6 +121,7 @@ public class GameActivity extends AppCompatActivity {
     private void setUpBomb(){
         enableOnTouchAndDragging();
         setBombVisibility();
+        setBombInCenter();
 
     }
 
@@ -87,6 +131,12 @@ public class GameActivity extends AppCompatActivity {
         } else {
             bomb.setVisibility(View.VISIBLE);
         }
+    }
+
+    private void setBombInCenter(){
+        FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
+        par.gravity = Gravity.CENTER;
+        bomb.setLayoutParams(par);
     }
 
     private void enableOnTouchAndDragging(){
@@ -108,11 +158,24 @@ public class GameActivity extends AppCompatActivity {
                             prevY=(int)event.getRawY();
                             par.bottomMargin=-2*v.getHeight();
                             par.rightMargin=-2*v.getWidth();
+
+                            // makes sure that the bomb image doesn't jump so much
+                            //TODO if possible make it so that it doesn't jump at all
+                            if(par.gravity == Gravity.CENTER) {
+                                int[] location = new int[2];
+                                view.getLocationOnScreen(location);
+                                int x = location[0];
+                                int y = location[1];
+                                par.gravity = Gravity.NO_GRAVITY;
+                                par.topMargin = (int) (0.5*(y+event.getRawY()));
+                                par.leftMargin = (int) (0.5*(x+event.getRawX()));
+                            }
                             v.setLayoutParams(par);
                             scaleIn(bomb, 5);
 
                             //check intersection
-                            if(checkInterSection(view, i,  event.getRawX(), event.getRawY())) {
+                            if(checkInterSection(view, i,  event.getRawX(), event.getRawY())
+                                    && view.getVisibility() == View.VISIBLE) {
                                 scaleIn(view, i);
                                 touch[i] = true;
                                 Log.i("down", "yes!");
@@ -129,7 +192,8 @@ public class GameActivity extends AppCompatActivity {
                             v.setLayoutParams(par);
 
                             //check touch
-                            if(checkInterSection(view, i, event.getRawX(), event.getRawY()) && !touch[i]) {
+                            if(checkInterSection(view, i, event.getRawX(), event.getRawY()) &&
+                                    !touch[i] && view.getVisibility() == View.VISIBLE) {
                                 scaleIn(view, i);
                                 touch[i] = true;
 
@@ -152,7 +216,7 @@ public class GameActivity extends AppCompatActivity {
                             scaleOut(bomb, 5);
 
                             //check if touching
-                            if (touch[i]) {
+                            if (touch[i] && view.getVisibility() == View.VISIBLE) {
                                 // run scale animation and make it smaller
                                 scaleOut(view, i);
                                 touch[i] = false;
@@ -217,7 +281,6 @@ public class GameActivity extends AppCompatActivity {
         v.startAnimation(anim);
         anim.setFillAfter(true);
     }
-
 
     private boolean checkInterSection(View view, int childID, float rawX, float rawY) {
         int[] location = new int[2];

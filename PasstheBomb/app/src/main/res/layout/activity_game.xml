@@ -54,7 +54,7 @@
             android:visibility="invisible"
             android:text=""/>
 
-        <FrameLayout
+        <FrameLayout android:id="@+id/bomb_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:elevation="10dp">
@@ -67,6 +67,40 @@
                 android:src="@drawable/derp_bomb"
                 android:adjustViewBounds="true"/>
         </FrameLayout>
+
+        <ImageView android:id="@+id/score_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="70dp"
+            android:src="@drawable/score_field"/>
+
+        <TextView android:id="@+id/Score_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/score_field"
+            android:layout_alignTop="@id/score_field"
+            android:layout_alignRight="@id/score_field"
+            android:layout_alignBottom="@id/score_field"
+            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:textAlignment="textStart"
+            android:text="Score:"
+            android:textColor="#FFFFFFFF" />
+
+        <TextView android:id="@+id/Score_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/score_field"
+            android:layout_alignTop="@id/score_field"
+            android:layout_alignRight="@id/score_field"
+            android:layout_alignBottom="@id/score_field"
+            android:layout_margin="10dp"
+            android:gravity="center_vertical"
+            android:textAlignment="textEnd"
+            android:text=""
+            android:textColor="#FFFFFFFF" />
 
     </RelativeLayout>
 

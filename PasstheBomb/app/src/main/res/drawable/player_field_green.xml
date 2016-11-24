@@ -4,10 +4,8 @@
     android:height="56dp"
     android:viewportWidth="216"
     android:viewportHeight="56">
-    <group
-        android:name="triangleGroup">
+    <group>
         <path
-            android:name="triangle"
             android:fillColor="#07d400"
             android:strokeColor="#00530c"
             android:strokeWidth="3"
