@@ -54,14 +54,19 @@
             android:visibility="invisible"
             android:text=""/>
 
-        <ImageView android:id="@+id/bomb"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="invisible"
-            android:background="@drawable/derp_bomb"
-            android:scaleX="0.3"
-            android:scaleY="0.5"/>
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="10dp">
+
+            <ImageView android:id="@+id/bomb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:foregroundGravity="center"
+                android:visibility="visible"
+                android:src="@drawable/derp_bomb"
+                android:adjustViewBounds="true"/>
+        </FrameLayout>
 
     </RelativeLayout>
 

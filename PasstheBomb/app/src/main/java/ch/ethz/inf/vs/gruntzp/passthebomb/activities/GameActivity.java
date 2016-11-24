@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -37,20 +38,20 @@ public class GameActivity extends AppCompatActivity {
         // initialize global variables
         bomb = (ImageView) findViewById(R.id.bomb);
         Bundle extras = getIntent().getExtras();
-        game = (Game) extras.get("game");
-        thisPlayer = (Player) extras.get("thisPlayer");
+        //game = (Game) extras.get("game");
+        //thisPlayer = (Player) extras.get("thisPlayer");
         //TODO get information on who has the bomb and set that in the variable 'game'
 
 
         //for testing only
-        /*
+        /**/
         game = new Game("herp derp", "theBest", false, "");
         game.addPlayer(new Player("Senpai"));
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
         //endGame();
-        */
+        /**/
 
 
         //GUI stuff
@@ -72,31 +73,45 @@ public class GameActivity extends AppCompatActivity {
                 j++;
             }
         }
-        setBombVisible();
     }
 
     private void setUpBomb(){
-        enableOnTouch();
-        //bomb.setOnDragListener();
+        enableOnTouchAndDragging();
+        setBombVisibility();
 
     }
 
-    private void setBombVisible(){
-        if(thisPlayer.isHasBomb()){
+    private void setBombVisibility(){
+        if(!thisPlayer.isHasBomb()){
+            bomb.setVisibility(View.INVISIBLE);
+        } else {
             bomb.setVisibility(View.VISIBLE);
         }
     }
 
-    private void enableOnTouch(){
-        bomb.setOnTouchListener(new RelativeLayout.OnTouchListener() {
+    private void enableOnTouchAndDragging(){
+        bomb.setOnTouchListener(new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
+            int prevX,prevY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                for(int i=0; i<4; i++) {
+
+                final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
+
+                for(int i=0; i<game.getPlayers().size()-1; i++) {
                     Button view = (Button) gameView.getChildAt(i);
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN: {
 
+                            //start dragging
+                            prevX=(int)event.getRawX();
+                            prevY=(int)event.getRawY();
+                            par.bottomMargin=-2*v.getHeight();
+                            par.rightMargin=-2*v.getWidth();
+                            v.setLayoutParams(par);
+                            scaleIn(bomb, 4);
+
+                            //check intersection
                             if(checkInterSection(view, i,  event.getRawX(), event.getRawY())) {
                                 scaleIn(view, i);
                                 touch[i] = true;
@@ -105,6 +120,15 @@ public class GameActivity extends AppCompatActivity {
                             break;
                         }
                         case MotionEvent.ACTION_MOVE: {
+
+                            //drag
+                            par.topMargin+=(int)event.getRawY()-prevY;
+                            prevY=(int)event.getRawY();
+                            par.leftMargin+=(int)event.getRawX()-prevX;
+                            prevX=(int)event.getRawX();
+                            v.setLayoutParams(par);
+
+                            //check touch
                             if(checkInterSection(view, i, event.getRawX(), event.getRawY()) && !touch[i]) {
                                 scaleIn(view, i);
                                 touch[i] = true;
@@ -120,11 +144,20 @@ public class GameActivity extends AppCompatActivity {
                             break;
                         }
                         case MotionEvent.ACTION_UP: {
+
+                            //stop dragging
+                            par.topMargin+=(int)event.getRawY()-prevY;
+                            par.leftMargin+=(int)event.getRawX()-prevX;
+                            v.setLayoutParams(par);
+                            scaleOut(bomb, 4);
+
+                            //check if touching
                             if (touch[i]) {
                                 // run scale animation and make it smaller
                                 scaleOut(view, i);
                                 touch[i] = false;
                                 //TODO and if it was touching, then send server information to pass the bomb on
+                                //TODO make bomb invisible; remember to set ishasbomb for thisplayer to false
                                 Log.i("up", "no!");
                             }
                             break;
@@ -136,7 +169,6 @@ public class GameActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private void scaleIn(View v, int childID){
         Animation anim;
