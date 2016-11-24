@@ -38,20 +38,20 @@ public class GameActivity extends AppCompatActivity {
         // initialize global variables
         bomb = (ImageView) findViewById(R.id.bomb);
         Bundle extras = getIntent().getExtras();
-        //game = (Game) extras.get("game");
-        //thisPlayer = (Player) extras.get("thisPlayer");
+        game = (Game) extras.get("game");
+        thisPlayer = (Player) extras.get("thisPlayer");
         //TODO get information on who has the bomb and set that in the variable 'game'
 
 
         //for testing only
-        /**/
+        /*
         game = new Game("herp derp", "theBest", false, "");
         game.addPlayer(new Player("Senpai"));
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
         //endGame();
-        /**/
+        */
 
 
         //GUI stuff
@@ -109,7 +109,7 @@ public class GameActivity extends AppCompatActivity {
                             par.bottomMargin=-2*v.getHeight();
                             par.rightMargin=-2*v.getWidth();
                             v.setLayoutParams(par);
-                            scaleIn(bomb, 4);
+                            scaleIn(bomb, 5);
 
                             //check intersection
                             if(checkInterSection(view, i,  event.getRawX(), event.getRawY())) {
@@ -149,7 +149,7 @@ public class GameActivity extends AppCompatActivity {
                             par.topMargin+=(int)event.getRawY()-prevY;
                             par.leftMargin+=(int)event.getRawX()-prevX;
                             v.setLayoutParams(par);
-                            scaleOut(bomb, 4);
+                            scaleOut(bomb, 5);
 
                             //check if touching
                             if (touch[i]) {
@@ -253,7 +253,7 @@ public class GameActivity extends AppCompatActivity {
     //TODO call this when the server sends information that the game has ended
     /* finishes game; displays button to go to ScoreboardActivity
      * call this when the server sends information that the game has ended
-    */
+     */
     public void endGame(){
         TextView gameOver = (TextView) findViewById(R.id.game_over);
         Button toScoreboard = (Button) findViewById(R.id.to_scoreboard);
@@ -318,11 +318,11 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    /* TODO? if user somehow manages to bring back the navigation bar,
+    /** TODO? if user somehow manages to bring back the navigation bar,
     ** should it not do anything, or
     ** should it bring them back to the main menu or something
     ** and kick him out of the game?
-    */
+    **/
     @Override
     public void onBackPressed(){
         super.onBackPressed(); //to change?
