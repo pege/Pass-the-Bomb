@@ -29,6 +29,13 @@ public class Game {
 	public boolean checkPassword(String password) {
 		return this.password.equals(password);
 	}
+	
+	public String passwordSet(){
+		if(password != "")
+			return "NO";
+		else
+			return "YES";
+	}
 
 	public void setNewCreator() {
 		for (Player p : players) {
