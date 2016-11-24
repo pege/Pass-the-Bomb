@@ -34,12 +34,20 @@ public class Player {
 		return score;
 	}
 	
+	public void setBomb(boolean hasB){
+		hasBomb = hasB;
+	}
+	
 	public boolean hasBomb(){
 		return hasBomb;
 	}
 	
 	public void changeScore(int amount){
 		score = score +amount;
+	}
+	
+	public void resetScore(){
+		score = 0;
 	}
 	
 	public void setMaybeConnection(boolean status){
@@ -60,6 +68,10 @@ public class Player {
 	
 	public void joinGame(Game game){
 		inGame = game;
+	}
+	
+	public void leaveGame(){
+		inGame = null;
 	}
 	
 	public Game getJoinedGame(){
