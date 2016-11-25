@@ -9,10 +9,12 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
-public class CreateActivity extends AppCompatActivity {
+public class CreateActivity extends AppCompatActivity implements MessageListener{
 
     private Switch passwordSwitch;
     private EditText passwordField;
@@ -78,5 +80,10 @@ public class CreateActivity extends AppCompatActivity {
                 this.startActivity(myIntent);
             }
         }
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }

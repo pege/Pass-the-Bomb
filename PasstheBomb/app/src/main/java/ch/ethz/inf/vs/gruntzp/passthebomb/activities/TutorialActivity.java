@@ -18,7 +18,9 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
-public class TutorialActivity extends AppCompatActivity {
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+
+public class TutorialActivity extends AppCompatActivity implements MessageListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -156,5 +158,10 @@ public class TutorialActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }

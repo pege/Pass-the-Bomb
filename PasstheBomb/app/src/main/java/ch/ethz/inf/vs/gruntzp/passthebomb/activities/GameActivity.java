@@ -17,11 +17,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 //TODO make the bomb and the layout for the players and the score
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private int currentApiVersion;
     private Game game;
@@ -399,5 +400,10 @@ public class GameActivity extends AppCompatActivity {
         this.startActivity(myIntent);
 
         finish();
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }

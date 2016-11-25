@@ -11,7 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+
+public class MainActivity extends AppCompatActivity implements MessageListener {
 
     EditText mEdit;
     private SharedPreferences preferences;
@@ -81,5 +83,10 @@ public class MainActivity extends AppCompatActivity {
         editor.commit();
 
         finish();
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }

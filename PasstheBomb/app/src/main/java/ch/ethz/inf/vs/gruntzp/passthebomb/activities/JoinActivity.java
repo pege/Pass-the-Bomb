@@ -21,10 +21,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
-public class JoinActivity extends AppCompatActivity {
+public class JoinActivity extends AppCompatActivity implements MessageListener {
 
     private TextView noGames;
     private TableLayout gamesTable;
@@ -286,5 +287,10 @@ public class JoinActivity extends AppCompatActivity {
         buttonCell.addView(cell, 0);
         buttonCell.addView(joinButton, 1);
         tableRow.addView(buttonCell, 3);
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }
