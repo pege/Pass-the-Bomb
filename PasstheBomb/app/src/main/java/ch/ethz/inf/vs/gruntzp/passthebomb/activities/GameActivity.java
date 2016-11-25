@@ -67,13 +67,12 @@ public class GameActivity extends AppCompatActivity {
         setUpPlayers();
 
 
-
     }
 
     /* When a player gets disconnected call this method.
      * This method greys out the given player's field.
      */
-    public void showDisconnected(){
+    public void showPlayerAsDisconnected(){
         /** TODO add player ID in the parameter
          ** -> iterate over the list of players and check which player has the same ID
          *  then if game.getPlayers.get(i) has it call
@@ -159,17 +158,17 @@ public class GameActivity extends AppCompatActivity {
                             par.bottomMargin=-2*v.getHeight();
                             par.rightMargin=-2*v.getWidth();
 
-                            // makes sure that the bomb image doesn't jump so much
-                            //TODO if possible make it so that it doesn't jump at all
+                            // makes sure that the bomb image doesn't jump around
                             if(par.gravity == Gravity.CENTER) {
                                 int[] location = new int[2];
-                                view.getLocationOnScreen(location);
+                                bomb.getLocationOnScreen(location);
                                 int x = location[0];
                                 int y = location[1];
                                 par.gravity = Gravity.NO_GRAVITY;
-                                par.topMargin = (int) (0.5*(y+event.getRawY()));
-                                par.leftMargin = (int) (0.5*(x+event.getRawX()));
+                                par.topMargin = y;
+                                par.leftMargin = x;
                             }
+
                             v.setLayoutParams(par);
                             scaleIn(bomb, 5);
 
