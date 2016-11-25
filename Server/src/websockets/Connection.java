@@ -2,6 +2,7 @@ package websockets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +20,7 @@ import javax.websocket.server.ServerEndpoint;
 
 @ServerEndpoint("/echo")
 public class Connection {
+	
 
 	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
 	private static final long softTimeout = 5000; // timeout in ms
@@ -355,14 +357,17 @@ public class Connection {
 					joined = true;
 					sendMess(session, "You joined successful the game: " + game.getGamename());
 					// Send all others that a new player joined their game
-					for (Player joinedPl : game.getPlayers()) {
-						if (joinedPl != player) {
-							sendMess(joinedPl.getSession(), "Player " + player.getName() + " joined your game.");
-							sendMess(joinedPl.getSession(), "His id: " + Long.toString(player.getUuid()));
-							sendMess(player.getSession(), "Player " + joinedPl.getName() + " is in this game already");
-							sendMess(player.getSession(), "His id: " + Long.toString(joinedPl.getUuid()));
-						}
-					}
+					sendGameUpdate(game);
+					
+					
+					//for (Player joinedPl : game.getPlayers()) {
+						//if (joinedPl != player) {
+						//	sendMess(joinedPl.getSession(), "Player " + player.getName() + " joined your game.");
+						//	sendMess(joinedPl.getSession(), "His id: " + Long.toString(player.getUuid()));
+						//	sendMess(player.getSession(), "Player " + joinedPl.getName() + " is in this game already");
+						//	sendMess(player.getSession(), "His id: " + Long.toString(joinedPl.getUuid()));
+						//}
+					//}
 
 					System.out.println(player.getName() + " joined the game " + game.getGamename());
 					break;
@@ -402,19 +407,21 @@ public class Connection {
 				sendMess(game.getCreator().getSession(), "You're now the creator of the game: " + game.getGamename());
 				game.removePlayer(player);
 				player.joinGame(null);
-				for (Player joinedPl : game.getPlayers()) { // Inform the other
-															// players
-					sendMess(joinedPl.getSession(), player.getName() + " left the game");
-					sendMess(joinedPl.getSession(), "His uuid: " + player.getUuid());
-					
-				}
+				sendGameUpdate(game);
+				//for (Player joinedPl : game.getPlayers()) { // Inform the other
+				//											// players
+				//	sendMess(joinedPl.getSession(), player.getName() + " left the game");
+				//	sendMess(joinedPl.getSession(), "His uuid: " + player.getUuid());
+				//	
+				//}
 			} else {// player is a normal player
 				game.removePlayer(player);
 				player.joinGame(null);
-				for (Player joinedPl : game.getPlayers()) { // Inform the other
-															// players
-					sendMess(joinedPl.getSession(), player.getName() + " left the game");
-				}
+				sendGameUpdate(game);
+				//for (Player joinedPl : game.getPlayers()) { // Inform the other
+				//											// players
+				//	sendMess(joinedPl.getSession(), player.getName() + " left the game");
+				//}
 			}
 			sendMess(session, "You left successful the game: " + game.getGamename());
 			System.out.println(player.getName() + " left the game " + game.getGamename());
@@ -462,6 +469,20 @@ public class Connection {
 			e.printStackTrace();
 		}
 	}
+	
+	//sends all players in a game, the playerSet 
+	private void sendGameUpdate(Game g){
+		ArrayList<Player> players = g.getPlayers();
+		for(Player p: players){
+			try {
+				p.getSession().getBasicRemote().sendText(g.getPlayerInfos());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			
+		}
+	}
 
 	private void passBomb(Session fromSession, int targetUUID, int bomb) {
 		if (!map.get(fromSession).hasBomb()) {
@@ -507,6 +528,8 @@ public class Connection {
 		System.out.println("Bomb of game " + targetPlayer.getJoinedGame().getGamename() + " has moved to "
 				+ targetPlayer.getName());
 	}
+	
+	
 
 	private void bombExplode(Session loserSession) {
 		// Inform other players
