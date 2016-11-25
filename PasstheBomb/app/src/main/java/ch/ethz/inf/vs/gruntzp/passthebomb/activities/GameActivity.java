@@ -2,12 +2,10 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Point;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -148,7 +146,7 @@ public class GameActivity extends AppCompatActivity {
                 final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
 
                 for(int i=0; i<game.getPlayers().size()-1; i++) {
-                    Button view = (Button) gameView.getChildAt(i);
+                    Button playerfield = (Button) gameView.getChildAt(i);
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN: {
 
@@ -173,9 +171,9 @@ public class GameActivity extends AppCompatActivity {
                             scaleIn(bomb, 5);
 
                             //check intersection
-                            if(checkInterSection(view, i,  event.getRawX(), event.getRawY())
-                                    && view.getVisibility() == View.VISIBLE) {
-                                scaleIn(view, i);
+                            if(checkInterSection(playerfield, i,  event.getRawX(), event.getRawY())
+                                    && playerfield.getVisibility() == View.VISIBLE) {
+                                scaleIn(playerfield, i);
                                 touch[i] = true;
                                 Log.i("down", "yes!");
                             }
@@ -191,15 +189,15 @@ public class GameActivity extends AppCompatActivity {
                             v.setLayoutParams(par);
 
                             //check touch
-                            if(checkInterSection(view, i, event.getRawX(), event.getRawY()) &&
-                                    !touch[i] && view.getVisibility() == View.VISIBLE) {
-                                scaleIn(view, i);
+                            if(checkInterSection(playerfield, i, event.getRawX(), event.getRawY()) &&
+                                    !touch[i] && playerfield.getVisibility() == View.VISIBLE) {
+                                scaleIn(playerfield, i);
                                 touch[i] = true;
 
                                 Log.i("move", "yes!");
-                            } else if(!checkInterSection(view, i, event.getRawX(), event.getRawY()) && touch[i]) {
+                            } else if(!checkInterSection(playerfield, i, event.getRawX(), event.getRawY()) && touch[i]) {
                                 // run scale animation and make it smaller
-                                scaleOut(view, i);
+                                scaleOut(playerfield, i);
                                 touch[i] = false;
 
                                 Log.i("move", "no!");
@@ -215,9 +213,9 @@ public class GameActivity extends AppCompatActivity {
                             scaleOut(bomb, 5);
 
                             //check if touching
-                            if (touch[i] && view.getVisibility() == View.VISIBLE) {
+                            if (touch[i] && playerfield.getVisibility() == View.VISIBLE) {
                                 // run scale animation and make it smaller
-                                scaleOut(view, i);
+                                scaleOut(playerfield, i);
                                 touch[i] = false;
                                 //TODO and if it was touching, then send server information to pass the bomb on
                                 //TODO make bomb invisible; remember to set ishasbomb for thisplayer to false
