@@ -15,13 +15,15 @@ public class Message {
     public static final int JOIN_GAME = 4;
     public static final int LEAVE_GAME = 5;
     public static final int PLAYER_LIST = 6;
-    public static final int PLAYER_LIST = 7;
-    public static final int PLAYER_LIST = 8;
-    public static final int PLAYER_LIST = 9;
-    public static final int PLAYER_LIST = 10;
-    public static final int PLAYER_LIST = 11;
-    public static final int PLAYER_LIST = 12;
-    public static final int PLAYER_LIST = 13;
+    public static final int PLAYER_UNREACHABLE = 7;
+    public static final int RECONNECT = 8;
+    public static final int GAME_UPDATE = 9;
+    public static final int END_OF_ROUND = 10;
+    public static final int RECONNECT_DENY = 11;
+    public static final int PASS_BOMB = 12;
+    public static final int EXPLODED = 13;
+    public static final int GAME_OVER = 14;
+    public static final int INHERIT_CREATOR = 15;
 
     public static String createGame(String game_id, String password)
     {
@@ -114,7 +116,95 @@ public class Message {
         return null;
     }
 
+    public static String playerUnreachable(String player_id) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
 
+            header.put("type", PLAYER_UNREACHABLE);
+            body.put("player_id", player_id);
+
+            return compose(header,body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String reconnect(String user_id) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", RECONNECT);
+            body.put("user_id", user_id);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String gameUpdate(String bomb_player, int[] scores) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", GAME_UPDATE);
+            body.put("bomb_player", bomb_player);
+            body.put("scores", scores);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String endOfRound(int[] scores) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", END_OF_ROUND);
+            body.put("scores", scores);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String reconnectDeny() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", RECONNECT);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String endOfRound(int[] scores) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", GAME_UPDATE);
+            body.put("scores", scores);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static String compose(JSONObject header, JSONObject body) throws JSONException {
         JSONObject o = new JSONObject();
