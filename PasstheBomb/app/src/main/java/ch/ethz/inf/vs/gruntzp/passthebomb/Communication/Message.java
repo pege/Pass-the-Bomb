@@ -199,22 +199,38 @@ public class Message {
     }
     
     public static String ParseError() {
-		JSONObject header = new JSONObject();
-		header.put("type", PARSE_ERROR);
-		return compose(header);
-	}
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", PARSE_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     
     public static String TypeError() {
-		JSONObject header = new JSONObject();
-		header.put("type", TYPE_ERROR);
-		return compose(header);
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", TYPE_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
 	}
     
     public static String NOT_REGISTERED_ERROR() {
-		JSONObject header = new JSONObject();
-		header.put("type", NOT_REGISTERED_ERROR);
-		return compose(header);
-	}
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", NOT_REGISTERED_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
    
 
