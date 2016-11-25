@@ -503,7 +503,6 @@ public class Connection {
 		long targetUUID = (long) body.get("target");
 		int bomb = (int) body.get("bomb");
 		
-		
 		if (!map.get(fromSession).hasBomb()) {
 			sendMess(fromSession, "Stupid? You dont got the bomb!!");
 			return;
