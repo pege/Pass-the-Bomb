@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.mawyss.wstest;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 /**
  * Created by Marc on 25.11.2016.
