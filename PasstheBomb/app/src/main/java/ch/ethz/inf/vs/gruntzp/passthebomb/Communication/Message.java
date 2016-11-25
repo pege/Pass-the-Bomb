@@ -1,4 +1,5 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
+//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,7 @@ public class Message {
     public static final int NOT_REGISTERED_ERROR = -4;
    
     public static final int START_GAME = 16;
+    public static final int UPDATE_SCORE = 17;
 
 
     public static String createGame(String game_id, String password)
@@ -64,7 +66,7 @@ public class Message {
         return null;
     }
 
-    public static String register(String user_id, String username) {
+    public static String register(long user_id, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
@@ -80,19 +82,23 @@ public class Message {
         return null;
     }
 
-    public static String joinGame(String game_id) {
+    public static String joinGame(String game_id, String password) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
 
             header.put("type", JOIN_GAME);
             body.put("game_id", game_id);
+            if (password != null) body.put("pw", password);
 
             return compose(header,body);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
+    }
+    public static String joinGame(String game_id) {
+        return joinGame(game_id, null);
     }
 
     public static String leaveGame() {
@@ -168,6 +174,22 @@ public class Message {
         }
         return null;
     }
+    
+    public static String updateScore(int bomb, int score) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", UPDATE_SCORE);
+            body.put("bomb", bomb);
+            body.put("scores", score);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static String endOfRound(int[] scores) {
         try {
@@ -234,13 +256,14 @@ public class Message {
 
    
 
-    public static String passBomb(String target_id) {
+    public static String passBomb(long target_uiid, int bomb) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
 
             header.put("type", PASS_BOMB);
-            body.put("target_id", target_id);
+            body.put("target", target_uiid);
+            body.put("bomb", bomb);
 
             return compose(header, body);
         } catch (JSONException e) {

@@ -83,12 +83,12 @@ public class Connection {
 		
 			
 		// long uuid = 1234;
-		String password = "password";
+		//String password = "password";
 		// System.out.println(Thread.currentThread());
 		// Object jsonObject = (JSONObject)parser.parse(message);
 		// JSONArray msg = (JSONArray) ((ArrayList) jsonObject).get("messages");
 
-		String messArr[] = message.split(" ", 2);
+		//String messArr[] = message.split(" ", 2);
 
 //		String header, body;
 //		if (messArr.length == 1) {
@@ -133,7 +133,6 @@ public class Connection {
 //			if (body.equals(""))
 //				sendMess(session, "Which game you wanna join?");
 //			else
-			//TODO: machen
 				joinGame(session, body); // adds the player to a game
 			break;
 		case Message.LEAVE_GAME:// TODO can u do it intentionally?, next creator random?
@@ -272,8 +271,9 @@ public class Connection {
 	
 	//Add to the session a Player and start pinging the session
 	private void register(Session session, JSONObject body) {
-		String uuid_s = (String) body.get("uuid");
-		long uuid = Long.parseUnsignedLong(uuid_s);
+		long uuid = (long) body.get("uuid");
+		String username = (String) body.get("username");
+		
 		
 		if (map.containsKey(session)) {// already registered
 			System.out.println("Second register try received");
@@ -324,7 +324,11 @@ public class Connection {
 
 	private void createGame(Session session, JSONObject body) {
 		//TODO: String gamename, String password
+		String gamename = (String) body.get("game_id");
+		String password = (String) body.get("password");
 		Player creator = map.get(session);//player who creates a game is automatically the creator
+		
+		
 		if (creator.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
 			return;
@@ -366,7 +370,10 @@ public class Connection {
 
 	}
 
-	private void joinGame(Session session, String gamename, String password) {
+	private void joinGame(Session session, JSONObject body) {
+		String gamename = (String) body.get("game_id");
+		String password = (String) body.get("pw");
+		
 		Player player = map.get(session);
 		if (player.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
@@ -492,8 +499,8 @@ public class Connection {
 	}
 
 	private void passBomb(Session fromSession, JSONObject body) {
-		int targetUUID = body.hashCode();
-		int bomb = 30;
+		long targetUUID = (long) body.get("target");
+		int bomb = (int) body.get("bomb");
 		
 		
 		if (!map.get(fromSession).hasBomb()) {
