@@ -17,6 +17,12 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+
 @ServerEndpoint("/echo")
 public class Connection {
 
@@ -55,17 +61,26 @@ public class Connection {
 	public void onOpen(Session session) throws IOException {
 
 		System.out.println("Client Connected");
-		sendMess(session, "Connected but not registered");
+		//unnötig? sendMess(session, "Connected but not registered");
 		// map.put(session, null); //TODO should we do that?
-		sendMess(session, "Welcome to <<PASS THE BOMB>>");
-		sendMess(session,
-				"Possible orders: register [name], create [gamename], refresh, join [gamename], leave, status, passBomb [playername], explode");
+		//sendMess(session, "Welcome to <<PASS THE BOMB>>");
+		//sendMess(session,
+		//		"Possible orders: register [name], create [gamename], refresh, join [gamename], leave, status, passBomb [playername], explode");
 
 	}
 
 	@OnMessage
 	public void onMessage(String message, Session session) {
-
+		JSONParser parser = new JSONParser();
+		Object obj;
+		try {
+			obj = parser.parse(message);
+			JSONObject mess = (JSONObject) obj;
+			JSONObject header = (JSONObject) mess.get("header");
+			JSONObject body = (JSONObject) mess.get("body");
+	
+			int type = (int) header.get("type");
+		
 		// long uuid = 1234;
 		String password = "password";
 		// System.out.println(Thread.currentThread());
@@ -150,6 +165,12 @@ public class Connection {
 		for (Session s : registeredSessions) {
 			System.out.print("Player according to a registered session: ");
 			System.out.println(map.get(s) == null ? "null" : map.get(s).getName());
+		}
+		
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			sendMess(session, ServerMessages.ParseError());
 		}
 	}
 
@@ -248,7 +269,7 @@ public class Connection {
 	
 	//Add to the session a Player and start pinging the session
 	private void register(String username, long uuid, Session session) {
-		if (map.get(session) != null) {// already registered
+		if (map.containsKey(session)) {// already registered
 			System.out.println("Second register try received");
 			sendMess(session, "This connection is already registered with name: " + map.get(session).getName());
 			return;// ?
@@ -357,6 +378,7 @@ public class Connection {
 					// Send all others that a new player joined their game
 					for (Player joinedPl : game.getPlayers()) {
 						if (joinedPl != player) {
+							//TODO: unified gameinfo message
 							sendMess(joinedPl.getSession(), "Player " + player.getName() + " joined your game.");
 							sendMess(joinedPl.getSession(), "His id: " + Long.toString(player.getUuid()));
 							sendMess(player.getSession(), "Player " + joinedPl.getName() + " is in this game already");
