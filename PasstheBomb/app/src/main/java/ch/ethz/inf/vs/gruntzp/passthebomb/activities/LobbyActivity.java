@@ -10,10 +10,12 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
-public class LobbyActivity extends AppCompatActivity {
+public class LobbyActivity extends AppCompatActivity implements MessageListener {
 // TODO: get information from server about the players and put it into the global variable 'game'
     // TODO (cont.) at a regular interval
     // TODO (cont.) and update the table with updateTable()
@@ -135,5 +137,10 @@ public class LobbyActivity extends AppCompatActivity {
         getParent().getParent().finish();
         // destroy intent with CreateActivity/LobbyActivity
         getParent().finish();
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }

@@ -16,10 +16,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
-public class ScoreboardActivity extends AppCompatActivity {
+public class ScoreboardActivity extends AppCompatActivity implements MessageListener {
 
     private int currentApiVersion;
     private Game game;
@@ -132,5 +133,10 @@ public class ScoreboardActivity extends AppCompatActivity {
         Intent myIntent = new Intent(this, MainActivity.class);
         this.startActivity(myIntent);
         finish();
+    }
+
+    @Override
+    public void onMessage(String message) {
+        //TODO
     }
 }

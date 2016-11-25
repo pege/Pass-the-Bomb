@@ -1,7 +1,11 @@
+//package websockets;
 package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
+
+import java.util.Arrays;
 
 /**
  * Created by niederbm on 11/25/16.
@@ -19,12 +23,22 @@ public class Message {
     public static final int RECONNECT = 8;
     public static final int GAME_UPDATE = 9;
     public static final int END_OF_ROUND = 10;
-    public static final int RECONNECT_DENY = 11;
+    public static final int DENY = 11;
     public static final int PASS_BOMB = 12;
     public static final int EXPLODED = 13;
     public static final int GAME_OVER = 14;
     public static final int INHERIT_CREATOR = 15;
     public static final int START_GAME = 16;
+    public static final int UPDATE_SCORE = 17;
+    public static final int GET_GAMES = 18;
+
+    public static final int PARSE_ERROR = -1;
+    public static final int TYPE_ERROR = -2;
+    public static final int STATUS = -3;
+    public static final int NOT_REGISTERED_ERROR = -4;
+   
+
+
 
     public static String createGame(String game_id, String password)
     {
@@ -43,21 +57,22 @@ public class Message {
         return null;
     }
 
-    public static String listGames() {
+    public static String listGames(String[] game) {
         try {
 
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
+            JSONObject body = new JSONObject();
             header.put("type", LIST_GAMES);
+            body.put("player_names",new JSONArray(Arrays.asList(player_names)));
 
-            return compose(header);
+            return compose(header, body);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static String register(String user_id, String username) {
+    public static String register(long user_id, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
@@ -73,19 +88,23 @@ public class Message {
         return null;
     }
 
-    public static String joinGame(String game_id) {
+    public static String joinGame(String game_id, String password) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
 
             header.put("type", JOIN_GAME);
             body.put("game_id", game_id);
+            if (password != null) body.put("pw", password);
 
             return compose(header,body);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         return null;
+    }
+    public static String joinGame(String game_id) {
+        return joinGame(game_id, null);
     }
 
     public static String leaveGame() {
@@ -108,6 +127,7 @@ public class Message {
             JSONObject body = new JSONObject();
 
             header.put("type", PLAYER_LIST);
+            body.put("player_names",new JSONArray(Arrays.asList(player_names)));
 
             return compose(header);
         } catch (JSONException e) {
@@ -161,6 +181,22 @@ public class Message {
         }
         return null;
     }
+    
+    public static String updateScore(int bomb, int score) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", UPDATE_SCORE);
+            body.put("bomb", bomb);
+            body.put("scores", score);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static String endOfRound(int[] scores) {
         try {
@@ -177,12 +213,12 @@ public class Message {
         return null;
     }
 
-    public static String reconnectDeny() {
+    public static String deny() {
         try {
             JSONObject header = new JSONObject();
             //JSONObject body = new JSONObject();
 
-            header.put("type", RECONNECT_DENY);
+            header.put("type", DENY);
 
             return compose(header);
         } catch (JSONException e) {
@@ -190,14 +226,51 @@ public class Message {
         }
         return null;
     }
+    
+    public static String ParseError() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", PARSE_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-    public static String passBomb(String target_id) {
+    
+    public static String TypeError() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", TYPE_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+    
+    public static String NOT_REGISTERED_ERROR() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", NOT_REGISTERED_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+   
+
+    public static String passBomb(long target_uiid, int bomb) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
 
             header.put("type", PASS_BOMB);
-            body.put("target_id", target_id);
+            body.put("target", target_uiid);
+            body.put("bomb", bomb);
 
             return compose(header, body);
         } catch (JSONException e) {
@@ -241,6 +314,20 @@ public class Message {
             //JSONObject body = new JSONObject();
 
             header.put("type", INHERIT_CREATOR);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getGames() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", GET_GAMES);
 
             return compose(header);
         } catch (JSONException e) {
