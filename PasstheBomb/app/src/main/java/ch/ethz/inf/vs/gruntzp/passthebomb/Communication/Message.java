@@ -23,7 +23,7 @@ public class Message {
     public static final int RECONNECT = 8;
     public static final int GAME_UPDATE = 9;
     public static final int END_OF_ROUND = 10;
-    public static final int RECONNECT_DENY = 11;
+    public static final int DENY = 11;
     public static final int PASS_BOMB = 12;
     public static final int EXPLODED = 13;
     public static final int GAME_OVER = 14;
@@ -213,12 +213,12 @@ public class Message {
         return null;
     }
 
-    public static String reconnectDeny() {
+    public static String deny() {
         try {
             JSONObject header = new JSONObject();
             //JSONObject body = new JSONObject();
 
-            header.put("type", RECONNECT_DENY);
+            header.put("type", DENY);
 
             return compose(header);
         } catch (JSONException e) {

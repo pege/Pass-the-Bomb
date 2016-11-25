@@ -277,7 +277,8 @@ public class Connection {
 		
 		if (map.containsKey(session)) {// already registered
 			System.out.println("Second register try received");
-			sendMess(session, "This connection is already registered with name: " + map.get(session).getName());
+			sendMess(session, Message.deny());
+			//sendMess(session, "This connection is already registered with name: " + map.get(session).getName());
 			return;// ?
 		}
 		// if uuid already exist -- Reconnect
@@ -618,5 +619,4 @@ public class Connection {
 		}
 		return currentP;
 	}
-
 }
