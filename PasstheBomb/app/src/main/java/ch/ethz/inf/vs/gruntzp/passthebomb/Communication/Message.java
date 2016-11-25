@@ -24,6 +24,7 @@ public class Message {
     public static final int EXPLODED = 13;
     public static final int GAME_OVER = 14;
     public static final int INHERIT_CREATOR = 15;
+    public static final int START_GAME = 16;
 
     public static String createGame(String game_id, String password)
     {
@@ -240,6 +241,20 @@ public class Message {
             //JSONObject body = new JSONObject();
 
             header.put("type", INHERIT_CREATOR);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String startGame() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", START_GAME);
 
             return compose(header);
         } catch (JSONException e) {
