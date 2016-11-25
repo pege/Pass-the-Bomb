@@ -321,8 +321,8 @@ public class Connection {
 
 	}
 
-	private void createGame(Session session, String gamename, String password) {
-
+	private void createGame(Session session, JSONObject body) {
+		//TODO: String gamename, String password
 		Player creator = map.get(session);//player who creates a game is automatically the creator
 		if (creator.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
