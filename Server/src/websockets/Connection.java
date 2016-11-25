@@ -133,6 +133,7 @@ public class Connection {
 //			if (body.equals(""))
 //				sendMess(session, "Which game you wanna join?");
 //			else
+			//TODO: machen
 				joinGame(session, body); // adds the player to a game
 			break;
 		case Message.LEAVE_GAME:// TODO can u do it intentionally?, next creator random?
@@ -172,7 +173,7 @@ public class Connection {
 		
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
-			sendMess(session, ServerMessages.ParseError());
+			sendMess(session, Message.ParseError());
 		}
 	}
 
