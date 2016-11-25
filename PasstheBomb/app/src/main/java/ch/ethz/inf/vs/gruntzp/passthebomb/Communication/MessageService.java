@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.mawyss.wstest;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import android.app.Service;
 import android.content.Intent;
