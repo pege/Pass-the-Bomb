@@ -87,6 +87,16 @@ public class Game {
 	public int indexOfPlayer(Player player){
 		return players.indexOf(player);
 	}
+
+	public String getPlayerInfos(){
+		String s = "";
+		for (Player p : players){
+			s = s + "Name:" + p.getName() + ", UUID:" + p.getUuid(); 
+		}
+		return s;
+		
+		
+	}
 	//public void endGame(){
 	//	started = false;
 	//}
