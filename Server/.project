@@ -20,4 +20,11 @@
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/websockets/Message.java</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/PasstheBomb/app/src/main/java/ch/ethz/inf/vs/gruntzp/passthebomb/Communication/Message.java</locationURI>
+		</link>
+	</linkedResources> 
 </projectDescription>

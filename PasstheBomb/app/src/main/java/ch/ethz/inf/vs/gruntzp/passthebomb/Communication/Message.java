@@ -24,7 +24,14 @@ public class Message {
     public static final int EXPLODED = 13;
     public static final int GAME_OVER = 14;
     public static final int INHERIT_CREATOR = 15;
+
+    public static final int PARSE_ERROR = -1;
+    public static final int TYPE_ERROR = -2;
+    public static final int STATUS = -3;
+    public static final int NOT_REGISTERED_ERROR = -4;
+   
     public static final int START_GAME = 16;
+
 
     public static String createGame(String game_id, String password)
     {
@@ -190,6 +197,26 @@ public class Message {
         }
         return null;
     }
+    
+    public static String ParseError() {
+		JSONObject header = new JSONObject();
+		header.put("type", PARSE_ERROR);
+		return compose(header);
+	}
+    
+    public static String TypeError() {
+		JSONObject header = new JSONObject();
+		header.put("type", TYPE_ERROR);
+		return compose(header);
+	}
+    
+    public static String NOT_REGISTERED_ERROR() {
+		JSONObject header = new JSONObject();
+		header.put("type", NOT_REGISTERED_ERROR);
+		return compose(header);
+	}
+
+   
 
     public static String passBomb(String target_id) {
         try {
