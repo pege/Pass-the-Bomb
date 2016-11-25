@@ -8,7 +8,7 @@ import org.json.JSONObject;
  */
 
 public class Message {
-    public enum MessageType {}
+
     public static final int CREATE_GAME = 1;
     public static final int LIST_GAMES = 2;
     public static final int REGISTER = 3;
@@ -24,11 +24,15 @@ public class Message {
     public static final int EXPLODED = 13;
     public static final int GAME_OVER = 14;
     public static final int INHERIT_CREATOR = 15;
+
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
     public static final int STATUS = -3;
     public static final int NOT_REGISTERED_ERROR = -4;
-    
+   
+    public static final int START_GAME = 16;
+
+
     public static String createGame(String game_id, String password)
     {
         try {
@@ -46,8 +50,7 @@ public class Message {
         return null;
     }
 
-    public static String listGames()
-    {
+    public static String listGames() {
         try {
 
             JSONObject header = new JSONObject();
@@ -186,7 +189,7 @@ public class Message {
             JSONObject header = new JSONObject();
             //JSONObject body = new JSONObject();
 
-            header.put("type", RECONNECT);
+            header.put("type", RECONNECT_DENY);
 
             return compose(header);
         } catch (JSONException e) {
@@ -213,15 +216,74 @@ public class Message {
 		return compose(header);
 	}
 
-    public static String gameUpdate(int[] scores) {
+   
+
+    public static String passBomb(String target_id) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
 
-            header.put("type", GAME_UPDATE);
+            header.put("type", PASS_BOMB);
+            body.put("target_id", target_id);
+
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String exploded() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", EXPLODED);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String gameOver(int[] scores) {
+        try {
+            JSONObject header = new JSONObject();
+            JSONObject body = new JSONObject();
+
+            header.put("type", GAME_OVER);
             body.put("scores", scores);
 
             return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String inheritCreator() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", INHERIT_CREATOR);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String startGame() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", START_GAME);
+
+            return compose(header);
         } catch (JSONException e) {
             e.printStackTrace();
         }
