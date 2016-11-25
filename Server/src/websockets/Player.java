@@ -9,17 +9,17 @@ public class Player {
 	private int score;
 	private boolean hasBomb;
 	//TODO connected is same as registered => map points to player
-	private boolean isConnected; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
+	private boolean maybeDC; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
 	private Session session;
 	private long lastPong;
 	private Game inGame; //null if in no game
+	
 	
 	
 	public Player(String name, long uuid, Session session){
 		this.name = name;
 		this.uuid = uuid;
 		this.session = session;
-		setLastPong(System.currentTimeMillis());
 	}
 	
 	public String getName(){
@@ -34,6 +34,10 @@ public class Player {
 		return score;
 	}
 	
+	public void setBomb(boolean hasB){
+		hasBomb = hasB;
+	}
+	
 	public boolean hasBomb(){
 		return hasBomb;
 	}
@@ -42,20 +46,32 @@ public class Player {
 		score = score +amount;
 	}
 	
-	public void setConnection(boolean status){
-		isConnected = status;
+	public void resetScore(){
+		score = 0;
 	}
 	
-	public boolean isConnected(){
-		return isConnected;
+	public void setMaybeConnection(boolean status){
+		maybeDC = status;
+	}
+	
+	public boolean isMaybeDisconnected(){
+		return maybeDC;
 	}
 	
 	public Session getSession(){
 		return session;
 	}
 	
+	public void setSession(Session s){
+		session = s;
+	}
+	
 	public void joinGame(Game game){
 		inGame = game;
+	}
+	
+	public void leaveGame(){
+		inGame = null;
 	}
 	
 	public Game getJoinedGame(){

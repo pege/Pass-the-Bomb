@@ -1,12 +1,14 @@
 package websockets;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Set;
+
+import org.glassfish.grizzly.utils.ArraySet;
 
 public class Game {
 
 	private Player creator;
-	private Set<Player> players = new HashSet<>();
+	private ArrayList<Player> players = new ArrayList<>();;
 
 	private String gameName;
 	private String password;
@@ -26,6 +28,13 @@ public class Game {
 
 	public boolean checkPassword(String password) {
 		return this.password.equals(password);
+	}
+	
+	public String passwordSet(){
+		if(password != "")
+			return "NO";
+		else
+			return "YES";
 	}
 
 	public void setNewCreator() {
@@ -59,7 +68,7 @@ public class Game {
 		return creator;
 	}
 
-	public Set<Player> getPlayers() {
+	public ArrayList<Player> getPlayers() {
 		return players;
 	}
 
@@ -75,6 +84,9 @@ public class Game {
 		started = true;
 	}
 	
+	public int indexOfPlayer(Player player){
+		return players.indexOf(player);
+	}
 	//public void endGame(){
 	//	started = false;
 	//}
