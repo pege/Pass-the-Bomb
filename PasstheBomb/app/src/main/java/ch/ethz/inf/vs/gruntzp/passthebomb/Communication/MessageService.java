@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.mawyss.wstest;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import android.app.Service;
 import android.content.Intent;
@@ -17,6 +17,8 @@ import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.activities.Reference;
 
 /**
  * Created by Marc on 24.11.2016.

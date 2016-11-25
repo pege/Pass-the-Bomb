@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.mawyss.wstest;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.activities.Reference;
 
 /**
  * Created by Marc on 25.11.2016.
