@@ -42,8 +42,7 @@ public class Message {
         return null;
     }
 
-    public static String listGames()
-    {
+    public static String listGames() {
         try {
 
             JSONObject header = new JSONObject();
