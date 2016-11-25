@@ -272,8 +272,9 @@ public class Connection {
 	
 	//Add to the session a Player and start pinging the session
 	private void register(Session session, JSONObject body) {
-		String uuid_s = (String) body.get("uuid");
-		long uuid = Long.parseUnsignedLong(uuid_s);
+		long uuid = (long) body.get("uuid");
+		String username = (String) body.get("username");
+		
 		
 		if (map.containsKey(session)) {// already registered
 			System.out.println("Second register try received");
@@ -324,7 +325,11 @@ public class Connection {
 
 	private void createGame(Session session, JSONObject body) {
 		//TODO: String gamename, String password
+		String gamename = (String) body.get("game_id");
+		String password = (String) body.get("password");
 		Player creator = map.get(session);//player who creates a game is automatically the creator
+		
+		
 		if (creator.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
 			return;

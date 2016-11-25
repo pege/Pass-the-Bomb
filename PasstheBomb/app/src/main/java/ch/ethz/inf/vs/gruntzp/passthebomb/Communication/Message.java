@@ -1,4 +1,5 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
+//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,7 +65,7 @@ public class Message {
         return null;
     }
 
-    public static String register(String user_id, String username) {
+    public static String register(long user_id, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
