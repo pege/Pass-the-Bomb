@@ -18,8 +18,6 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
-import ch.ethz.inf.vs.gruntzp.passthebomb.activities.Reference;
-
 /**
  * Created by Marc on 24.11.2016.
  */
@@ -142,5 +140,3 @@ public class MessageService extends Service {
     }
 
 }
-
-

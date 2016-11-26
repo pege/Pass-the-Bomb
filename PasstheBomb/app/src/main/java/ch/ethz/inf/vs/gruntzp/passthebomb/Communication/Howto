@@ -1,0 +1,29 @@
+
+/**
+ * Created by Marc on 26.11.2016.
+ */
+
+How to use the Connection package:
+- For each activity:
+    - Implement MessageListener
+    - Add the following methods:
+
+    @Override
+    public void onMessage(String message) {
+        // Do action depending on message...
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        controller.startService(this); // Only do this in MainActivity
+        controller.bind(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
+    }
+
+    - To send a message use: controller.sendMessage("Your message");

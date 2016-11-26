@@ -7,15 +7,13 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 
-import ch.ethz.inf.vs.gruntzp.passthebomb.activities.Reference;
-
 /**
  * Created by Marc on 25.11.2016.
  */
 
 public class ServiceConnector {
-    public MessageService mService;
-    public boolean mBound = false;
+    private MessageService mService;
+    private boolean mBound = false;
 
     private static ServiceConnector instance;
 
@@ -49,22 +47,32 @@ public class ServiceConnector {
         }
     };
 
+    /*
+    This method starts the service and should only be called once, as soon as the App is started.
+     */
     public void startService(AppCompatActivity activity)
     {
-        Intent intent = new Intent(activity, MessageService.class);
-        intent.putExtra("ip", "54.213.92.251");
-        intent.putExtra("port", "8080");
+        if(!mBound)
+        {
+            Intent intent = new Intent(activity, MessageService.class);
+            intent.putExtra("ip", "54.213.92.251");
+            intent.putExtra("port", "8080");
 
-        Reference r = new Reference();
-        r.setActivity((MessageListener) activity);
-        intent.putExtra("activity", r);
-        //TODO
-        intent.putExtra("uuid", "");
+            Reference r = new Reference();
+            r.setActivity((MessageListener) activity);
+            intent.putExtra("activity", r);
+            //TODO
+            intent.putExtra("uuid", "");
 
-        // Start service (this is done only by main activity)
-        activity.startService(intent);
+            // Start service (this is done only by main activity)
+            activity.startService(intent);
+        }
     }
 
+    /*
+    This method binds an activity to the service and should only be called every time an
+    activity is started.
+     */
     public void bind(AppCompatActivity activity)
     {
         Intent intent = new Intent(activity, MessageService.class);
@@ -75,6 +83,20 @@ public class ServiceConnector {
 
         // Bind to service (every activity should do this at the beginning
         boolean b = activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public void unbind(AppCompatActivity activity)
+    {
+        if (mBound) {
+            activity.unbindService(mConnection);
+            mBound = false;
+            System.out.println("Did unbind activity from service.");
+        }
+    }
+
+    public void sendMessage(String message)
+    {
+        mService.sendMessage(message);
     }
 
 }

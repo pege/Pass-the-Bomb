@@ -6,4 +6,5 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 public interface MessageListener{
     void onMessage(String message);
+    ServiceConnector controller = ServiceConnector.getInstance();
 }
