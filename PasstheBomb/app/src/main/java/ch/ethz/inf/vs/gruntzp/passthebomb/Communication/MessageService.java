@@ -24,26 +24,26 @@ import javax.websocket.Session;
 
 @ClientEndpoint
 public class MessageService extends Service {
-    Session wsSession = null;
-    MessageListener activity = null;
-    String ip = "";
-    String port = "";
-    String uuid = "";
-    Boolean firstCall = true;
+    static Session wsSession = null;
+    static MessageListener activity = null;
+    static String ip = "";
+    static String port = "";
+    static String uuid = "";
+    static Boolean firstCall = true;
 
     //--- Websocket ----------------------------------------------------------------
     @OnOpen
     public void onOpen(Session session) {;
         this.wsSession = session;
-        System.out.println("Connected");
+        System.out.println("Connected to server.");
     }
 
     @OnMessage
-    public void onMessage(String message, Session session) throws IOException, InterruptedException {
+    public void onMessage(String message, Session session) {
         System.out.println("Message: " + message);
-        if(activity != null)
+        if(this.activity != null)
         {
-            activity.onMessage(message);
+            this.activity.onMessage(message);
         }
     }
 
@@ -92,7 +92,6 @@ public class MessageService extends Service {
                     URI uri = null;
                     uri = new URI("ws://" + ip + ":" + port + "/websockets/echo");
                     wsSession = client.connectToServer(MessageService.class, uri);
-                    System.out.println("ConnectedMain");
                 }
                 catch(Exception ex){}
             }
@@ -122,14 +121,11 @@ public class MessageService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-
         System.out.println("ON BIND");
 
         Reference r = (Reference) intent.getSerializableExtra("activity");
         this.activity = r.getActivity();
-
         return mBinder;
-
     }
 
     /**
@@ -144,5 +140,3 @@ public class MessageService extends Service {
     }
 
 }
-
-

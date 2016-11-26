@@ -126,9 +126,9 @@ public class Connection {
 //			else
 				createGame(session, body);
 			break;
-		case Message.LIST_GAMES: // or join
-			getLobbyList(session); // returns all current games
-			break;
+		//case Message.GET_GAMES: // or join
+		//	getLobbyList(session); // returns all current games
+		//	break;
 		case Message.JOIN_GAME:
 //			if (body.equals(""))
 //				sendMess(session, "Which game you wanna join?");
@@ -332,6 +332,7 @@ public class Connection {
 		
 		if (creator.getJoinedGame() != null) { // already in a Game
 			sendMess(session, "Stupid? You're already in a game");
+			sendMess(session, Message.deny());
 			return;
 		}
 		// if the gamename is not unique it adds a number to the current gamename
@@ -347,6 +348,8 @@ public class Connection {
 		creator.joinGame(game);
 		games.add(game);
 		sendMess(session, "A game with gamename " + gamename + " was created");
+		//TODO
+		//sendMess(session, Message.game)
 		System.out.println("A game with gamename " + gamename + " was created");
 	}
 
@@ -365,6 +368,7 @@ public class Connection {
 		}
 
 		for (Game g : games) {
+			sendMess(session, Message.listGames()); //TODO
 			sendMess(session, "Game: " + g.getGamename() + ", Number of Players: " + g.numberOfPlayers()
 					+ ", Password needed: " + g.passwordSet());
 		}

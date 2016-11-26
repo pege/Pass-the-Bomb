@@ -1,8 +1,11 @@
-package websockets;
-//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+//package websockets;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
+
+import java.util.Arrays;
 
 /**
  * Created by niederbm on 11/25/16.
@@ -25,14 +28,16 @@ public class Message {
     public static final int EXPLODED = 13;
     public static final int GAME_OVER = 14;
     public static final int INHERIT_CREATOR = 15;
+    public static final int START_GAME = 16;
+    public static final int UPDATE_SCORE = 17;
+    public static final int GET_GAMES = 18;
 
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
     public static final int STATUS = -3;
     public static final int NOT_REGISTERED_ERROR = -4;
    
-    public static final int START_GAME = 16;
-    public static final int UPDATE_SCORE = 17;
+
 
 
     public static String createGame(String game_id, String password)
@@ -52,14 +57,15 @@ public class Message {
         return null;
     }
 
-    public static String listGames() {
+    public static String listGames(String[] game) {
         try {
 
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
+            JSONObject body = new JSONObject();
             header.put("type", LIST_GAMES);
+            body.put("player_names",new JSONArray(Arrays.asList(player_names)));
 
-            return compose(header);
+            return compose(header, body);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -121,6 +127,7 @@ public class Message {
             JSONObject body = new JSONObject();
 
             header.put("type", PLAYER_LIST);
+            body.put("player_names",new JSONArray(Arrays.asList(player_names)));
 
             return compose(header);
         } catch (JSONException e) {
@@ -307,6 +314,20 @@ public class Message {
             //JSONObject body = new JSONObject();
 
             header.put("type", INHERIT_CREATOR);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getGames() {
+        try {
+            JSONObject header = new JSONObject();
+            //JSONObject body = new JSONObject();
+
+            header.put("type", GET_GAMES);
 
             return compose(header);
         } catch (JSONException e) {

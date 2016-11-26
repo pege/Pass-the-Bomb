@@ -65,10 +65,13 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
         } else {
             numberOfGames = 0;
         }
-        //TODO get rid of next two lines; (this is only for testing purposes, because games=null for now)
+
+        // the following is for testing purposes only
+        /*
         numberOfGames = 2;
         games = new Game[]{new Game("herp derp", "theBest", false, ""),
                 new Game("some game", "idiot", true, "pw")};
+        */
 
         recreateTable(numberOfGames, games);
     }
