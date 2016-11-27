@@ -1,5 +1,5 @@
-//package websockets;
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
+//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,13 +31,23 @@ public class Message {
     public static final int START_GAME = 16;
     public static final int UPDATE_SCORE = 17;
     public static final int GET_GAMES = 18;
-
+    public static final int SC_GAME_LIST = 19;
+    public static final int SC_GAME_UPDATE = 20;
+    
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
     public static final int STATUS = -3;
     public static final int NOT_REGISTERED_ERROR = -4;
+    public static final int ALREADY_IN_GAME_ERROR = -5;
+    public static final int WRONG_PASSWORD_ERROR = -6;
+    public static final int ALREADY_STARTED_ERROR = -7;
+    public static final int GAME_NOT_FOUND = -8;
+    public static final int NOT_IN_GAME_ERROR = -9; 
+    public static final int NOT_GAME_OWNER = -10; 
+    public static final int DONT_OWN_BOMB = -11;
    
-
+    
+    // CLIENT TO SERVER CS_
 
 
     public static String createGame(String game_id, String password)
@@ -57,20 +67,6 @@ public class Message {
         return null;
     }
 
-    public static String listGames(String[] game) {
-        try {
-
-            JSONObject header = new JSONObject();
-            JSONObject body = new JSONObject();
-            header.put("type", LIST_GAMES);
-            body.put("player_names",new JSONArray(Arrays.asList(player_names)));
-
-            return compose(header, body);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public static String register(long user_id, String username) {
         try {
@@ -213,7 +209,10 @@ public class Message {
         return null;
     }
 
-    public static String deny() {
+    
+    // SERVER TO CLIENT SC_
+    
+    public static String denyRegister() {
         try {
             JSONObject header = new JSONObject();
             //JSONObject body = new JSONObject();
@@ -238,6 +237,39 @@ public class Message {
         return null;
     }
 
+    public static String AlreadyInGameError() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", ALREADY_IN_GAME_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+ 
+    public static String NotInGameError() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", NOT_IN_GAME_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String NotGameOwnerError() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", NOT_GAME_OWNER);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     
     public static String TypeError() {
         try {
@@ -250,7 +282,29 @@ public class Message {
         return null;
 	}
     
-    public static String NOT_REGISTERED_ERROR() {
+    public static String GameNotFoundError() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", GAME_NOT_FOUND);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+    
+    public static String Already_Started_Error() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", ALREADY_STARTED_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+    
+    public static String Not_Registered_Error() {
         try {
             JSONObject header = new JSONObject();
             header.put("type", NOT_REGISTERED_ERROR);
@@ -260,7 +314,33 @@ public class Message {
         }
         return null;
     }
+    
+    public static String Wrong_Password_Error() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", WRONG_PASSWORD_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_GameList(JSONArray gameArray) {
+    	JSONObject header = new JSONObject();
+    	header.put("type", SC_GAME_LIST);
+    	JSONObject body = new JSONObject();
+    	body.put("games", gameArray);
+    	return compose(header, body);
+    }
 
+    public static String SC_GameUpdate(JSONObject game) {
+    	JSONObject header = new JSONObject();
+    	header.put("type", SC_GAME_UPDATE);
+    	JSONObject body = new JSONObject();
+    	body.put("game", game);
+    	return compose(header, body);
+    }
    
 
     public static String passBomb(long target_uiid, int bomb) {

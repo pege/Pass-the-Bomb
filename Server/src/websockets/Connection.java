@@ -2,6 +2,7 @@ package websockets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,10 +18,9 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 
 @ServerEndpoint("/echo")
@@ -71,11 +71,11 @@ public class Connection {
 
 	@OnMessage
 	public void onMessage(String message, Session session) {
-		JSONParser parser = new JSONParser();
-		Object obj;
-		try {
-			obj = parser.parse(message);
-			JSONObject mess = (JSONObject) obj;
+	
+		JSONTokener tokener = new JSONTokener(message);
+		
+		
+			JSONObject mess = new JSONObject(tokener);
 			JSONObject header = (JSONObject) mess.get("header");
 			JSONObject body = (JSONObject) mess.get("body");
 	
@@ -101,10 +101,10 @@ public class Connection {
 
 		System.out.println("Message received: " + header + " " + body);
 
-		if (!(type == Message.REGISTER) && !map.containsKey(session)) {
-			sendMess(session, Message.NOT_REGISTERED_ERROR());
-			return;
-		}
+//		if (!(type == Message.REGISTER) && !map.containsKey(session)) {
+//			sendMess(session, Message.Not_Registered_Error());
+//			return;
+//		}
 
 		switch (type) {
 		case Message.REGISTER:
@@ -153,8 +153,7 @@ public class Connection {
 			break;
 
 		// reconnect denied or gameupdate
-		// TODO passBomb(score,bomb)
-		// TODO how to play HTML
+		
 		default:
 			sendMess(session, Message.TypeError());
 			System.out.println("Type Error");
@@ -170,10 +169,7 @@ public class Connection {
 			System.out.println(map.get(s) == null ? "null" : map.get(s).getName());
 		}
 		
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			sendMess(session, Message.ParseError());
-		}
+		
 	}
 
 	@OnClose
@@ -251,6 +247,7 @@ public class Connection {
 	}
 
 	// OnPong
+	// FIXME: Race Condition if p is removed from Playerlist?
 	@OnMessage
 	public void onPong(PongMessage pongMessage, Session session) {
 		// System.out.println("--Pong received");
@@ -274,43 +271,46 @@ public class Connection {
 		long uuid = (long) body.get("uuid");
 		String username = (String) body.get("username");
 		
-		
-		if (map.containsKey(session)) {// already registered
+		if (map.containsKey(session)) {
+			//player is already registered
 			System.out.println("Second register try received");
-			sendMess(session, Message.deny());
+			sendMess(session, Message.denyRegister());
 			//sendMess(session, "This connection is already registered with name: " + map.get(session).getName());
 			return;// ?
+		} 
+		
+			// does the player try to reconnect?
+			Iterator<Player> it = map.values().iterator();
+			while (it.hasNext()) {
+				Player p = it.next();
+				if (p != null && p.getUuid() == uuid) {
+					System.out.println("Reconnect attempt");
+					// remove the old session
+					Session oldSession = p.getSession();
+					map.remove(oldSession);
+					//map.put(oldSession, null);
+
+					// add the new one
+					map.put(session, p);
+
+					p.setLastPong(System.currentTimeMillis());
+					p.setSession(session);
+					registeredSessions.add(session); // start pinging
+
+					try {
+						oldSession.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+										
+					sendMess(session, Message.SC_GameUpdate(p.getJoinedGame().toJSON(1)));
+					System.out.println("=== " + username + " has reconnected ===");
+					return;
+				}
+			
 		}
 		// if uuid already exist -- Reconnect
-		Iterator<Player> it = map.values().iterator();
-		while (it.hasNext()) {
-			Player p = it.next();
-			if (p != null && p.getUuid() == uuid) {
-				System.out.println("Reconnect attempt");
-				// remove the old session
-				Session oldSession = p.getSession();
-
-				map.put(oldSession, null);
-
-				// add the new one
-				map.put(session, p);
-
-				p.setLastPong(System.currentTimeMillis());
-				p.setSession(session);
-				registeredSessions.add(session); // start pinging
-
-				try {
-					oldSession.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
-				sendMess(session, "Successful Reconnected");
-				System.out.println("===" + username + " has reconnected===");
-				return;
-
-			}
-		}
+		
 
 		Player p = new Player(username, uuid, session);
 		// p.setMaybeConnection(false);
@@ -324,19 +324,15 @@ public class Connection {
 	}
 
 	private void createGame(Session session, JSONObject body) {
-		//TODO: String gamename, String password
 		String gamename = (String) body.get("game_id");
 		String password = (String) body.get("password");
-		Player creator = map.get(session);//player who creates a game is automatically the creator
+		Player owner = map.get(session);//player who creates a game is automatically the creator
 		
-		
-		if (creator.getJoinedGame() != null) { // already in a Game
-			sendMess(session, "Stupid? You're already in a game");
-			sendMess(session, Message.deny());
-			return;
-		}
+		if (NeedRegister(session, owner) || NeedInGame(session, owner)) return;
 		// if the gamename is not unique it adds a number to the current gamename
 		int i = 0;
+		
+		//FIXME: race condition if gamename is 
 		while (!uniqueGamename(gamename)) {
 			gamename = gamename + Integer.toString(i);
 			sendMess(session, "A game with this gamename already exists, it was changed to: " + gamename);
@@ -344,15 +340,15 @@ public class Connection {
 		}
 
 		// creator.setLastPong(System.currentTimeMillis());
-		Game game = new Game(creator, gamename, password);
-		creator.joinGame(game);
+		Game game = new Game(owner, gamename, password);
+		owner.joinGame(game);
 		games.add(game);
-		sendMess(session, "A game with gamename " + gamename + " was created");
-		//TODO
-		//sendMess(session, Message.game)
+		
+		sendMess(session, Message.SC_GameUpdate(game.toJSON(1)));
 		System.out.println("A game with gamename " + gamename + " was created");
 	}
 
+	//FIXME: Race Condition, If game is deleted
 	private boolean uniqueGamename(String name) {
 		for (Game g : games) {
 			if (g.getGamename().equals(name)) {
@@ -363,105 +359,73 @@ public class Connection {
 	}
 
 	private void getLobbyList(Session session) {
-		if (games.size() == 0) {
-			sendMess(session, "No games in Lobby, come later or create one");
+		// TODO: Does player need to be registered?
+		
+		JSONArray gameArray = new JSONArray();
+		for (Game g: games) {
+			if (!g.hasStarted()) 
+				gameArray.put(g.toJSON(0));
 		}
-
-		for (Game g : games) {
-			sendMess(session, Message.listGames()); //TODO
-			sendMess(session, "Game: " + g.getGamename() + ", Number of Players: " + g.numberOfPlayers()
-					+ ", Password needed: " + g.passwordSet());
-		}
-
+		sendMess(session, Message.SC_GameList(gameArray));
 	}
 
 	private void joinGame(Session session, JSONObject body) {
+		Player player = map.get(session);
+		if (NeedRegister(session, player) || NeedInGame(session, player)) return;
+		
 		String gamename = (String) body.get("game_id");
 		String password = (String) body.get("pw");
 		
-		Player player = map.get(session);
-		if (player.getJoinedGame() != null) { // already in a Game
-			sendMess(session, "Stupid? You're already in a game");
-			return;
-		}
-
-		boolean joined = false;
 		for (Game game : games) {
 			if (game.getGamename().equals(gamename)) {
 				if (game.checkPassword(password)) {
+					
+					if (game.hasStarted()){
+						sendMess(session, Message.Already_Started_Error());
+						System.out.println("Game already started");
+						return;
+					}
+					
 					player.joinGame(game);
 					game.addPlayer(player);
-					joined = true;
-					sendMess(session, "You joined successful the game: " + game.getGamename());
-					// Send all others that a new player joined their game
-					for (Player joinedPl : game.getPlayers()) {
-						if (joinedPl != player) {
-							//TODO: unified gameinfo message
-							sendMess(joinedPl.getSession(), "Player " + player.getName() + " joined your game.");
-							sendMess(joinedPl.getSession(), "His id: " + Long.toString(player.getUuid()));
-							sendMess(player.getSession(), "Player " + joinedPl.getName() + " is in this game already");
-							sendMess(player.getSession(), "His id: " + Long.toString(joinedPl.getUuid()));
-						}
-					}
-
+					
+					// Send all players the updated game status
+					game.broadcast(Message.SC_GameUpdate(game.toJSON(1)));
+					
 					System.out.println(player.getName() + " joined the game " + game.getGamename());
-					break;
+					return;
 				} else {
-					sendMess(session, "Stupid? - Wrong Password");
+					sendMess(session, Message.Wrong_Password_Error());
 					System.out.println("Wrong password");
+					return;
 				}
 			}
 		}
-
-		if (!joined) {
-			sendMess(session, "No such gameroom found - it doesnt exist or already started");
-			System.out.println("No game with that name found - already started");
-		}
+		
+		sendMess(session, Message.GameNotFoundError());
+		System.out.println("No game with that name found");
+		
 	}
 
 	private void leaveGame(Session session) {
-
 		Player player = map.get(session);
-
-		if (player == null) { // left befor registerd
-			return;
-		}
-		if (player.getJoinedGame() == null) {
-			System.out.println("Player isnt in a game which he can leave");
-			sendMess(session, "No game to leave found");
+		if (NeedRegister(session, player) || NeedInGame(session, player)) return;
+			
+		Game game = player.getJoinedGame();
+		player.leaveGame();
+		
+		if (game.numberOfPlayers() == 0) { // Only this player is in game
+			//FIXME: Race Condition
+			games.remove(game);
 		} else {
-			Game game = player.getJoinedGame();
-
-			if (game.numberOfPlayers() == 1) { // Only the player is in the game
-				game.removePlayer(player);
-				games.remove(game);
-				player.joinGame(null);
-			} else if (game.getCreator().equals(player)) { // The player is the
-															// creator
-				game.setNewCreator();
-				sendMess(game.getCreator().getSession(), "You're now the creator of the game: " + game.getGamename());
-				game.removePlayer(player);
-				player.joinGame(null);
-				for (Player joinedPl : game.getPlayers()) { // Inform the other
-															// players
-					sendMess(joinedPl.getSession(), player.getName() + " left the game");
-					sendMess(joinedPl.getSession(), "His uuid: " + player.getUuid());
-					
-				}
-			} else {// player is a normal player
-				game.removePlayer(player);
-				player.joinGame(null);
-				for (Player joinedPl : game.getPlayers()) { // Inform the other
-															// players
-					sendMess(joinedPl.getSession(), player.getName() + " left the game");
-				}
-			}
-			sendMess(session, "You left successful the game: " + game.getGamename());
-			System.out.println(player.getName() + " left the game " + game.getGamename());
+			game.broadcast(Message.SC_GameUpdate(game.toJSON(1)));
 		}
+		
 	}
 
+	//FIXME: WTf?
 	private void returnStatus(Session session) {
+		try {
 		Player p = map.get(session);
 		sendMess(session, "Your name is: " + p.getName());
 		sendMess(session, "Number of existing games: " + games.size());
@@ -471,28 +435,27 @@ public class Connection {
 		} else {
 			sendMess(session, "You're not in a game");
 		}
-
+		} catch (Exception e) {
+			System.out.println("ouuuuuuuh");
+		}
 	}
 
 	private void startGame(Session session) {
-
 		Player player = map.get(session);
+		if (NeedRegister(session, player) || NeedInGame(session, player)) return;
+		
 		Game game = player.getJoinedGame();
-		if (game == null) {
-			sendMess(session, "You're in no game");
-		} else if (game.getCreator() != player) {// creator cant start the game
-			sendMess(session, "Only the creator can start the game");
-		} else {
-			// TODO synchronized
-			startNewRound(game);
+		if (NeedStarted(session, game, false)) return;
+		
+		if (game.getCreator() != player) {
+			sendMess(session, Message.NotGameOwnerError());
 		}
-
+		else {
+			game.startGame();
+		}
 	}
 
-	private int createBomb() {
-		Random r = new Random();
-		return r.nextInt(lifetimeBomb);
-	}
+	
 
 	private void sendMess(Session s, String mess) {
 		try {
@@ -500,56 +463,48 @@ public class Connection {
 				s.getBasicRemote().sendText(mess);
 		} catch (IOException e) {
 			e.printStackTrace();
+			if (mess == null)
+				System.out.println("Message creation failed");
 		}
 	}
 
-	private void passBomb(Session fromSession, JSONObject body) {
+	private void passBomb(Session s, JSONObject body) {
+		Player player = map.get(s);
+		if (NeedRegister(s, player) || NeedInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)) return;
+				
 		long targetUUID = (long) body.get("target");
 		int bomb = (int) body.get("bomb");
+		Game g = player.getJoinedGame();
 		
-		if (!map.get(fromSession).hasBomb()) {
-			sendMess(fromSession, "Stupid? You dont got the bomb!!");
+		if (g.getBombOwner() != player) {
+			sendMess(s, Message.DoesntOwnBombError());
 			return;
 		}
-		for (Player p : map.get(fromSession).getJoinedGame().getPlayers()) {
+		//TODO: much to do
+		for (Player p : g.getPlayers()) {
 			if (p.getUuid() == targetUUID) {
 				if (!p.isMaybeDisconnected()) {// TODO can we send here the bomb
 												// or not?
-					if (p == map.get(fromSession)) {
-						sendMess(fromSession, "You already have the bomb");
+					if (p == map.get(s)) {
+						sendMess(s, "You already have the bomb");
 					} else {
+						//TODO switch, broadcast
 						sendBomb(p.getSession(), bomb);
-						map.get(fromSession).setBomb(false);
+						map.get(s).setBomb(false);
 						p.setBomb(true);
 					}
 					return; // Only break
 				} else {
-					sendMess(fromSession, "The target Player is maybe DC, the server tries to fix the connection");
+					sendMess(s, "The target Player is maybe DC, the server tries to fix the connection");
 				}
 
 			}
 		}
-		sendMess(fromSession, "ID not found");
+		sendMess(s, "ID not found");
 		System.out.println("Error in Bomb passing, ID not found");
 
 	}
 
-	private void sendBomb(Session session, int bomb) {
-
-		Player targetPlayer = map.get(session);
-		for (Player p : targetPlayer.getJoinedGame().getPlayers()) {
-
-			if (p != targetPlayer) { // players who dont receive the bomb get
-										// informed
-				sendMess(p.getSession(), "Player " + targetPlayer.getName() + " has received the bomb");
-			} else {
-				sendMess(session, Integer.toString(bomb));
-				sendMess(session, "You received the bomb");
-			}
-		}
-		System.out.println("Bomb of game " + targetPlayer.getJoinedGame().getGamename() + " has moved to "
-				+ targetPlayer.getName());
-	}
 
 	private void bombExplode(Session loserSession) {
 		// Inform other players
@@ -589,19 +544,7 @@ public class Connection {
 		}
 	}
 
-	private void startNewRound(Game game) {
-		int startPlayer = new Random().nextInt(game.getPlayers().size());
-		int i = 0;
-		for (Player p : game.getPlayers()) {
-			sendMess(p.getSession(), "Game started");
-			if (i == startPlayer) {
-				p.setBomb(true);
-				sendBomb(p.getSession(), createBomb());
-			}
-			i++;
-		}
-		System.out.println(game.getGamename() + " has started");
-	}
+	
 
 	private boolean endGame(Game game) {
 		for (Player p : game.getPlayers()) {
@@ -622,4 +565,39 @@ public class Connection {
 		}
 		return currentP;
 	}
+	
+	// ERROR HADNLING
+	
+	private boolean NeedRegister(Session s){
+		Player player = map.get(s);
+		return NeedRegister(s, player);
+	}
+	
+	private boolean NeedStarted(Session s, Game g, boolean status){
+		if (g.hasStarted() && !status) {
+			sendMess(s, Message.Already_Started_Error());
+			return true;
+		} else if (!g.hasStarted() && status) {
+			sendMess(s, Message.NotStartedError());
+			return true;
+		}
+		
+	}
+	
+	private boolean NeedRegister(Session s, Player p){
+		if (p == null) {
+			sendMess(s, Message.Not_Registered_Error());
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean NeedInGame(Session s, Player p){
+		if (p.getJoinedGame() == null) {
+			sendMess(s, Message.NotInGameError());
+			return true;
+		}
+		return false;
+	}
+	
 }

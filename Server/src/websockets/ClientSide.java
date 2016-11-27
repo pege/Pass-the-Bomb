@@ -16,7 +16,7 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.json.simple.*;
+import org.json.JSONArray;
 
 @ClientEndpoint
 public class ClientSide {
@@ -50,9 +50,9 @@ public class ClientSide {
 				JSONArray sendObj = new JSONArray();
 				
 				if(mess.equals("create")){
-					sendObj.add("create");
+					//sendObj.add("create");
 				}else if (mess.equals("join")){
-					sendObj.add("join");
+					//sendObj.add("join");
 				}else if(mess.equals("pong")){
 					sess.getBasicRemote().sendPong(null);
 				}else{
