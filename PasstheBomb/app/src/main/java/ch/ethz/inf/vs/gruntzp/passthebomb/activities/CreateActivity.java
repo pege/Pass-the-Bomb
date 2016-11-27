@@ -83,7 +83,19 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        controller.bind(this);
+    }
+
+    @Override
     public void onMessage(String message) {
         //TODO
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
     }
 }

@@ -20,7 +20,7 @@ import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
-public class ScoreboardActivity extends AppCompatActivity implements MessageListener {
+public class ScoreboardActivity extends AppCompatActivity /*implements MessageListener*/ {
 
     private int currentApiVersion;
     private Game game;
@@ -135,8 +135,22 @@ public class ScoreboardActivity extends AppCompatActivity implements MessageList
         finish();
     }
 
+    /*
+        @Override
+    protected void onStart() {
+        super.onStart();
+        controller.bind(this);
+    }
+
     @Override
     public void onMessage(String message) {
         //TODO
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
+    }
+    */
 }

@@ -161,7 +161,19 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        controller.bind(this);
+    }
+
+    @Override
     public void onMessage(String message) {
         //TODO
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
     }
 }
