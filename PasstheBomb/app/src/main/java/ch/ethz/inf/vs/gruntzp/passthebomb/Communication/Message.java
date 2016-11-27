@@ -327,19 +327,29 @@ public class Message {
     }
     
     public static String SC_GameList(JSONArray gameArray) {
-    	JSONObject header = new JSONObject();
-    	header.put("type", SC_GAME_LIST);
-    	JSONObject body = new JSONObject();
-    	body.put("games", gameArray);
-    	return compose(header, body);
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_GAME_LIST);
+            JSONObject body = new JSONObject();
+            body.put("games", gameArray);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static String SC_GameUpdate(JSONObject game) {
-    	JSONObject header = new JSONObject();
-    	header.put("type", SC_GAME_UPDATE);
-    	JSONObject body = new JSONObject();
-    	body.put("game", game);
-    	return compose(header, body);
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_GAME_UPDATE);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
    
 
@@ -358,6 +368,7 @@ public class Message {
         }
         return null;
     }
+
 
     public static String exploded() {
         try {

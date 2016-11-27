@@ -15,6 +15,8 @@ import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 
 public class MainActivity extends AppCompatActivity implements MessageListener {
 
+    //TODO: remember uuid when we remember username
+
     EditText mEdit;
     private SharedPreferences preferences;
 
