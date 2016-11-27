@@ -296,4 +296,10 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     public void onMessage(String message) {
         //TODO
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
+    }
 }
