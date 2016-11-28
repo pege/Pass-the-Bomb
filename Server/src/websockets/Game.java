@@ -78,7 +78,7 @@ public class Game {
 		return s;
 	}
 
-	public Player getCreator() {
+	public Player getOwner() {
 		return owner;
 	}
 

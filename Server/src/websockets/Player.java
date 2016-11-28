@@ -25,7 +25,6 @@ public class Player {
 		this.session = session;
 	}
 	
-	//FIXME DEPRECATED
 	public boolean hasBomb() {
 		if (inGame == null) return false;
 		return inGame.getBombOwner() == this;
@@ -41,6 +40,10 @@ public class Player {
 	
 	public int getScore(){
 		return score;
+	}
+	
+	public void setScore(int new_score){
+		score = new_score;
 	}
 	
 //	public void setBomb(boolean hasB){
