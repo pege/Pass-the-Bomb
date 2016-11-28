@@ -19,12 +19,12 @@ public class Message {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    public static final int PLAYER_LIST = 6; 	// ??
+    public static final int PLAYER_LIST = 6; 	// ?? Das sollte der Server dem Client schicken während er auf den Start des SPiels wartet, damit der Client die Liste immer aktuell halten kann
     //public static final int PLAYER_UNREACHABLE = 7; 
     public static final int RECONNECT = 8; 		// --
     //public static final int GAME_UPDATE = 9;
     //public static final int SC_END_OF_ROUND = 10;	
-    public static final int DENY = 11;			// genauer Zweck?
+    public static final int DENY = 11;			// genauer Zweck? War ursprünglich RECONNECT_DENY, für den Fall, dass der Spieler nicht mehr reconnecten kann (Hard timeout). Pege oder du habens dann auf ein allgemeines deny geändert.
     public static final int PASS_BOMB = 12;		// server
     public static final int EXPLODED = 13;		// server
     //public static final int GAME_OVER = 14;
