@@ -411,34 +411,34 @@ public class Message {
         return null;
     }
 
-    public static String gameOver(int[] scores) {
-        try {
-            JSONObject header = new JSONObject();
-            JSONObject body = new JSONObject();
+//    public static String gameOver(int[] scores) {
+//        try {
+//            JSONObject header = new JSONObject();
+//            JSONObject body = new JSONObject();
+//
+//            header.put("type", GAME_OVER);
+//            body.put("scores", scores);
+//
+//            return compose(header, body);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
-            header.put("type", GAME_OVER);
-            body.put("scores", scores);
-
-            return compose(header, body);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public static String inheritCreator() {
-        try {
-            JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
-
-            header.put("type", INHERIT_CREATOR);
-
-            return compose(header);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    public static String inheritCreator() {
+//        try {
+//            JSONObject header = new JSONObject();
+//            //JSONObject body = new JSONObject();
+//
+//            header.put("type", INHERIT_CREATOR);
+//
+//            return compose(header);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     public static String getGames() {
         try {
