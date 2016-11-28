@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,13 +26,10 @@ import org.json.JSONTokener;
 
 @ServerEndpoint("/echo")
 public class Connection {
-
 	
 	private static final long softTimeout = 5000; // timeout in ms
 	private static final long hardTimeout = 15000; // timeout in ms
 	private static final long timeBetweenPings = 10; // time to wait between sending a ping
-	
-	
 	
 	// max times of clients: timeout/timeBetweenPings
 
@@ -60,7 +58,7 @@ public class Connection {
 
 		System.out.println("Client Connected");
 		//unnötig? sendMess(session, "Connected but not registered");
-		// map.put(session, null); //TODO should we do that?
+		// map.put(session, null); 
 		//sendMess(session, "Welcome to <<PASS THE BOMB>>");
 		//sendMess(session,
 		//		"Possible orders: register [name], create [gamename], refresh, join [gamename], leave, status, passBomb [playername], explode");
@@ -69,71 +67,26 @@ public class Connection {
 
 	@OnMessage
 	public void onMessage(String message, Session session) {
-	
 		JSONTokener tokener = new JSONTokener(message);
-		
-		
-			JSONObject mess = new JSONObject(tokener);
-			JSONObject header = (JSONObject) mess.get("header");
-			JSONObject body = (JSONObject) mess.get("body");
-	
-			int type = (int) header.get("type");
-		
-			
-		// long uuid = 1234;
-		//String password = "password";
-		// System.out.println(Thread.currentThread());
-		// Object jsonObject = (JSONObject)parser.parse(message);
-		// JSONArray msg = (JSONArray) ((ArrayList) jsonObject).get("messages");
+		JSONObject mess = new JSONObject(tokener);
+		JSONObject header = (JSONObject) mess.get("header");
+		JSONObject body = (JSONObject) mess.get("body");
 
-		//String messArr[] = message.split(" ", 2);
-
-//		String header, body;
-//		if (messArr.length == 1) {
-//			header = messArr[0];
-//			body = "";
-//		} else {
-//			header = messArr[0];
-//			body = messArr[1];
-//		}
-
+		int type = (int) header.get("type");
+		
 		System.out.println("Message received: " + header + " " + body);
-
-//		if (!(type == Message.REGISTER) && !map.containsKey(session)) {
-//			sendMess(session, Message.Not_Registered_Error());
-//			return;
-//		}
 
 		switch (type) {
 		case Message.REGISTER:
-//			if (body.equals(""))
-//				register("Default Name", 1234, session); // create player and
-//															// add to the
-//			else
-			//TODO: ändern
 				register(session, body);
 			break; // map
 		case Message.CREATE_GAME:
-//			if (body.equals(""))
-//				createGame(session, "Default Gamename", password);// open a game
-//																	// and add
-//																	// the
-//																	// player as
-//																	// the
-//																	// creator
-//			else
 				createGame(session, body);
 			break;
-		//case Message.GET_GAMES: // or join
-		//	getLobbyList(session); // returns all current games
-		//	break;
 		case Message.JOIN_GAME:
-//			if (body.equals(""))
-//				sendMess(session, "Which game you wanna join?");
-//			else
 				joinGame(session, body); // adds the player to a game
 			break;
-		case Message.LEAVE_GAME:// TODO can u do it intentionally?, next creator random?
+		case Message.LEAVE_GAME:
 			leaveGame(session); // removes a player from a game
 			break;
 		case Message.STATUS:
@@ -143,31 +96,16 @@ public class Connection {
 			startGame(session);
 			break;
 		case Message.PASS_BOMB:
-			// TODO what do we receive from the client? id
 			passBomb(session, body);
 			break;
 		case Message.EXPLODED:
 			bombExplode(session);
 			break;
-
-		// reconnect denied or gameupdate
 		
 		default:
 			sendMess(session, Message.TypeError());
 			System.out.println("Type Error");
-		}
-		
-		// System.out.println("Message from " + session.getId() + ": " +
-		// message);
-		System.out.println("games:" + Integer.toString(games.size()));
-
-		// System.out.println(games.size());
-		for (Session s : registeredSessions) {
-			System.out.print("Player according to a registered session: ");
-			System.out.println(map.get(s) == null ? "null" : map.get(s).getName());
-		}
-		
-		
+		}		
 	}
 
 	@OnClose
@@ -180,17 +118,13 @@ public class Connection {
 		System.out.println("session closed");
 	}
 
-	/*
-	 * @OnError public void onError(Session session, Throwable t) {
-	 * System.out.println("Höu, error?"); System.out.println(t.getMessage()); }
-	 */
-
+	
 	public static void checkConnection() {
 		while (true) {
 			// System.out.println("number of registered sessions: " +
 			// registeredSessions.size());
 			for (Session s : registeredSessions) {
-				Player p = map.get(s); // TODO can this be null?
+				Player p = map.get(s); // FIXME: can this be null?
 				// check last received pong
 				if (Math.abs(p.getLastPong() - System.currentTimeMillis()) > hardTimeout) {
 					System.out.println("================================================");
@@ -226,7 +160,7 @@ public class Connection {
 				ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
 				buffer.asLongBuffer().put(System.currentTimeMillis());
 				try {
-					// TODO getAsyncRemote or getBasicRemote?
+					// FIXME getAsyncRemote or getBasicRemote?
 					if (p.getSession().isOpen()) {
 						p.getSession().getAsyncRemote().sendPing(buffer);
 						// System.out.println("--Ping sended");
@@ -261,8 +195,7 @@ public class Connection {
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
-	//
-	//
+	
 	
 	//Add to the session a Player and start pinging the session
 	private void register(Session session, JSONObject body) {
@@ -322,28 +255,34 @@ public class Connection {
 	}
 
 	private void createGame(Session session, JSONObject body) {
-		String gamename = (String) body.get("game_id");
+		final String gamename = (String) body.get("game_id");
 		String password = (String) body.get("password");
 		Player owner = map.get(session);//player who creates a game is automatically the creator
 		
 		if (NeedRegister(session, owner) || NeedInGame(session, owner)) return;
-		// if the gamename is not unique it adds a number to the current gamename
-		int i = 0;
-		
-		//FIXME: race condition if gamename is 
-		while (!uniqueGamename(gamename)) {
-			gamename = gamename + Integer.toString(i);
-			sendMess(session, "A game with this gamename already exists, it was changed to: " + gamename);
-			i++;
+			
+		//FIXME: race condition if 
+		Game game;
+		synchronized (games) {
+			Optional<Integer> largest = games.stream()
+					.map(Game::getGamename)
+					.filter(s -> s.startsWith(gamename))
+					.map(s -> s.substring(gamename.length()))
+					.map(s -> Integer.getInteger(s))
+					.filter(i -> i != null)
+					.sorted().findFirst();
+			String newname = gamename;
+			if (largest.isPresent()) {
+				int addition = largest.get().intValue() + 1;
+				newname = gamename + Integer.toString(addition);
+			}
+			game = new Game(owner, gamename, password);
+			games.add(game);
 		}
-
-		// creator.setLastPong(System.currentTimeMillis());
-		Game game = new Game(owner, gamename, password);
 		owner.joinGame(game);
-		games.add(game);
-		
+				
 		sendMess(session, Message.SC_GameUpdate(game.toJSON(1)));
-		System.out.println("A game with gamename " + gamename + " was created");
+		System.out.println("A game with gamename " + game.getGamename() + " was created");
 	}
 
 	//FIXME: Race Condition, If game is deleted
@@ -357,7 +296,7 @@ public class Connection {
 	}
 
 	private void getLobbyList(Session session) {
-		// TODO: Does player need to be registered?
+		// FIXME: Does player need to be registered?
 		
 		JSONArray gameArray = new JSONArray();
 		for (Game g: games) {
@@ -471,6 +410,8 @@ public class Connection {
 		if (NeedRegister(s, player) || NeedInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)) return;
 				
 		long targetUUID = (long) body.get("target");
+		
+		//FIXME ?? übergeben wir hier den Score mit?
 		int bomb = (int) body.get("bomb");
 		
 		//FIXME: Does the player tell its score via 'passbomb'?

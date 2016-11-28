@@ -94,7 +94,7 @@ public class Game {
 		return players.size();
 	}
 	
-	//TODO
+
 	public void startGame(){
 		started = true;
 		bombOwner = pickRandom();

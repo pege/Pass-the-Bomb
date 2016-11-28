@@ -9,8 +9,8 @@ public class Player {
 	private long uuid;
 	private String name;
 	private int score;
-	//TODO: vielleicht umschreiben
-	private boolean hasBomb;
+	
+	
 	//TODO connected is same as registered => map points to player
 	private boolean maybeDC; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
 	private Session session;
@@ -25,6 +25,7 @@ public class Player {
 		this.session = session;
 	}
 	
+	//FIXME DEPRECATED
 	public boolean hasBomb() {
 		if (inGame == null) return false;
 		return inGame.getBombOwner() == this;
