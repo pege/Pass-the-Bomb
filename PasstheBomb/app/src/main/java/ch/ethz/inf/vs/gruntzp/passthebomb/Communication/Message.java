@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created by niederbm on 11/25/16.
@@ -44,7 +45,8 @@ public class Message {
     public static final int GAME_NOT_FOUND = -8;
     public static final int NOT_IN_GAME_ERROR = -9; 
     public static final int NOT_GAME_OWNER = -10; 
-    public static final int DONT_OWN_BOMB = -11;
+    public static final int DOESNT_OWN_BOMB = -11;
+    public static final int NOT_STARTED_ERROR = -12;
    
     
     // CLIENT TO SERVER CS_
@@ -315,6 +317,29 @@ public class Message {
         return null;
     }
     
+    public static String DoesntOwnBombError() {
+		try {
+            JSONObject header = new JSONObject();
+            header.put("type", DOESNT_OWN_BOMB);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+    
+    public static String NotStartedError() {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", NOT_STARTED_ERROR);
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+	}
+
+    
     public static String Wrong_Password_Error() {
         try {
             JSONObject header = new JSONObject();
@@ -451,4 +476,5 @@ public class Message {
     public static String compose(JSONObject header) throws JSONException {
         return compose(header, new JSONObject());
     }
+
 }

@@ -26,14 +26,12 @@ import org.json.JSONTokener;
 @ServerEndpoint("/echo")
 public class Connection {
 
-	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
+	
 	private static final long softTimeout = 5000; // timeout in ms
 	private static final long hardTimeout = 15000; // timeout in ms
 	private static final long timeBetweenPings = 10; // time to wait between sending a ping
 	
-	private static final int finalScore = 100;
-	private static final int scoreIncrease = 50;
-	private static final int scoreDecrease = -10;
+	
 	
 	// max times of clients: timeout/timeBetweenPings
 
@@ -452,10 +450,10 @@ public class Connection {
 		}
 		else {
 			game.startGame();
+			game.broadcast_detailed_state();
 		}
 	}
 
-	
 
 	private void sendMess(Session s, String mess) {
 		try {
@@ -474,97 +472,54 @@ public class Connection {
 				
 		long targetUUID = (long) body.get("target");
 		int bomb = (int) body.get("bomb");
-		Game g = player.getJoinedGame();
 		
-		if (g.getBombOwner() != player) {
+		//FIXME: Does the player tell its score via 'passbomb'?
+		int score = (int) body.get("score");
+		
+		Game game = player.getJoinedGame();
+		
+		if (game.getBombOwner() != player) {
 			sendMess(s, Message.DoesntOwnBombError());
 			return;
 		}
-		//TODO: much to do
-		for (Player p : g.getPlayers()) {
+		
+		//TODO: update score on Player if needed
+		for (Player p : game.getPlayers()) {
 			if (p.getUuid() == targetUUID) {
-				if (!p.isMaybeDisconnected()) {// TODO can we send here the bomb
-												// or not?
-					if (p == map.get(s)) {
-						sendMess(s, "You already have the bomb");
-					} else {
-						//TODO switch, broadcast
-						sendBomb(p.getSession(), bomb);
-						map.get(s).setBomb(false);
-						p.setBomb(true);
-					}
-					return; // Only break
-				} else {
-					sendMess(s, "The target Player is maybe DC, the server tries to fix the connection");
-				}
-
+				game.setBombOwner(p);
+				game.broadcast_detailed_state();
+				break;
 			}
 		}
+		
+		//TODO: Player not in Game Error
+		
 		sendMess(s, "ID not found");
 		System.out.println("Error in Bomb passing, ID not found");
 
 	}
 
 
-	private void bombExplode(Session loserSession) {
+	private void bombExplode(Session s) {
 		// Inform other players
-		Player loserPlayer = map.get(loserSession);
-
-		loserPlayer.setBomb(false);
-		loserPlayer.changeScore(scoreDecrease);
-		sendMess(loserSession, "You loose " + Integer.toString(scoreDecrease) + " score, your new score: " + Integer.toString(loserPlayer.getScore()));
-		// inform the other players and their score
-		for (Player winnerPlayer : loserPlayer.getJoinedGame().getPlayers()) {
-			if (winnerPlayer != loserPlayer) {
-				sendMess(winnerPlayer.getSession(), loserPlayer.getName() + " was very stupid, the bomb exploded, rip");
-				winnerPlayer.changeScore(scoreIncrease);
-				sendMess(winnerPlayer.getSession(),
-						"Your score increases by " + Integer.toString(scoreIncrease) + ", your score now: " + Integer.toString(winnerPlayer.getScore()));
-			}
-		}
-
-		if (endGame(loserPlayer.getJoinedGame())) {
-			
-			Player winner = highestScore(loserPlayer.getJoinedGame());
-			int winnerScore = winner.getScore();
-			
-			games.remove(winner.getJoinedGame());
-			
-			for (Player p : loserPlayer.getJoinedGame().getPlayers()) {
-				sendMess(p.getSession(), "GAME OVER");
-				sendMess(p.getSession(), winner.getName() + " is the winner with a score of " + winnerScore);
-				p.leaveGame();
-				p.resetScore();
-			}
-			sendMess(winner.getSession(), "====Congratulations====");
+		Player player = map.get(s);
+		if (NeedRegister(s, player) || NeedInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)) return;
+		
+		Game game = player.getJoinedGame();
+		
+		game.bomb_exploded(player);		
+		game.broadcast_detailed_state();
+		
+		
+		if (game.isFinished()) {	
+			game.destroy();
+			games.remove(game);
 			System.out.println("Game Over");
-			
 		} else {
-			startNewRound(loserPlayer.getJoinedGame());
+			game.startGame();
 		}
 	}
 
-	
-
-	private boolean endGame(Game game) {
-		for (Player p : game.getPlayers()) {
-			if (p.getScore() >= finalScore)
-				return true;
-		}
-		return false;
-	}
-	
-	private Player highestScore(Game g){
-		int hSc = Integer.MIN_VALUE;
-		Player currentP = null;
-		for(Player p : g.getPlayers()){
-			if(p.getScore() > hSc){ //TODO what if same score
-				currentP = p;
-				hSc = p.getScore();
-			}
-		}
-		return currentP;
-	}
 	
 	// ERROR HADNLING
 	
@@ -581,7 +536,7 @@ public class Connection {
 			sendMess(s, Message.NotStartedError());
 			return true;
 		}
-		
+		return false;	
 	}
 	
 	private boolean NeedRegister(Session s, Player p){
