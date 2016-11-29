@@ -195,7 +195,7 @@ public class Connection {
 		if (map.containsKey(session)) {
 			// player is already registered
 			System.out.println("Second register try received");
-			sendMess(session, Message.denyRegister());
+			sendMess(session, Message.SC_denyRegister());
 			// sendMess(session, "This connection is already registered with
 			// name: " + map.get(session).getName());
 			return;// ?

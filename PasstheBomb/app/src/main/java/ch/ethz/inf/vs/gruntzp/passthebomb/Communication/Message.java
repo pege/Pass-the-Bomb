@@ -19,18 +19,16 @@ public class Message {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    public static final int PLAYER_LIST = 6; 	// ?? Das sollte der Server dem Client schicken während er auf den Start des SPiels wartet, damit der Client die Liste immer aktuell halten kann
+    //public static final int PLAYER_LIST = 6; 	// n�, ist redundant. haben wir auch im GameUpdate
     //public static final int PLAYER_UNREACHABLE = 7; 
     public static final int RECONNECT = 8; 		// --
     //public static final int GAME_UPDATE = 9;
     //public static final int SC_END_OF_ROUND = 10;	
-    public static final int DENY = 11;			// genauer Zweck? War ursprünglich RECONNECT_DENY, für den Fall, dass der Spieler nicht mehr reconnecten kann (Hard timeout). Pege oder du habens dann auf ein allgemeines deny geändert.
     public static final int PASS_BOMB = 12;		// server
     public static final int EXPLODED = 13;		// server
     //public static final int GAME_OVER = 14;
     //public static final int INHERIT_CREATOR = 15; 
     public static final int START_GAME = 16;	// server
-    
     //Bei Antippen der Bombe und bei ablaufendem Timer.
     public static final int UPDATE_SCORE = 17;
     
@@ -39,7 +37,8 @@ public class Message {
     // FROM SERVER TO CLIENT
     public static final int SC_GAME_LIST = 19;
     public static final int SC_GAME_UPDATE = 20;
-    
+    // ERRORS
+    public static final int SC_RECONNECT_DENIED_ERROR = 11;			
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
     public static final int NOT_REGISTERED_ERROR = -4;
@@ -216,12 +215,12 @@ public class Message {
     
     // SERVER TO CLIENT SC_
     
-    public static String denyRegister() {
+    public static String SC_denyRegister() {
         try {
             JSONObject header = new JSONObject();
             //JSONObject body = new JSONObject();
 
-            header.put("type", DENY);
+            header.put("type", SC_RECONNECT_DENIED_ERROR);
 
             return compose(header);
         } catch (JSONException e) {
