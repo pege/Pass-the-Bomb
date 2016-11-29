@@ -13,6 +13,7 @@ import java.util.Collection;
  */
 
 public class Message {
+	
 	// FROM CLIENT TO SERVER
     public static final int CREATE_GAME = 1; 	// server
     public static final int LIST_GAMES = 2; 	// server

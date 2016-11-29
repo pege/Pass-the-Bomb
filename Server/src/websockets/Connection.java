@@ -92,11 +92,14 @@ public class Connection {
 			break;
 		case Message.LIST_GAMES:
 			getGameList(session);
+			break;
 		case Message.UPDATE_SCORE:
 			update_score(session, body);
+			break;
 		default:
 			sendMess(session, Message.TypeError());
 			System.out.println("Type Error");
+			break;
 		}
 	}
 
