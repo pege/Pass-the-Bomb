@@ -39,14 +39,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         // initialize global variables
         bomb = (ImageView) findViewById(R.id.bomb);
-        Bundle extras = getIntent().getExtras();
-        game = (Game) extras.get("game");
-        thisPlayer = (Player) extras.get("thisPlayer");
+       // Bundle extras = getIntent().getExtras();
+        //game = (Game) extras.get("game");
+        //thisPlayer = (Player) extras.get("thisPlayer");
         //TODO get information on who has the bomb and set that in the variable 'game'
 
 
         //for testing only
-        /*
+
         game = new Game("herp derp", "theBest", false, "");
         game.addPlayer(new Player("Senpai"));
         game.addPlayer(new Player("herp"));
@@ -56,7 +56,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
         //endGame();
-        */
+
 
 
         //GUI stuff
@@ -110,10 +110,26 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             if (thisPlayer != game.getPlayers().get(i)) {
                 Button player_field = (Button) gameView.getChildAt(j);
                 player_field.setVisibility(View.VISIBLE);
-                player_field.setText(game.getPlayers().get(i).getName());
+                player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
                 j++;
             }
         }
+        TextView own_score = (TextView) findViewById(R.id.Score_number);
+        own_score.setText(thisPlayer.getScore()+"");
+    }
+
+    public void updateScore(){
+        int j = 0; //index for player field
+        for(int i=0; i<game.getPlayers().size(); i++){
+            if (thisPlayer != game.getPlayers().get(i)) {
+                Button player_field = (Button) gameView.getChildAt(j);
+               //we include score in the name-string
+                player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
+                j++;
+            }
+        }
+        TextView own_score = (TextView) findViewById(R.id.Score_number);
+        own_score.setText(thisPlayer.getScore()+"");
     }
 
     private void setUpBomb(){
