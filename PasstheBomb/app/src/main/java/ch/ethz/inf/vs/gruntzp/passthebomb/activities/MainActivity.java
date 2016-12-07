@@ -67,16 +67,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     public void onClickTutorial(View view) {
-       /* // save username
+        // save username
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("user_name", mEdit.getText().toString());
         editor.commit();
 
         //Start next Activity
         Intent myIntent = new Intent(this, TutorialActivity.class);
-        this.startActivity(myIntent); */
-        Intent intent = new Intent(this, GameActivity.class);
-        this.startActivity(intent);
+        this.startActivity(myIntent);
     }
 
     @Override
