@@ -39,14 +39,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         // initialize global variables
         bomb = (ImageView) findViewById(R.id.bomb);
-       // Bundle extras = getIntent().getExtras();
-        //game = (Game) extras.get("game");
-        //thisPlayer = (Player) extras.get("thisPlayer");
+        Bundle extras = getIntent().getExtras();
+        game = (Game) extras.get("game");
+        thisPlayer = (Player) extras.get("thisPlayer");
         //TODO get information on who has the bomb and set that in the variable 'game'
 
 
         //for testing only
-
+        /*
         game = new Game("herp derp", "theBest", false, "");
         game.addPlayer(new Player("Senpai"));
         game.addPlayer(new Player("herp"));
@@ -56,7 +56,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
         //endGame();
-
+        */
 
 
         //GUI stuff
