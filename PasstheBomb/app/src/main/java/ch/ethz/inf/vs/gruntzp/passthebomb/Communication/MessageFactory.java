@@ -12,7 +12,7 @@ import java.util.Collection;
  * Created by niederbm on 11/25/16.
  */
 
-public class Message {
+public class MessageFactory {
 	
 	// FROM CLIENT TO SERVER
     public static final int CREATE_GAME = 1; 	// server
@@ -20,7 +20,7 @@ public class Message {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    //public static final int PLAYER_LIST = 6; 	// nö, ist redundant. haben wir auch im GameUpdate
+    //public static final int PLAYER_LIST = 6; 	// nï¿½, ist redundant. haben wir auch im GameUpdate
     //public static final int PLAYER_UNREACHABLE = 7; 
     public static final int RECONNECT = 8; 		// --
     //public static final int GAME_UPDATE = 9;

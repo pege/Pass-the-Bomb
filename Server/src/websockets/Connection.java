@@ -78,9 +78,6 @@ public class Connection {
 		case Message.LEAVE_GAME:
 			leaveGame(session); // removes a player from a game
 			break;
-		case Message.STATUS:
-			returnStatus(session);
-			break;
 		case Message.START_GAME:
 			startGame(session);
 			break;
@@ -352,23 +349,7 @@ public class Connection {
 
 	}
 
-	// FIXME: WTf?
-	private void returnStatus(Session session) {
-		try {
-			Player p = map.get(session);
-			sendMess(session, "Your name is: " + p.getName());
-			sendMess(session, "Number of existing games: " + games.size());
-			if (p.getJoinedGame() != null) {
-				sendMess(session, "you're in game: " + p.getJoinedGame().getGamename());
-				sendMess(session, "The creator is: " + p.getJoinedGame().getOwner().getName());
-			} else {
-				sendMess(session, "You're not in a game");
-			}
-		} catch (Exception e) {
-			System.out.println("ouuuuuuuh");
-		}
-	}
-
+	
 	private void startGame(Session session) {
 		Player player = map.get(session);
 		if (NeedRegister(session, player) || NeedInGame(session, player))

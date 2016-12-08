@@ -11,6 +11,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.ServiceConnector;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
@@ -61,6 +62,7 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 Toast toast = Toast.makeText(this, R.string.password_required, Toast.LENGTH_SHORT);
                 toast.show();
             }else {
+                ServiceConnector.getInstance().sendMessage(Mess);
                 Intent myIntent = new Intent(this, LobbyActivity.class);
 
                 //TODO give the server the game information

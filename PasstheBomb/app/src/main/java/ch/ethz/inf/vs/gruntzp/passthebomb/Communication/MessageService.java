@@ -40,7 +40,7 @@ public class MessageService extends Service {
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        System.out.println("Message: " + message);
+        System.out.println("MessageFactory: " + message);
         if(this.activity != null)
         {
             this.activity.onMessage(message);
