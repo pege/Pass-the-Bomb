@@ -192,8 +192,9 @@ public class Connection {
 
 	// Add to the session a Player and start pinging the session
 	private void register(Session session, JSONObject body) {
-		long uuid = (long) body.get("uuid");
 		String username = (String) body.get("username");
+		Long uuid = new Long((int) body.get("user_id"));
+		
 
 		if (map.containsKey(session)) {
 			// player is already registered
@@ -253,7 +254,7 @@ public class Connection {
 		Player owner = map.get(session);// player who creates a game is
 										// automatically the creator
 
-		if (NeedRegister(session, owner) || NeedInGame(session, owner))
+		if (NeedRegister(session, owner) || alreadyInGame(session, owner))
 			return;
 
 		// FIXME: race condition if
@@ -267,7 +268,7 @@ public class Connection {
 				int addition = largest.get().intValue() + 1;
 				newname = gamename + Integer.toString(addition);
 			}
-			game = new Game(owner, gamename, password);
+			game = new Game(owner, newname, password);
 			games.add(game);
 		}
 		owner.joinGame(game);
@@ -298,7 +299,7 @@ public class Connection {
 
 	private void joinGame(Session session, JSONObject body) {
 		Player player = map.get(session);
-		if (NeedRegister(session, player) || NeedInGame(session, player))
+		if (NeedRegister(session, player) || alreadyInGame(session, player))
 			return;
 
 		String gamename = (String) body.get("game_id");
@@ -337,7 +338,7 @@ public class Connection {
 
 	private void leaveGame(Session session) {
 		Player player = map.get(session);
-		if (NeedRegister(session, player) || NeedInGame(session, player))
+		if (NeedRegister(session, player) || notInGame(session, player))
 			return;
 
 		Game game = player.getJoinedGame();
@@ -371,7 +372,7 @@ public class Connection {
 
 	private void startGame(Session session) {
 		Player player = map.get(session);
-		if (NeedRegister(session, player) || NeedInGame(session, player))
+		if (NeedRegister(session, player) || notInGame(session, player))
 			return;
 
 		Game game = player.getJoinedGame();
@@ -389,7 +390,7 @@ public class Connection {
 
 	private void passBomb(Session s, JSONObject body) {
 		Player player = map.get(s);
-		if (NeedRegister(s, player) || NeedInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)  || NeedBomb(s, player))
+		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)  || NeedBomb(s, player))
 			return;
 
 		long targetUUID = (long) body.get("target");
@@ -422,7 +423,7 @@ public class Connection {
 	private void bombExplode(Session s) {
 		// Inform other players
 		Player player = map.get(s);
-		if (NeedRegister(s, player) || NeedInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true) || NeedBomb(s, player))
+		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true) || NeedBomb(s, player))
 			return;
 
 		Game game = player.getJoinedGame();
@@ -442,7 +443,7 @@ public class Connection {
 	private void update_score(Session s, JSONObject body) {
 		// Inform other players
 		Player player = map.get(s);
-		if (NeedRegister(s, player) || NeedInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true) || NeedBomb(s, player))
+		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true) || NeedBomb(s, player))
 			return;
 		
 		int new_score = (int) body.get("score");
@@ -480,9 +481,17 @@ public class Connection {
 		return false;
 	}
 
-	private boolean NeedInGame(Session s, Player p) {
+	private boolean notInGame(Session s, Player p) {
 		if (p.getJoinedGame() == null) {
 			sendMess(s, Message.NotInGameError());
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean alreadyInGame(Session s, Player p) {
+		if (p.getJoinedGame() != null) {
+			sendMess(s, Message.AlreadyInGameError());
 			return true;
 		}
 		return false;
