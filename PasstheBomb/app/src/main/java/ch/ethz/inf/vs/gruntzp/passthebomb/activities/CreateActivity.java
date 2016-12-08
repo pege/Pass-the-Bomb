@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.content.Intent;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -10,7 +11,11 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.ServiceConnector;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
@@ -61,26 +66,31 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 Toast toast = Toast.makeText(this, R.string.password_required, Toast.LENGTH_SHORT);
                 toast.show();
             }else {
-                Intent myIntent = new Intent(this, LobbyActivity.class);
+                String password = passwordField.getText().toString();
+                String name = gameName.getText().toString();
+
+                ServiceConnector.getInstance().sendMessage(
+                        MessageFactory.createGame(name, password));
+
+
+
+
+
+
 
                 //TODO give the server the game information
                 //create the game
-                String name = gameName.getText().toString(); //TODO fix game name if conflict arises
+
                 Bundle extras = getIntent().getExtras();
                 String creatorName = extras.getString("creator_name");
                 Boolean locked = passwordSwitch.isChecked();
-                String password = passwordField.getText().toString();
-                Game game = new Game(name, creatorName, locked, password);
 
-                // give GameActivity extra information
-                myIntent.putExtra("isCreator", true);
-                myIntent.putExtra("game", game);
-                myIntent.putExtra("thisPlayer", game.getPlayers().get(0));
 
-                this.startActivity(myIntent);
             }
         }
     }
+
+
 
     @Override
     protected void onStart() {
@@ -89,8 +99,12 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
     }
 
     @Override
-    public void onMessage(String message) {
-        //TODO
+    public void onMessage(int type, JSONObject body) {
+        if (type == MessageFactory.SC_GAME_UPDATE) {
+            Intent myIntent = new Intent(this, LobbyActivity.class);
+
+            myIntent.putExtra("message", body.toString());
+        }
     }
 
     @Override

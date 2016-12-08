@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -55,6 +57,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
+        thisPlayer.setScore(2000);
         //endGame();
         */
 
@@ -425,7 +428,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
     }
 

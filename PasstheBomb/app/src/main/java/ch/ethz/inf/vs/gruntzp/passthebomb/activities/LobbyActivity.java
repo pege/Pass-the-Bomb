@@ -11,6 +11,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -27,6 +30,24 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
+
+        String game_update = getIntent().getExtras().getString("message");
+        try {
+            JSONObject body = new JSONObject(game_update);
+
+        } catch (JSONException e) {
+            return;
+        }
+
+//        Game game = new Game(name, creatorName, locked, password);
+//
+//        // give GameActivity extra information
+//        myIntent.putExtra("isCreator", true);
+//        myIntent.putExtra("game", game);
+//        myIntent.putExtra("thisPlayer", game.getPlayers().get(0));
+//
+//        this.startActivity(myIntent);
+
 
         // initialize global variables
         Bundle extras = getIntent().getExtras();
@@ -146,7 +167,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
     }
 

@@ -66,38 +66,35 @@ public class Connection {
 		System.out.println("Message received: " + header + " " + body);
 
 		switch (type) {
-		case Message.REGISTER:
+		case MessageFactory.REGISTER:
 			register(session, body);
 			break; // map
-		case Message.CREATE_GAME:
+		case MessageFactory.CREATE_GAME:
 			createGame(session, body);
 			break;
-		case Message.JOIN_GAME:
+		case MessageFactory.JOIN_GAME:
 			joinGame(session, body); // adds the player to a game
 			break;
-		case Message.LEAVE_GAME:
+		case MessageFactory.LEAVE_GAME:
 			leaveGame(session); // removes a player from a game
 			break;
-		case Message.STATUS:
-			returnStatus(session);
-			break;
-		case Message.START_GAME:
+		case MessageFactory.START_GAME:
 			startGame(session);
 			break;
-		case Message.PASS_BOMB:
+		case MessageFactory.PASS_BOMB:
 			passBomb(session, body);
 			break;
-		case Message.EXPLODED:
+		case MessageFactory.EXPLODED:
 			bombExplode(session);
 			break;
-		case Message.LIST_GAMES:
+		case MessageFactory.LIST_GAMES:
 			getGameList(session);
 			break;
-		case Message.UPDATE_SCORE:
+		case MessageFactory.UPDATE_SCORE:
 			update_score(session, body);
 			break;
 		default:
-			sendMess(session, Message.TypeError());
+			sendMess(session, MessageFactory.TypeError());
 			System.out.println("Type Error");
 			break;
 		}
@@ -199,7 +196,7 @@ public class Connection {
 		if (map.containsKey(session)) {
 			// player is already registered
 			System.out.println("Second register try received");
-			sendMess(session, Message.SC_denyRegister());
+			sendMess(session, MessageFactory.SC_denyRegister());
 			// sendMess(session, "This connection is already registered with
 			// name: " + map.get(session).getName());
 			return;// ?
@@ -229,7 +226,7 @@ public class Connection {
 					e.printStackTrace();
 				}
 
-				sendMess(session, Message.SC_GameUpdate(p.getJoinedGame().toJSON(1)));
+				sendMess(session, MessageFactory.SC_GameUpdate(p.getJoinedGame().toJSON(1)));
 				System.out.println("=== " + username + " has reconnected ===");
 				return;
 			}
@@ -273,7 +270,7 @@ public class Connection {
 		}
 		owner.joinGame(game);
 
-		sendMess(session, Message.SC_GameUpdate(game.toJSON(1)));
+		sendMess(session, MessageFactory.SC_GameUpdate(game.toJSON(1)));
 		System.out.println("A game with gamename " + game.getGamename() + " was created");
 	}
 
@@ -294,7 +291,7 @@ public class Connection {
 		synchronized (games) {
 			games.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
 		}
-		sendMess(session, Message.SC_GameList(gameArray));
+		sendMess(session, MessageFactory.SC_GameList(gameArray));
 	}
 
 	private void joinGame(Session session, JSONObject body) {
@@ -310,7 +307,7 @@ public class Connection {
 				if (game.checkPassword(password)) {
 
 					if (game.hasStarted()) {
-						sendMess(session, Message.Already_Started_Error());
+						sendMess(session, MessageFactory.Already_Started_Error());
 						System.out.println("Game already started");
 						return;
 					}
@@ -319,19 +316,19 @@ public class Connection {
 					game.addPlayer(player);
 
 					// Send all players the updated game status
-					game.broadcast(Message.SC_GameUpdate(game.toJSON(1)));
+					game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
 
 					System.out.println(player.getName() + " joined the game " + game.getGamename());
 					return;
 				} else {
-					sendMess(session, Message.Wrong_Password_Error());
+					sendMess(session, MessageFactory.Wrong_Password_Error());
 					System.out.println("Wrong password");
 					return;
 				}
 			}
 		}
 
-		sendMess(session, Message.GameNotFoundError());
+		sendMess(session, MessageFactory.GameNotFoundError());
 		System.out.println("No game with that name found");
 
 	}
@@ -348,28 +345,12 @@ public class Connection {
 			// FIXME: Race Condition
 			games.remove(game);
 		} else {
-			game.broadcast(Message.SC_GameUpdate(game.toJSON(1)));
+			game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
 		}
 
 	}
 
-	// FIXME: WTf?
-	private void returnStatus(Session session) {
-		try {
-			Player p = map.get(session);
-			sendMess(session, "Your name is: " + p.getName());
-			sendMess(session, "Number of existing games: " + games.size());
-			if (p.getJoinedGame() != null) {
-				sendMess(session, "you're in game: " + p.getJoinedGame().getGamename());
-				sendMess(session, "The creator is: " + p.getJoinedGame().getOwner().getName());
-			} else {
-				sendMess(session, "You're not in a game");
-			}
-		} catch (Exception e) {
-			System.out.println("ouuuuuuuh");
-		}
-	}
-
+	
 	private void startGame(Session session) {
 		Player player = map.get(session);
 		if (NeedRegister(session, player) || notInGame(session, player))
@@ -380,7 +361,7 @@ public class Connection {
 			return;
 
 		if (game.getOwner() != player) {
-			sendMess(session, Message.NotGameOwnerError());
+			sendMess(session, MessageFactory.NotGameOwnerError());
 		} else {
 			game.startGame();
 			game.broadcast_detailed_state();
@@ -455,7 +436,7 @@ public class Connection {
 	// ERROR HADNLING
 	private boolean NeedBomb(Session s, Player player) {
 		if (!player.hasBomb()) {
-			sendMess(s, Message.DoesntOwnBombError());
+			sendMess(s, MessageFactory.DoesntOwnBombError());
 			return true;
 		}
 		return false;
@@ -464,10 +445,10 @@ public class Connection {
 	
 	private boolean NeedStarted(Session s, Game g, boolean status) {
 		if (g.hasStarted() && !status) {
-			sendMess(s, Message.Already_Started_Error());
+			sendMess(s, MessageFactory.Already_Started_Error());
 			return true;
 		} else if (!g.hasStarted() && status) {
-			sendMess(s, Message.NotStartedError());
+			sendMess(s, MessageFactory.NotStartedError());
 			return true;
 		}
 		return false;
@@ -475,7 +456,7 @@ public class Connection {
 
 	private boolean NeedRegister(Session s, Player p) {
 		if (p == null) {
-			sendMess(s, Message.Not_Registered_Error());
+			sendMess(s, MessageFactory.Not_Registered_Error());
 			return true;
 		}
 		return false;
@@ -483,7 +464,7 @@ public class Connection {
 
 	private boolean notInGame(Session s, Player p) {
 		if (p.getJoinedGame() == null) {
-			sendMess(s, Message.NotInGameError());
+			sendMess(s, MessageFactory.NotInGameError());
 			return true;
 		}
 		return false;

@@ -11,6 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 
 public class MainActivity extends AppCompatActivity implements MessageListener {
@@ -95,8 +98,10 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
+        Toast toast = Toast.makeText(this, String.valueOf(type), Toast.LENGTH_SHORT);
+        toast.show();
     }
 
     @Override
