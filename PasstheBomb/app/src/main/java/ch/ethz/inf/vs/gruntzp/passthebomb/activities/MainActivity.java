@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 
-import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.Message;
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 
 public class MainActivity extends AppCompatActivity implements MessageListener {
