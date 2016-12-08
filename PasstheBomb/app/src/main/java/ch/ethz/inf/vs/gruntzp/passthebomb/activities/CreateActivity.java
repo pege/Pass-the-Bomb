@@ -1,6 +1,7 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.content.Intent;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -64,7 +65,7 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 Toast toast = Toast.makeText(this, R.string.password_required, Toast.LENGTH_SHORT);
                 toast.show();
             }else {
-                ServiceConnector.getInstance().sendMessage(Mess);
+                ServiceConnector.getInstance().sendMessage(Message);
                 Intent myIntent = new Intent(this, LobbyActivity.class);
 
                 //TODO give the server the game information
