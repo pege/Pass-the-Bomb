@@ -472,7 +472,7 @@ public class Connection {
 	
 	private boolean alreadyInGame(Session s, Player p) {
 		if (p.getJoinedGame() != null) {
-			sendMess(s, Message.AlreadyInGameError());
+			sendMess(s, MessageFactory.AlreadyInGameError());
 			return true;
 		}
 		return false;

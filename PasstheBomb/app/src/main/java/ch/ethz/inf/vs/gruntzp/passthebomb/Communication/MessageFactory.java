@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
 //package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;

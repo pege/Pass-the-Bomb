@@ -51,13 +51,13 @@ public class ClientSide {
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
-					sess.getBasicRemote().sendText(Message.register(uuid, "pege"));
+					sess.getBasicRemote().sendText(MessageFactory.register(uuid, "pege"));
 					break;
 				case "create":
-					sess.getBasicRemote().sendText(Message.createGame("Game1", "8888"));
+					sess.getBasicRemote().sendText(MessageFactory.createGame("Game1", "8888"));
 					break;
 				case "join":
-					sess.getBasicRemote().sendText(Message.joinGame("Game1", "8888"));
+					sess.getBasicRemote().sendText(MessageFactory.joinGame("Game1", "8888"));
 					break;
 				default:
 					break;
