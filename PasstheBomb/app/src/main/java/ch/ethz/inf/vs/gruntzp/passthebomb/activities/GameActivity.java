@@ -57,6 +57,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
+        thisPlayer.setScore(2000);
         //endGame();
         */
 
