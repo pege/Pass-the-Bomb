@@ -142,7 +142,7 @@ public class Game {
 	
 	public void broadcast_detailed_state()
 	{
-		broadcast(Message.SC_GameUpdate(this.toJSON(1)));
+		broadcast(MessageFactory.SC_GameUpdate(this.toJSON(1)));
 	}
 	
 	public void broadcast(String message) {
