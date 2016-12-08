@@ -18,6 +18,7 @@ import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
+import org.json.*;
 /**
  * Created by Marc on 24.11.2016.
  */
@@ -40,10 +41,20 @@ public class MessageService extends Service {
 
     @OnMessage
     public void onMessage(String message, Session session) {
+
         System.out.println("Message: " + message);
         if(this.activity != null)
         {
-            this.activity.onMessage(message);
+            int type = 0;
+            JSONObject body = null;
+            try {
+                JSONObject msg = new JSONObject(message);
+                type = msg.getJSONObject("header").getInt("type");
+                body = msg.getJSONObject("body");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            this.activity.onMessage(type, body);
         }
     }
 

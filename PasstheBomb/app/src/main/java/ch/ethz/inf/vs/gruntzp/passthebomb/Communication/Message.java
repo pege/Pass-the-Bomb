@@ -1,5 +1,5 @@
-package websockets;
-//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+//package websockets;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,7 +20,7 @@ public class Message {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    //public static final int PLAYER_LIST = 6; 	// nö, ist redundant. haben wir auch im GameUpdate
+    //public static final int PLAYER_LIST = 6; 	// ne, ist redundant. haben wir auch im GameUpdate
     //public static final int PLAYER_UNREACHABLE = 7; 
     public static final int RECONNECT = 8; 		// --
     //public static final int GAME_UPDATE = 9;
@@ -51,6 +51,18 @@ public class Message {
     public static final int NOT_GAME_OWNER_ERROR = -10; 
     public static final int DOESNT_OWN_BOMB_ERROR = -11;
     public static final int NOT_STARTED_ERROR = -12;
+
+
+    //Parsing function
+    public static int parseType(JSONObject message) {
+        int ret = 0;
+        try{
+            ret = message.getJSONObject("header").getInt("type");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
    
     
     // CLIENT TO SERVER CS_
