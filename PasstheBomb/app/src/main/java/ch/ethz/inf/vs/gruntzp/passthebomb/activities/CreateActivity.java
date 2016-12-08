@@ -10,6 +10,8 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.ServiceConnector;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
@@ -91,7 +93,7 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
     }
 

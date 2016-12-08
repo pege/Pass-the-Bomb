@@ -9,7 +9,7 @@ How to use the Connection package:
     - Add the following methods:
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         // Do action depending on message...
     }
 
