@@ -14,15 +14,19 @@
 
 
         <Button android:id="@+id/player_1"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
             android:background="@drawable/player_field_red"
-            android:visibility="invisible"
+            android:visibility="visible"
             android:text=""/>
 
         <Button android:id="@+id/player_2"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:rotation="270"
@@ -34,6 +38,8 @@
             android:text=""/>
 
         <Button android:id="@+id/player_3"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:rotation="90"
@@ -45,6 +51,8 @@
             android:text=""/>
 
         <Button android:id="@+id/player_4"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

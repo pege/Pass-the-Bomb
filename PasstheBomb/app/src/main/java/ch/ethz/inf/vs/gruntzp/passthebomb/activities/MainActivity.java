@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         //Start next Activity
         Intent myIntent = new Intent(this, TutorialActivity.class);
         this.startActivity(myIntent);
+
     }
 
     @Override

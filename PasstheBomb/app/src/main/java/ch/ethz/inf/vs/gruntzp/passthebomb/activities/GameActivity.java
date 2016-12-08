@@ -47,6 +47,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         //for testing only
         /*
+
         game = new Game("herp derp", "theBest", false, "");
         game.addPlayer(new Player("Senpai"));
         game.addPlayer(new Player("herp"));
@@ -104,7 +105,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
          */
 
     }
-
+    //Issue: If names are too long, then they overlap with the borders of the buttons
+    //probably because the button is actually a rectangle, but the visual button is a trapezoid
     private void setUpPlayers(){
         int j = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
@@ -117,6 +119,24 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
         TextView own_score = (TextView) findViewById(R.id.Score_number);
         own_score.setText(thisPlayer.getScore()+"");
+    }
+
+    //adds "has bomb"-Icon to player_field
+    public void addBombIcon (int player_number) {
+        Button player_field = (Button) gameView.getChildAt(player_number);
+        player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.bomb_36dp, 0, 0, 0);
+    }
+
+    //removes (not invisible, but removed!) "has bomb"-Icon or "target"-icon from player_field
+    public void removeDrawableIcon (int player_number){
+        Button player_field = (Button) gameView.getChildAt(player_number);
+        player_field.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+    }
+
+    //analogous to addBombIcon
+    public void addTargetIcon (int player_number) {
+        Button player_field = (Button) gameView.getChildAt(player_number);
+        player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.target_36dp, 0, 0, 0);
     }
 
     public void updateScore(){
