@@ -59,6 +59,24 @@ public class ClientSide {
 				case "join":
 					sess.getBasicRemote().sendText(MessageFactory.joinGame("Game1", "8888"));
 					break;
+				case "leave":
+					sess.getBasicRemote().sendText(MessageFactory.leaveGame());
+					break;
+				case "list":
+					sess.getBasicRemote().sendText(MessageFactory.getGames());
+					break;
+				case "start":
+					sess.getBasicRemote().sendText(MessageFactory.startGame());
+					break;
+				case "passBomb":
+					//sess.getBasicRemote().sendText(MessageFactory.passBomb(target_uiid, bomb)());
+					break;
+				case "explode":
+					sess.getBasicRemote().sendText(MessageFactory.exploded());
+					break;
+				case "updateScore":
+					//sess.getBasicRemote().sendText(MessageFactory.updateScore(bomb, score));
+					break;
 				default:
 					break;
 				}
