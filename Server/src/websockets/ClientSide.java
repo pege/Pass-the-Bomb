@@ -26,8 +26,9 @@ public class ClientSide {
 	public static void main(String[] args) throws InterruptedException {
 		while (tryConnect() < 0) {
 			System.out.println("Failed");
-			Thread.sleep(500);
+			Thread.sleep(1000);
 		}
+
 	}
 
 	public static int tryConnect() {
@@ -62,10 +63,12 @@ public class ClientSide {
 					sess.getBasicRemote().sendText(MessageFactory.register(uuid, message[1]));
 					break;
 				case "create":
-					sess.getBasicRemote().sendText(MessageFactory.createGame(message[1], message.length==3 ? message[2] : ""));
+					sess.getBasicRemote()
+							.sendText(MessageFactory.createGame(message[1], message.length == 3 ? message[2] : ""));
 					break;
 				case "join":
-					sess.getBasicRemote().sendText(MessageFactory.joinGame(message[1],  message.length==3 ? message[2] : ""));
+					sess.getBasicRemote()
+							.sendText(MessageFactory.joinGame(message[1], message.length == 3 ? message[2] : ""));
 					break;
 				case "leave":
 					sess.getBasicRemote().sendText(MessageFactory.leaveGame());
@@ -77,13 +80,15 @@ public class ClientSide {
 					sess.getBasicRemote().sendText(MessageFactory.startGame());
 					break;
 				case "passBomb":
-					sess.getBasicRemote().sendText(MessageFactory.passBomb(Long.parseLong(message[1]), Integer.parseInt(message[2])));
+					sess.getBasicRemote().sendText(
+							MessageFactory.passBomb(Long.parseLong(message[1]), Integer.parseInt(message[2])));
 					break;
 				case "explode":
 					sess.getBasicRemote().sendText(MessageFactory.exploded());
 					break;
 				case "updateScore":
-					sess.getBasicRemote().sendText(MessageFactory.updateScore(Integer.parseInt(message[1]), Integer.parseInt(message[2])));
+					sess.getBasicRemote().sendText(
+							MessageFactory.updateScore(Integer.parseInt(message[1]), Integer.parseInt(message[2])));
 					break;
 				default:
 					sess.getBasicRemote().sendText(mess);
