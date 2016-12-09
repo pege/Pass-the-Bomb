@@ -60,7 +60,7 @@ public class ClientSide {
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
-					sess.getBasicRemote().sendText(MessageFactory.register(uuid, message[1]));
+					sess.getBasicRemote().sendText(MessageFactory.register(Long.toString(uuid), message[1]));
 					break;
 				case "create":
 					sess.getBasicRemote()
@@ -81,7 +81,7 @@ public class ClientSide {
 					break;
 				case "passBomb":
 					sess.getBasicRemote().sendText(
-							MessageFactory.passBomb(Long.parseLong(message[1]), Integer.parseInt(message[2])));
+							MessageFactory.passBomb(message[1], Integer.parseInt(message[2])));
 					break;
 				case "explode":
 					sess.getBasicRemote().sendText(MessageFactory.exploded());

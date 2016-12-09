@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 public class Player {
 	
-	private long uuid;
+	private String uuid;
 	private String name;
 	private int score;
 	
@@ -17,7 +17,7 @@ public class Player {
 	
 	
 	
-	public Player(String name, long uuid, Session session){
+	public Player(String name, String uuid, Session session){
 		this.name = name;
 		this.uuid = uuid;
 		this.session = session;
@@ -32,7 +32,7 @@ public class Player {
 		return name;
 	}
 	
-	public long getUuid(){
+	public String getUuid(){
 		return uuid;
 	}
 	

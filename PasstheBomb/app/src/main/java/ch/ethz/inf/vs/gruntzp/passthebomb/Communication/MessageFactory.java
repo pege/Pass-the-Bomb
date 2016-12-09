@@ -377,7 +377,7 @@ public class MessageFactory {
     }
    
 
-    public static String passBomb(long target_uiid, int bomb) {
+    public static String passBomb(String target_uiid, int bomb) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();

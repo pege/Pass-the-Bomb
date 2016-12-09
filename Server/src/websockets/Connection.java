@@ -194,7 +194,7 @@ public class Connection {
 	// Add to the session a Player and start pinging the session
 	private void register(Session session, JSONObject body) {
 		String username = (String) body.get("username");
-		Long uuid = new Long((int) body.get("user_id"));
+		String uuid = (String) body.get("user_id");
 
 		if (map.containsKey(session)) {
 			// player is already registered
@@ -209,7 +209,7 @@ public class Connection {
 		Iterator<Player> it = map.values().iterator();
 		while (it.hasNext()) {
 			Player p = it.next();
-			if (p != null && p.getUuid() == uuid) {
+			if (p != null && p.getUuid().equals(uuid)) {
 				System.out.println("Reconnect attempt");
 				// remove the old session
 				Session oldSession = p.getSession();
@@ -369,7 +369,7 @@ public class Connection {
 				|| NeedBomb(s, player))
 			return;
 
-		Long targetUUID = new Long((int) body.get("target"));
+		String targetUUID = (String) body.get("target");
 
 		// FIXME ?? übergeben wir hier den Score mit?
 		int bomb = (int) body.get("bomb");
@@ -381,9 +381,7 @@ public class Connection {
 		boolean transfered = false;
 		// TODO: update score on Player if needed
 		for (Player p : game.getPlayers()) {
-			if (p.getUuid() == targetUUID) {
-				System.out.println("pID: " + Long.toString(p.getUuid()));
-				System.out.println("targetID: " + Long.toString(targetUUID));
+			if (p.getUuid().equals(targetUUID)) {
 				game.setBombOwner(p);
 				game.broadcast_detailed_state();
 				transfered = true;
