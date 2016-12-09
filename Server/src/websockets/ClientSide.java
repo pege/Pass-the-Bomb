@@ -45,23 +45,27 @@ public class ClientSide {
 			String mess = "";
 			Random r = new Random();
 			Long uuid = new Long(r.nextInt(1000));
+			System.out.println(
+					"register [playername], create [gamename, pw], join [gamename, pw], leave, list, start, passBomb [targetID, bomb], explode, updateScore [score]");
 			while (!mess.equals("exit")) {
 
 				System.out.println("Something to send?");
 				mess = sc.nextLine();
 
-				switch (mess) {
+				String[] message = mess.split("\\s+");
+
+				switch (message[0]) {
 
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
-					sess.getBasicRemote().sendText(MessageFactory.register(uuid, "pege"));
+					sess.getBasicRemote().sendText(MessageFactory.register(uuid, message[1]));
 					break;
 				case "create":
-					sess.getBasicRemote().sendText(MessageFactory.createGame("Game1", "8888"));
+					sess.getBasicRemote().sendText(MessageFactory.createGame(message[1], message.length==3 ? message[2] : ""));
 					break;
 				case "join":
-					sess.getBasicRemote().sendText(MessageFactory.joinGame("Game1", "8888"));
+					sess.getBasicRemote().sendText(MessageFactory.joinGame(message[1],  message.length==3 ? message[2] : ""));
 					break;
 				case "leave":
 					sess.getBasicRemote().sendText(MessageFactory.leaveGame());
@@ -73,15 +77,13 @@ public class ClientSide {
 					sess.getBasicRemote().sendText(MessageFactory.startGame());
 					break;
 				case "passBomb":
-					// sess.getBasicRemote().sendText(MessageFactory.passBomb(1234,
-					// 20));
+					sess.getBasicRemote().sendText(MessageFactory.passBomb(Long.parseLong(message[1]), Integer.parseInt(message[2])));
 					break;
 				case "explode":
 					sess.getBasicRemote().sendText(MessageFactory.exploded());
 					break;
 				case "updateScore":
-					// sess.getBasicRemote().sendText(MessageFactory.updateScore(bomb,
-					// score));
+					sess.getBasicRemote().sendText(MessageFactory.updateScore(Integer.parseInt(message[1]), Integer.parseInt(message[2])));
 					break;
 				default:
 					sess.getBasicRemote().sendText(mess);

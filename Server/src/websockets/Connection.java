@@ -332,12 +332,14 @@ public class Connection {
 			return;
 
 		Game game = player.getJoinedGame();
-		player.leaveGame();
+		player.leaveGame(); //leaveGame checks if player is owner or has the bomb
+		game.removePlayer(player);
 
 		if (game.numberOfPlayers() == 0) { // Only this player is in game
 			// FIXME: Race Condition
 			games.remove(game);
 		} else {
+			System.out.println(player.getName() + "left the game " + game.getGamename());
 			game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
 		}
 
@@ -366,8 +368,7 @@ public class Connection {
 				|| NeedBomb(s, player))
 			return;
 
-		long targetUUID = (long) body.get("target");
-
+		Long targetUUID = new Long((int) body.get("target"));
 		// FIXME ?? übergeben wir hier den Score mit?
 		int bomb = (int) body.get("bomb");
 

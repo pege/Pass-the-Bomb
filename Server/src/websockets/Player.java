@@ -98,7 +98,7 @@ public class Player {
 		o.put("uuid", uuid);
 		o.put("name", name);
 		o.put("score", score);
-		o.put("connected", maybeDC);
+		o.put("disconnected", maybeDC);
 		return o;
 	}
 
