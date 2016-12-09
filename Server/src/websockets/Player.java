@@ -2,12 +2,15 @@ package websockets;
 
 import javax.websocket.Session;
 
+import org.json.JSONObject;
+
 public class Player {
 	
 	private long uuid;
 	private String name;
 	private int score;
-	private boolean hasBomb;
+	
+	
 	//TODO connected is same as registered => map points to player
 	private boolean maybeDC; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
 	private Session session;
@@ -22,6 +25,11 @@ public class Player {
 		this.session = session;
 	}
 	
+	public boolean hasBomb() {
+		if (inGame == null) return false;
+		return inGame.getBombOwner() == this;
+	}
+	
 	public String getName(){
 		return name;
 	}
@@ -34,13 +42,14 @@ public class Player {
 		return score;
 	}
 	
-	public void setBomb(boolean hasB){
-		hasBomb = hasB;
+	public void setScore(int new_score){
+		score = new_score;
 	}
 	
-	public boolean hasBomb(){
-		return hasBomb;
-	}
+//	public void setBomb(boolean hasB){
+//		hasBomb = hasB;
+//	}
+	
 	
 	public void changeScore(int amount){
 		score = score +amount;
@@ -84,6 +93,15 @@ public class Player {
 	
 	public synchronized long getLastPong(){
 		return lastPong;
+	}
+	
+	public JSONObject toJSON() {
+		JSONObject o = new JSONObject();
+		o.put("uuid", uuid);
+		o.put("name", name);
+		o.put("score", score);
+		o.put("connected", maybeDC);
+		return o;
 	}
 
 }

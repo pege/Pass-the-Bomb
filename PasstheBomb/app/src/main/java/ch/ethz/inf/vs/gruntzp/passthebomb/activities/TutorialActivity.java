@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 
 public class TutorialActivity extends AppCompatActivity implements MessageListener {
@@ -161,7 +163,19 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
     }
 
     @Override
-    public void onMessage(String message) {
+    protected void onStart() {
+        super.onStart();
+        controller.bind(this);
+    }
+
+    @Override
+    public void onMessage(int type, JSONObject body) {
         //TODO
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
     }
 }

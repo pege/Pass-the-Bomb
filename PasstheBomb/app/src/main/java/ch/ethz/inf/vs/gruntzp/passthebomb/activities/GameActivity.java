@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -55,6 +57,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
+        thisPlayer.setScore(2000);
         //endGame();
         */
 
@@ -110,10 +113,26 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             if (thisPlayer != game.getPlayers().get(i)) {
                 Button player_field = (Button) gameView.getChildAt(j);
                 player_field.setVisibility(View.VISIBLE);
-                player_field.setText(game.getPlayers().get(i).getName());
+                player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
                 j++;
             }
         }
+        TextView own_score = (TextView) findViewById(R.id.Score_number);
+        own_score.setText(thisPlayer.getScore()+"");
+    }
+
+    public void updateScore(){
+        int j = 0; //index for player field
+        for(int i=0; i<game.getPlayers().size(); i++){
+            if (thisPlayer != game.getPlayers().get(i)) {
+                Button player_field = (Button) gameView.getChildAt(j);
+               //we include score in the name-string
+                player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
+                j++;
+            }
+        }
+        TextView own_score = (TextView) findViewById(R.id.Score_number);
+        own_score.setText(thisPlayer.getScore()+"");
     }
 
     private void setUpBomb(){
@@ -403,7 +422,19 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    protected void onStart() {
+        super.onStart();
+        controller.bind(this);
+    }
+
+    @Override
+    public void onMessage(int type, JSONObject body) {
         //TODO
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
     }
 }

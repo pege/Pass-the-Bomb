@@ -21,6 +21,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -293,7 +295,19 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    protected void onStart() {
+        super.onStart();
+        controller.bind(this);
+    }
+
+    @Override
+    public void onMessage(int type, JSONObject body) {
         //TODO
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        controller.unbind(this);
     }
 }
