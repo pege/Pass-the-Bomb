@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.concurrent.CountDownLatch;
 
 import javax.websocket.ClientEndpoint;
 import javax.websocket.CloseReason;
@@ -22,9 +21,14 @@ import org.json.JSONObject;
 @ClientEndpoint
 public class ClientSide {
 
-	private static CountDownLatch latch;
-
 	private static Session sess;
+
+	public static void main(String[] args) throws InterruptedException {
+		while (tryConnect() < 0) {
+			System.out.println("Failed");
+			Thread.sleep(500);
+		}
+	}
 
 	public static int tryConnect() {
 		try {
@@ -47,7 +51,7 @@ public class ClientSide {
 				mess = sc.nextLine();
 
 				switch (mess) {
-				
+
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
@@ -69,15 +73,18 @@ public class ClientSide {
 					sess.getBasicRemote().sendText(MessageFactory.startGame());
 					break;
 				case "passBomb":
-					//sess.getBasicRemote().sendText(MessageFactory.passBomb(target_uiid, bomb)());
+					// sess.getBasicRemote().sendText(MessageFactory.passBomb(1234,
+					// 20));
 					break;
 				case "explode":
 					sess.getBasicRemote().sendText(MessageFactory.exploded());
 					break;
 				case "updateScore":
-					//sess.getBasicRemote().sendText(MessageFactory.updateScore(bomb, score));
+					// sess.getBasicRemote().sendText(MessageFactory.updateScore(bomb,
+					// score));
 					break;
 				default:
+					sess.getBasicRemote().sendText(mess);
 					break;
 				}
 			}
@@ -90,13 +97,6 @@ public class ClientSide {
 			return -1;
 		}
 		return 0;
-	}
-
-	public static void main(String[] args) throws InterruptedException {
-		while (tryConnect() < 0) {
-			System.out.println("Failed");
-			Thread.sleep(500);
-		}
 	}
 
 	@OnOpen

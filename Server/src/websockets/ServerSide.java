@@ -2,21 +2,13 @@ package websockets;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import javax.websocket.DeploymentException;
-import javax.websocket.Session;
 
 import org.glassfish.tyrus.server.Server;
 
-
 public class ServerSide {
-
-	private static Set<Session> sessions = new HashSet<>();
-	
-	private static Session sessionLocal = null;
 
 	public static CountDownLatch serverRunning = new CountDownLatch(1);
 

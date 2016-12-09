@@ -1,12 +1,9 @@
 package websockets;
 //package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Created by niederbm on 11/25/16.
