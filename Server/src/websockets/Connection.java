@@ -22,7 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-@ServerEndpoint("/echo")
+@ServerEndpoint("/passTheBomb")
 public class Connection {
 
 	private static final long softTimeout = 5000; // timeout in ms
@@ -332,12 +332,15 @@ public class Connection {
 			return;
 
 		Game game = player.getJoinedGame();
-		player.leaveGame();
+		player.leaveGame(); // leaveGame checks if player is owner or has the
+							// bomb
+		game.removePlayer(player);
 
 		if (game.numberOfPlayers() == 0) { // Only this player is in game
 			// FIXME: Race Condition
 			games.remove(game);
 		} else {
+			System.out.println(player.getName() + "left the game " + game.getGamename());
 			game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
 		}
 
@@ -366,28 +369,32 @@ public class Connection {
 				|| NeedBomb(s, player))
 			return;
 
-		long targetUUID = (long) body.get("target");
+		Long targetUUID = new Long((int) body.get("target"));
 
 		// FIXME ?? übergeben wir hier den Score mit?
 		int bomb = (int) body.get("bomb");
 
 		// FIXME: Does the player tell its score via 'passbomb'?
-		int score = (int) body.get("score");
+		// int score = (int) body.get("score");
 
 		Game game = player.getJoinedGame();
-
+		boolean transfered = false;
 		// TODO: update score on Player if needed
 		for (Player p : game.getPlayers()) {
 			if (p.getUuid() == targetUUID) {
+				System.out.println("pID: " + Long.toString(p.getUuid()));
+				System.out.println("targetID: " + Long.toString(targetUUID));
 				game.setBombOwner(p);
 				game.broadcast_detailed_state();
+				transfered = true;
 				break;
 			}
 		}
 
-		sendMess(s, "ID not found");
-		System.out.println("Error in Bomb passing, ID not found");
-
+		if (!transfered) {
+			sendMess(s, "ID not found");
+			System.out.println("Error in Bomb passing, ID not found");
+		}
 	}
 
 	private void bombExplode(Session s) {

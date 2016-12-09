@@ -63,7 +63,7 @@ public class Game {
 	}
 
 	public boolean hasPassword() {
-		return password != "";
+		return !password.equals("");
 	}
 
 	public void addPlayer(Player player) {
@@ -72,8 +72,10 @@ public class Game {
 
 	public void removePlayer(Player player) {
 		players.remove(player);
-		if (player == owner)
+		if (player == owner && numberOfPlayers()>0)
 			owner = players.get(0);
+		if (player.hasBomb() && numberOfPlayers()>0)
+			setBombOwner(pickRandom());
 	}
 
 	public String getPlayersName() {
@@ -181,7 +183,7 @@ public class Game {
 			body.put("owner", owner.getUuid());
 			body.put("started", started);
 			body.put("hasPasswort", hasPassword());
-			body.put("bombOwner", bombOwner.getUuid());
+			body.put("bombOwner", bombOwner==null ? -1 : bombOwner.getUuid());
 			body.put("bomb", bomb);
 
 			JSONArray players = new JSONArray();

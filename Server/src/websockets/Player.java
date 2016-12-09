@@ -44,7 +44,7 @@ public class Player {
 		score = new_score;
 	}
 	
-//	public void setBomb(boolean hasB){
+//	public void setBomb(boolean hasB){ //implemented via bombOwner
 //		hasBomb = hasB;
 //	}
 	
@@ -98,7 +98,7 @@ public class Player {
 		o.put("uuid", uuid);
 		o.put("name", name);
 		o.put("score", score);
-		o.put("connected", maybeDC);
+		o.put("disconnected", maybeDC);
 		return o;
 	}
 
