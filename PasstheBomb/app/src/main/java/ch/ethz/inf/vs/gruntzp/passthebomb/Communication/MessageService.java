@@ -104,7 +104,9 @@ public class MessageService extends Service {
                     uri = new URI("ws://" + ip + ":" + port + "/websockets/echo");
                     wsSession = client.connectToServer(MessageService.class, uri);
                 }
-                catch(Exception ex){}
+                catch(Exception ex){
+                    ex.printStackTrace();
+                }
             }
         });
         t.start();
