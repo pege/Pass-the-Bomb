@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +18,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -56,47 +56,52 @@ public class Connection {
 
 	@OnMessage
 	public void onMessage(String message, Session session) {
-		JSONTokener tokener = new JSONTokener(message);
-		JSONObject mess = new JSONObject(tokener);
-		JSONObject header = (JSONObject) mess.get("header");
-		JSONObject body = (JSONObject) mess.get("body");
+		try {
+			JSONTokener tokener = new JSONTokener(message);
 
-		int type = (int) header.get("type");
+			JSONObject mess = new JSONObject(tokener);
+			JSONObject header = (JSONObject) mess.get("header");
+			JSONObject body = (JSONObject) mess.get("body");
 
-		System.out.println("Message received: " + header + " " + body);
+			int type = (int) header.get("type");
 
-		switch (type) {
-		case MessageFactory.REGISTER:
-			register(session, body);
-			break; // map
-		case MessageFactory.CREATE_GAME:
-			createGame(session, body);
-			break;
-		case MessageFactory.JOIN_GAME:
-			joinGame(session, body); // adds the player to a game
-			break;
-		case MessageFactory.LEAVE_GAME:
-			leaveGame(session); // removes a player from a game
-			break;
-		case MessageFactory.START_GAME:
-			startGame(session);
-			break;
-		case MessageFactory.PASS_BOMB:
-			passBomb(session, body);
-			break;
-		case MessageFactory.EXPLODED:
-			bombExplode(session);
-			break;
-		case MessageFactory.LIST_GAMES:
-			getGameList(session);
-			break;
-		case MessageFactory.UPDATE_SCORE:
-			update_score(session, body);
-			break;
-		default:
-			sendMess(session, MessageFactory.TypeError());
-			System.out.println("Type Error");
-			break;
+			System.out.println("Message received: " + header + " " + body);
+
+			switch (type) {
+			case MessageFactory.REGISTER:
+				register(session, body);
+				break; // map
+			case MessageFactory.CREATE_GAME:
+				createGame(session, body);
+				break;
+			case MessageFactory.JOIN_GAME:
+				joinGame(session, body); // adds the player to a game
+				break;
+			case MessageFactory.LEAVE_GAME:
+				leaveGame(session); // removes a player from a game
+				break;
+			case MessageFactory.START_GAME:
+				startGame(session);
+				break;
+			case MessageFactory.PASS_BOMB:
+				passBomb(session, body);
+				break;
+			case MessageFactory.EXPLODED:
+				bombExplode(session);
+				break;
+			case MessageFactory.LIST_GAMES:
+				getGameList(session);
+				break;
+			case MessageFactory.UPDATE_SCORE:
+				update_score(session, body);
+				break;
+			default:
+				sendMess(session, MessageFactory.TypeError());
+				System.out.println("Type Error");
+				break;
+			}
+		} catch (JSONException e) {
+			sendMess(session, "Stupid? - No valid JSON format");
 		}
 	}
 
@@ -151,7 +156,6 @@ public class Connection {
 				ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
 				buffer.asLongBuffer().put(System.currentTimeMillis());
 				try {
-					// FIXME getAsyncRemote or getBasicRemote?
 					if (p.getSession().isOpen()) {
 						p.getSession().getAsyncRemote().sendPing(buffer);
 						// System.out.println("--Ping sended");
@@ -191,7 +195,6 @@ public class Connection {
 	private void register(Session session, JSONObject body) {
 		String username = (String) body.get("username");
 		Long uuid = new Long((int) body.get("user_id"));
-		
 
 		if (map.containsKey(session)) {
 			// player is already registered
@@ -274,16 +277,6 @@ public class Connection {
 		System.out.println("A game with gamename " + game.getGamename() + " was created");
 	}
 
-	// FIXME: Race Condition, If game is deleted
-	private boolean uniqueGamename(String name) {
-		for (Game g : games) {
-			if (g.getGamename().equals(name)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
 	private void getGameList(Session session) {
 		// FIXME: Does player need to be registered?
 
@@ -350,7 +343,6 @@ public class Connection {
 
 	}
 
-	
 	private void startGame(Session session) {
 		Player player = map.get(session);
 		if (NeedRegister(session, player) || notInGame(session, player))
@@ -368,10 +360,10 @@ public class Connection {
 		}
 	}
 
-
 	private void passBomb(Session s, JSONObject body) {
 		Player player = map.get(s);
-		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)  || NeedBomb(s, player))
+		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)
+				|| NeedBomb(s, player))
 			return;
 
 		long targetUUID = (long) body.get("target");
@@ -384,7 +376,6 @@ public class Connection {
 
 		Game game = player.getJoinedGame();
 
-
 		// TODO: update score on Player if needed
 		for (Player p : game.getPlayers()) {
 			if (p.getUuid() == targetUUID) {
@@ -394,8 +385,6 @@ public class Connection {
 			}
 		}
 
-		// TODO: Player not in Game Error
-
 		sendMess(s, "ID not found");
 		System.out.println("Error in Bomb passing, ID not found");
 
@@ -404,7 +393,8 @@ public class Connection {
 	private void bombExplode(Session s) {
 		// Inform other players
 		Player player = map.get(s);
-		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true) || NeedBomb(s, player))
+		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)
+				|| NeedBomb(s, player))
 			return;
 
 		Game game = player.getJoinedGame();
@@ -420,16 +410,17 @@ public class Connection {
 			game.startGame();
 		}
 	}
-	
+
 	private void update_score(Session s, JSONObject body) {
 		// Inform other players
 		Player player = map.get(s);
-		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true) || NeedBomb(s, player))
+		if (NeedRegister(s, player) || notInGame(s, player) || NeedStarted(s, player.getJoinedGame(), true)
+				|| NeedBomb(s, player))
 			return;
-		
+
 		int new_score = (int) body.get("score");
 		player.setScore(new_score);
-		
+
 		player.getJoinedGame().broadcast_detailed_state();
 	}
 
@@ -441,8 +432,7 @@ public class Connection {
 		}
 		return false;
 	}
-	
-	
+
 	private boolean NeedStarted(Session s, Game g, boolean status) {
 		if (g.hasStarted() && !status) {
 			sendMess(s, MessageFactory.Already_Started_Error());
@@ -469,7 +459,7 @@ public class Connection {
 		}
 		return false;
 	}
-	
+
 	private boolean alreadyInGame(Session s, Player p) {
 		if (p.getJoinedGame() != null) {
 			sendMess(s, MessageFactory.AlreadyInGameError());
@@ -477,7 +467,7 @@ public class Connection {
 		}
 		return false;
 	}
-	
+
 	private void sendMess(Session s, String mess) {
 		try {
 			if (s.isOpen())

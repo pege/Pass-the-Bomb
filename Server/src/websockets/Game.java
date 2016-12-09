@@ -135,18 +135,7 @@ public class Game {
 		return players.indexOf(player);
 	}
 
-	// FIXME: DEPRECATED
-	public String getPlayerInfos() {
-		String s = "";
-		for (Player p : players) {
-			s = s + "Name:" + p.getName() + ", UUID:" + p.getUuid();
-		}
-		return s;
-	}
-
-	
-	public void broadcast_detailed_state()
-	{
+	public void broadcast_detailed_state() {
 		broadcast(MessageFactory.SC_GameUpdate(this.toJSON(1)));
 	}
 
@@ -192,7 +181,7 @@ public class Game {
 			body.put("owner", owner.getUuid());
 			body.put("started", started);
 			body.put("hasPasswort", hasPassword());
-			body.put("bombOwner", bombOwner);
+			body.put("bombOwner", bombOwner.getUuid());
 			body.put("bomb", bomb);
 
 			JSONArray players = new JSONArray();

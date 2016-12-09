@@ -10,9 +10,7 @@ public class Player {
 	private String name;
 	private int score;
 	
-	
-	//TODO connected is same as registered => map points to player
-	private boolean maybeDC; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
+	private boolean maybeDC;
 	private Session session;
 	private long lastPong;
 	private Game inGame; //null if in no game
