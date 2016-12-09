@@ -44,7 +44,7 @@ public class Player {
 		score = new_score;
 	}
 	
-//	public void setBomb(boolean hasB){
+//	public void setBomb(boolean hasB){ //implemented via bombOwner
 //		hasBomb = hasB;
 //	}
 	

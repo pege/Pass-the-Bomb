@@ -63,7 +63,7 @@ public class Game {
 	}
 
 	public boolean hasPassword() {
-		return password != "";
+		return !password.equals("");
 	}
 
 	public void addPlayer(Player player) {
