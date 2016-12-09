@@ -100,6 +100,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onMessage(int type, JSONObject body) {
         //TODO
+
         Toast toast = Toast.makeText(this, String.valueOf(type), Toast.LENGTH_SHORT);
         toast.show();
     }

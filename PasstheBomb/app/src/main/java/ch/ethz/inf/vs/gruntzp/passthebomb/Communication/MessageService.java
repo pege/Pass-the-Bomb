@@ -3,7 +3,9 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 
 import org.glassfish.tyrus.client.ClientManager;
@@ -45,6 +47,7 @@ public class MessageService extends Service {
         System.out.println("MessageFactory: " + message);
         if(this.activity != null)
         {
+            // Parse message to JSON Object
             int type = 0;
             JSONObject body = null;
             try {
@@ -54,7 +57,16 @@ public class MessageService extends Service {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            this.activity.onMessage(type, body);
+
+            // Call onMessage() of the current activity, in MainThread
+            final int copy_type = type;
+            final JSONObject copy_body = body;
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                public void run() {
+                    activity.onMessage(copy_type, copy_body);
+                }
+            });
         }
     }
 

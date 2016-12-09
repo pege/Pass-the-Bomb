@@ -27,3 +27,13 @@ How to use the Connection package:
     }
 
     - To send a message use: controller.sendMessage("Your message");
+
+
+CHANGE AndroidManifest.xml:
+
+<uses-permission android:name="android.permission.INTERNET" />
+
+<service
+            android:name="ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageService"
+            android:enabled="true"
+            android:exported="true" />

@@ -69,14 +69,7 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 String password = passwordField.getText().toString();
                 String name = gameName.getText().toString();
 
-                ServiceConnector.getInstance().sendMessage(
-                        MessageFactory.createGame(name, password));
-
-
-
-
-
-
+                controller.sendMessage(MessageFactory.createGame(name, password));
 
                 //TODO give the server the game information
                 //create the game
