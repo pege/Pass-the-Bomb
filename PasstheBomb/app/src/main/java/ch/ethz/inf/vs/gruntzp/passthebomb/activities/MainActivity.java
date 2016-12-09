@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONObject;
+import java.util.UUID;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
@@ -22,12 +23,15 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     EditText mEdit;
     private SharedPreferences preferences;
+    private boolean registered;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mEdit   = (EditText)findViewById(R.id.text_field);
+
+        registered = false;
 
         //TODO: save the username in the text field -> use preferences or something
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
@@ -42,13 +46,18 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         }else{
             // save username
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("user_name", mEdit.getText().toString());
+            String userName = mEdit.getText().toString();
+            editor.putString("user_name", userName);
             editor.commit();
 
+            //attempt to register if not yet registered
+            if(!registered)
+                tryRegister(userName);
+
             //Start next Activity
-            Intent myIntent = new Intent(this, CreateActivity.class);
-            myIntent.putExtra("creator_name", mEdit.getText().toString());
-            this.startActivity(myIntent);
+            //Intent myIntent = new Intent(this, CreateActivity.class);
+            //myIntent.putExtra("creator_name", mEdit.getText().toString());
+            //this.startActivity(myIntent);
         }
     }
 
@@ -109,5 +118,21 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     protected void onStop() {
         super.onStop();
         controller.unbind(this);
+    }
+
+    protected void tryRegister(String userName) {
+        String userID = preferences.getString("userID","");
+        if(userID.equals("")) { //There was no prior userID
+            userID = UUID.randomUUID().toString();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userID", userID);
+            editor.apply();
+        }
+        controller.sendMessage(MessageFactory.register(userID, userName));
+    }
+
+    public long getUserID() {
+        //UUID
+        return 1l;
     }
 }

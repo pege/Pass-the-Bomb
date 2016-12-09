@@ -17,7 +17,7 @@ public class MessageFactory {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    //public static final int PLAYER_LIST = 6; 	// n�, ist redundant. haben wir auch im GameUpdate
+    //public static final int PLAYER_LIST = 6; 	// n, ist redundant. haben wir auch im GameUpdate
     //public static final int PLAYER_UNREACHABLE = 7; 
     public static final int RECONNECT = 8; 		// --
     //public static final int GAME_UPDATE = 9;
@@ -71,7 +71,7 @@ public class MessageFactory {
     }
 
 
-    public static String register(Long user_id, String username) {
+    public static String register(String user_id, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();

@@ -113,7 +113,7 @@ public class MessageService extends Service {
                 ClientManager client = ClientManager.createClient();
                 try{
                     URI uri = null;
-                    uri = new URI("ws://" + ip + ":" + port + "/websockets/echo");
+                    uri = new URI("ws://" + ip + ":" + port + "/passTheBomb");
                     wsSession = client.connectToServer(MessageService.class, uri);
                 }
                 catch(Exception ex){
