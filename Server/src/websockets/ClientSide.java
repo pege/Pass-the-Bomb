@@ -3,6 +3,7 @@ package websockets;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 
@@ -16,69 +17,60 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.json.JSONArray;
+import org.json.JSONObject;
 
 @ClientEndpoint
 public class ClientSide {
 
 	private static CountDownLatch latch;
-	
-	public static int tryConnect()
-	{
+
+	private static Session sess;
+
+	public static int tryConnect() {
 		try {
 			ClientManager client = ClientManager.createClient();
 			URI uri;
-			
-			//uri = new URI("ws://192.168.0.18:8080/websockets/echo");
-			uri = new URI("ws://localhost:8080/websockets/echo");
-			//uri = new URI("ws://10.2.134.220:8080/websockets/echo");
-			
-			
-			client.connectToServer(ClientSide.class, uri);
-			
-			Scanner sc = new Scanner(System.in);
-			String mess="";
-			
 
-			while(!mess.equals("exit")){
-				
+			// uri = new URI("ws://192.168.0.18:8080/websockets/echo");
+			uri = new URI("ws://localhost:8080/websockets/echo");
+			// uri = new URI("ws://10.2.134.220:8080/websockets/echo");
+
+			client.connectToServer(ClientSide.class, uri);
+
+			Scanner sc = new Scanner(System.in);
+			String mess = "";
+			Random r = new Random();
+			Long uuid = new Long(r.nextInt(1000));
+			while (!mess.equals("exit")) {
+
 				System.out.println("Something to send?");
 				mess = sc.nextLine();
-				
-				//https://www.mkyong.com/java/json-simple-example-read-and-write-json/
-				//JSONObject sendObj = new JSONObject();
-				JSONArray sendObj = new JSONArray();
-				
-				if(mess.equals("create")){
-					//sendObj.add("create");
-				}else if (mess.equals("join")){
-					//sendObj.add("join");
-				}else if(mess.equals("pong")){
-					sess.getBasicRemote().sendPong(null);
-				}else{
-					//sendObj.put(,);
-				}
-				
-				if (sess != null)
-					//sess.getBasicRemote().sendText(sendObj.toJSONString());
-					sess.getBasicRemote().sendText(mess);
-					
 
-			//while(!mess.equals("exit") && sess.isOpen()){
-			//	System.out.println("Something to send?");
-			//	mess = sc.nextLine();
-			//	if (sess != null && sess.isOpen()) sess.getBasicRemote().sendText(mess);
-			//	else System.out.println("Schnauze!");
+				switch (mess) {
+				
+				case "register":
+					JSONObject obj = new JSONObject();
+					obj.put("longId", uuid);
+					sess.getBasicRemote().sendText(MessageFactory.register(uuid, "pege"));
+					break;
+				case "create":
+					sess.getBasicRemote().sendText(MessageFactory.createGame("Game1", "8888"));
+					break;
+				case "join":
+					sess.getBasicRemote().sendText(MessageFactory.joinGame("Game1", "8888"));
+					break;
+				default:
+					break;
+				}
 			}
-			
-			
+
 			System.out.println("Closing session");
 			sc.close();
 			sess.close();
-			
-			} catch (URISyntaxException | IOException | DeploymentException e) {
-				return -1;
-			}
+
+		} catch (URISyntaxException | IOException | DeploymentException e) {
+			return -1;
+		}
 		return 0;
 	}
 
@@ -92,17 +84,11 @@ public class ClientSide {
 	@OnOpen
 	public void onOpen(Session session) throws IOException {
 		System.out.println("Connected, SessionId: " + session.getId());
-		sess=session;
-		session.getBasicRemote().sendText("Message");
+		sess = session;
 	}
-	
-	private static Session sess;
-	
-	
+
 	@OnMessage
 	public void onMessage(String message, Session session) throws IOException {
-		//session.isOpen()
-		//session.getMaxIdleTimeout()
 		System.out.println("Received: " + message);
 	}
 
@@ -110,11 +96,10 @@ public class ClientSide {
 	public void onClose(Session session, CloseReason closeReason) {
 		System.out.printf("Session close because of %s", closeReason);
 	}
-	
+
 	@OnMessage
-    public void onPong(PongMessage pongMessage, Session session) {
-    	System.out.println("Pong received");
-    }
-	
+	public void onPong(PongMessage pongMessage, Session session) {
+		System.out.println("Pong received");
+	}
 
 }

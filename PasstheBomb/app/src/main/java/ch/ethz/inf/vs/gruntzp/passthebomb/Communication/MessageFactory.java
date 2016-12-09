@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
 //package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONException;
@@ -47,7 +47,7 @@ public class MessageFactory {
     public static final int WRONG_PASSWORD_ERROR = -6;
     public static final int ALREADY_STARTED_ERROR = -7;
     public static final int GAME_NOT_FOUND_ERROR = -8;
-    public static final int NOT_IN_GAME_ERROR = -9; 
+    public static final int NOT_IN_GAME_ERROR = -9;
     public static final int NOT_GAME_OWNER_ERROR = -10; 
     public static final int DOESNT_OWN_BOMB_ERROR = -11;
     public static final int NOT_STARTED_ERROR = -12;
@@ -74,7 +74,7 @@ public class MessageFactory {
     }
 
 
-    public static String register(long user_id, String username) {
+    public static String register(Long user_id, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
