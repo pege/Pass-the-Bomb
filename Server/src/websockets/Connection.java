@@ -243,7 +243,7 @@ public class Connection {
 		p.setLastPong(System.currentTimeMillis());
 		map.put(session, p);
 		registeredSessions.add(session); // start pinging
-		sendMess(session, "Successful Registered");
+		sendMess(session, MessageFactory.sc_registerSuccessful());
 		System.out.println(username + " has been registered");
 
 	}
@@ -371,7 +371,7 @@ public class Connection {
 
 		String targetUUID = (String) body.get("target");
 
-		// FIXME ?? übergeben wir hier den Score mit?
+		// FIXME ?? ï¿½bergeben wir hier den Score mit?
 		int bomb = (int) body.get("bomb");
 
 		// FIXME: Does the player tell its score via 'passbomb'?

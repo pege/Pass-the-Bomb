@@ -1,5 +1,5 @@
-package websockets;
-//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+//package websockets;
+package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +36,8 @@ public class MessageFactory {
     public static final int SC_GAME_LIST = 19;
     public static final int SC_GAME_UPDATE = 20;
     // ERRORS
-    public static final int SC_RECONNECT_DENIED_ERROR = 11;			
+    public static final int SC_RECONNECT_DENIED_ERROR = 11;
+    public static final int SC_REGISTER_SUCCESSFUL = 21;
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
     public static final int NOT_REGISTERED_ERROR = -4;
@@ -222,6 +223,19 @@ public class MessageFactory {
 
             return compose(header);
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String sc_registerSuccessful() {
+        try {
+            JSONObject header = new JSONObject();
+
+            header.put("type", SC_REGISTER_SUCCESSFUL);
+
+            return compose(header);
+        } catch( JSONException e) {
             e.printStackTrace();
         }
         return null;
