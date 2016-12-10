@@ -37,15 +37,15 @@ public class ClientSide {
 			URI uri;
 
 			// uri = new URI("ws://192.168.0.18:8080/websockets/echo");
-			uri = new URI("ws://localhost:8088/websockets/passTheBomb");
-			// uri = new URI("ws://10.2.134.220:8080/websockets/echo");
+			//uri = new URI("ws://localhost:8088/websockets/passTheBomb");
+			uri = new URI("ws://54.213.92.251:8088/websockets/passTheBomb");
 
 			client.connectToServer(ClientSide.class, uri);
 
 			Scanner sc = new Scanner(System.in);
 			String mess = "";
 			Random r = new Random();
-			Long uuid = new Long(r.nextInt(1000));
+			int uuid = r.nextInt(1000);
 			System.out.println(
 					"register [playername], create [gamename, pw], join [gamename, pw], leave, list, start, passBomb [targetID, bomb], explode, updateScore [score]");
 			while (!mess.equals("exit")) {
@@ -60,7 +60,7 @@ public class ClientSide {
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
-					sess.getBasicRemote().sendText(MessageFactory.register(Long.toString(uuid), message[1]));
+					sess.getBasicRemote().sendText(MessageFactory.register(I.toString(uuid), message[1]));
 					break;
 				case "create":
 					sess.getBasicRemote()
