@@ -50,8 +50,10 @@ public class MessageService extends Service {
             // Parse message to JSON Object
             int type = 0;
             JSONObject body = null;
+
             try {
-                JSONObject msg = new JSONObject(message);
+                JSONTokener tokener = new JSONTokener(message);
+                JSONObject msg = new JSONObject(tokener);
                 type = msg.getJSONObject("header").getInt("type");
                 body = msg.getJSONObject("body");
             } catch (JSONException e) {
@@ -113,7 +115,7 @@ public class MessageService extends Service {
                 ClientManager client = ClientManager.createClient();
                 try{
                     URI uri = null;
-                    uri = new URI("ws://" + ip + ":" + port + "/passTheBomb");
+                    uri = new URI("ws://" + ip + ":" + port + "/websockets/passTheBomb");
                     wsSession = client.connectToServer(MessageService.class, uri);
                 }
                 catch(Exception ex){

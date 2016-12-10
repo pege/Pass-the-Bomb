@@ -245,7 +245,8 @@ public class Connection {
 		p.setLastPong(System.currentTimeMillis());
 		map.put(session, p);
 		registeredSessions.add(session); // start pinging
-		//sendMess(session, "Successful Registered");
+
+		sendMess(session, MessageFactory.sc_registerSuccessful());
 		System.out.println(username + " has been registered");
 
 	}
