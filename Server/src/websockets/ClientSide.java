@@ -24,10 +24,10 @@ public class ClientSide {
 	private static Session sess;
 
 	public static void main(String[] args) throws InterruptedException {
-		/*while (tryConnect() < 0) {
+		while (tryConnect() < 0) {
 			System.out.println("Failed");
 			Thread.sleep(1000);
-		}*/
+		}
 
 	}
 
@@ -37,8 +37,8 @@ public class ClientSide {
 			URI uri;
 
 			// uri = new URI("ws://192.168.0.18:8080/websockets/echo");
-			//uri = new URI("ws://localhost:8088/websockets/passTheBomb");
-			uri = new URI("ws://54.213.92.251:8088/websockets/passTheBomb");
+			uri = new URI("ws://localhost:8088/websockets/passTheBomb");
+			//uri = new URI("ws://54.213.92.251:8088/websockets/passTheBomb");
 
 			client.connectToServer(ClientSide.class, uri);
 
@@ -47,7 +47,7 @@ public class ClientSide {
 			Random r = new Random();
 			int uuid = r.nextInt(1000);
 			System.out.println(
-					"register [playername], create [gamename, pw], join [gamename, pw], leave, list, start, passBomb [targetID, bomb], explode, updateScore [score]");
+					"register [playername], create [gamename, pw], join [gamename, pw], leave, list, start, passBomb [targetID, bomb], explode, updateScore [bomb, score]");
 			while (!mess.equals("exit")) {
 
 				System.out.println("Something to send?");
@@ -60,7 +60,7 @@ public class ClientSide {
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
-					//sess.getBasicRemote().sendText(MessageFactory.register(I.toString(uuid), message[1]));
+					sess.getBasicRemote().sendText(MessageFactory.register(Integer.toString(uuid), message[1]));
 					break;
 				case "create":
 					sess.getBasicRemote()
