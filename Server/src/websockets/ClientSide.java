@@ -24,10 +24,10 @@ public class ClientSide {
 	private static Session sess;
 
 	public static void main(String[] args) throws InterruptedException {
-		while (tryConnect() < 0) {
+		/*while (tryConnect() < 0) {
 			System.out.println("Failed");
 			Thread.sleep(1000);
-		}
+		}*/
 
 	}
 
@@ -60,7 +60,7 @@ public class ClientSide {
 				case "register":
 					JSONObject obj = new JSONObject();
 					obj.put("longId", uuid);
-					sess.getBasicRemote().sendText(MessageFactory.register(I.toString(uuid), message[1]));
+					//sess.getBasicRemote().sendText(MessageFactory.register(I.toString(uuid), message[1]));
 					break;
 				case "create":
 					sess.getBasicRemote()
