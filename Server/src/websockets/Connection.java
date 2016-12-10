@@ -33,7 +33,7 @@ public class Connection {
 	// max times of clients: timeout/timeBetweenPings
 
 	// games as a concurrent Set
-	static Set<Game> games = Collections.newSetFromMap(new ConcurrentHashMap<Game, Boolean>());
+	static Set<Game> gameList = Collections.newSetFromMap(new ConcurrentHashMap<Game, Boolean>());
 	// All sessions
 	static Set<Session> registeredSessions = Collections.newSetFromMap(new ConcurrentHashMap<Session, Boolean>());
 
@@ -103,6 +103,8 @@ public class Connection {
 		} catch (JSONException e) {
 			sendMess(session, "Stupid? - No valid JSON format");
 		}
+
+		System.out.println("Number Of connected Clients: " + registeredSessions.size());
 	}
 
 	@OnClose
@@ -243,7 +245,7 @@ public class Connection {
 		p.setLastPong(System.currentTimeMillis());
 		map.put(session, p);
 		registeredSessions.add(session); // start pinging
-		sendMess(session, "Successful Registered");
+		//sendMess(session, "Successful Registered");
 		System.out.println(username + " has been registered");
 
 	}
@@ -259,8 +261,8 @@ public class Connection {
 
 		// FIXME: race condition if
 		Game game;
-		synchronized (games) {
-			Optional<Integer> largest = games.stream().map(Game::getGamename).filter(s -> s.startsWith(gamename))
+		synchronized (gameList) {
+			Optional<Integer> largest = gameList.stream().map(Game::getGamename).filter(s -> s.startsWith(gamename))
 					.map(s -> s.substring(gamename.length())).map(s -> Integer.getInteger(s)).filter(i -> i != null)
 					.sorted().findFirst();
 			String newname = gamename;
@@ -269,7 +271,7 @@ public class Connection {
 				newname = gamename + Integer.toString(addition);
 			}
 			game = new Game(owner, newname, password);
-			games.add(game);
+			gameList.add(game);
 		}
 		owner.joinGame(game);
 
@@ -281,8 +283,8 @@ public class Connection {
 		// FIXME: Does player need to be registered?
 
 		JSONArray gameArray = new JSONArray();
-		synchronized (games) {
-			games.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
+		synchronized (gameList) {
+			gameList.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
 		}
 		sendMess(session, MessageFactory.SC_GameList(gameArray));
 	}
@@ -295,7 +297,7 @@ public class Connection {
 		String gamename = (String) body.get("game_id");
 		String password = (String) body.get("pw");
 
-		for (Game game : games) {
+		for (Game game : gameList) {
 			if (game.getGamename().equals(gamename)) {
 				if (game.checkPassword(password)) {
 
@@ -338,7 +340,7 @@ public class Connection {
 
 		if (game.numberOfPlayers() == 0) { // Only this player is in game
 			// FIXME: Race Condition
-			games.remove(game);
+			gameList.remove(game);
 		} else {
 			System.out.println(player.getName() + "left the game " + game.getGamename());
 			game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
@@ -359,6 +361,7 @@ public class Connection {
 			sendMess(session, MessageFactory.NotGameOwnerError());
 		} else {
 			game.startGame();
+			gameList.remove(game);
 			game.broadcast_detailed_state();
 		}
 	}
@@ -371,15 +374,14 @@ public class Connection {
 
 		String targetUUID = (String) body.get("target");
 
-		// FIXME ?? übergeben wir hier den Score mit?
+		// FIXME ?? store global?
 		int bomb = (int) body.get("bomb");
 
-		// FIXME: Does the player tell its score via 'passbomb'?
+		// FIXME: Does the player tell its score via 'passbomb'?  - eigentlich nicht oder? kommt doch via changeScore()
 		// int score = (int) body.get("score");
 
 		Game game = player.getJoinedGame();
 		boolean transfered = false;
-		// TODO: update score on Player if needed
 		for (Player p : game.getPlayers()) {
 			if (p.getUuid().equals(targetUUID)) {
 				game.setBombOwner(p);
@@ -390,7 +392,7 @@ public class Connection {
 		}
 
 		if (!transfered) {
-			sendMess(s, "ID not found");
+			//sendMess(s, "ID not found");
 			System.out.println("Error in Bomb passing, ID not found");
 		}
 	}
@@ -409,7 +411,6 @@ public class Connection {
 
 		if (game.isFinished()) {
 			game.destroy();
-			games.remove(game);
 			System.out.println("Game Over");
 		} else {
 			game.startGame();
