@@ -4,10 +4,10 @@ import javax.websocket.Session;
 
 import org.json.JSONObject;
 
-public class Player {
+public final class Player {
 	
-	private String uuid;
-	private String name;
+	private final String uuid;
+	private final String name;
 	private int score;
 	
 	private boolean maybeDC;
@@ -43,12 +43,7 @@ public class Player {
 	public void setScore(int new_score){
 		score = new_score;
 	}
-	
-//	public void setBomb(boolean hasB){ //implemented via bombOwner
-//		hasBomb = hasB;
-//	}
-	
-	
+		
 	public void changeScore(int amount){
 		score = score +amount;
 	}

@@ -9,7 +9,7 @@ import javax.websocket.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class Game {
+public final class Game {
 
 	private static final int finalScore = 100;
 	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
@@ -19,8 +19,8 @@ public class Game {
 	private Player owner;
 	private ArrayList<Player> players = new ArrayList<>();
 
-	private String gameName;
-	private String password;
+	private final String gameName;
+	private final String password;
 
 	private boolean started;
 
@@ -79,12 +79,10 @@ public class Game {
 	}
 
 	public String getPlayersName() {
-
 		String s = "";
 		for (Player p : players) {
 			s = s + p.getName() + ", ";
 		}
-
 		return s;
 	}
 
@@ -176,12 +174,12 @@ public class Game {
 		// header.put("type", Message.SC_GAME_UPDATE);
 
 		body.put("name", gameName);
-		body.put("hasPasswort", password != "");
+		body.put("hasPasswort", hasPassword());
 		body.put("noP", numberOfPlayers());
+		body.put("started", started);
 
 		if (level > 0) {
 			body.put("owner", owner.getUuid());
-			body.put("started", started);
 			body.put("hasPasswort", hasPassword());
 			body.put("bombOwner", bombOwner==null ? -1 : bombOwner.getUuid());
 			body.put("bomb", bomb);
@@ -192,7 +190,6 @@ public class Game {
 
 			body.put("players", players);
 		}
-
 		return body;
 	}
 }

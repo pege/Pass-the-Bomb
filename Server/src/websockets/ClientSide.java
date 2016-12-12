@@ -48,11 +48,33 @@ public class ClientSide {
 			int uuid = r.nextInt(1000);
 			System.out.println(
 					"register [playername], create [gamename, pw], join [gamename, pw], leave, list, start, passBomb [targetID, bomb], explode, updateScore [bomb, score]");
+			int i = 0;
+			boolean start = true;
 			while (!mess.equals("exit")) {
 
 				System.out.println("Something to send?");
-				mess = sc.nextLine();
+				//mess = sc.nextLine();
 
+				if(i % 4 == 0)
+					mess = "join g1";
+				if(i % 4 == 1)
+					mess = "leave";
+				if(i % 4 == 2)
+					mess = "join g2";
+				if(i % 4 == 3)
+					mess = "leave";
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(start){
+					start = false;
+					mess = "register p1";
+				}
+				i++;
+				
 				String[] message = mess.split("\\s+");
 
 				switch (message[0]) {
