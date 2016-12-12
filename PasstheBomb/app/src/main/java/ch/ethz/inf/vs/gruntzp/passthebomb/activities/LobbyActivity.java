@@ -177,10 +177,16 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 break;
             case MessageFactory.SC_GAME_UPDATE:
                 game = Game.createFromJSON(body);
-                updateTable();
-                if(game.hasStarted()) {
+                if(game.hasStarted()) {//hasStarted implies that the game has a bomb owner and a bomb
+                    try {
+                        game.setBomb(body.getInt("bomb"));
+                        game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                    }
                     startGame();
                 }
+                updateTable();
                 break;
             default:
                 break;

@@ -45,6 +45,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         game = (Game) extras.get("game");
         thisPlayer = (Player) extras.get("thisPlayer");
         //TODO get information on who has the bomb and set that in the variable 'game'
+        //These things were already done in LobbyActivity
 
 
         //for testing only

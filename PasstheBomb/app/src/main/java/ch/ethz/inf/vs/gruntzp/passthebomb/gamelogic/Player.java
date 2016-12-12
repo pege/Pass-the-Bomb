@@ -58,6 +58,10 @@ public class Player implements Parcelable, Comparable<Player>{
 
     public String getUuid() {return uuid;}
 
+    public void changeScore(int amount) {
+        score += amount;
+    }
+
     // leave this empty please
     @Override
     public int describeContents() {

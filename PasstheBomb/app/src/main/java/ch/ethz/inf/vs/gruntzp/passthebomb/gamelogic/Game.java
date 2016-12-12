@@ -24,6 +24,13 @@ public class Game implements Parcelable{
     private Boolean locked;
     private String password;
     private boolean started;
+    private Bomb bomb;
+    private Player bombOwner;
+
+    public final int TAP_VALUE = 2;
+    public final int DEC_OKAY = 1;
+    public final int DEC_LAST = 2;
+    public final int DEC_ERROR = 3;
 
     public Game(String name, Player creator, Boolean locked, String password, boolean started){
         this.name = name;
@@ -35,6 +42,8 @@ public class Game implements Parcelable{
         this.locked = locked;
         this.password = password;
         this.started = started;
+        this.bomb = null;
+        this.bombOwner = null;
     }
 
     public Game(Parcel in){
@@ -98,6 +107,52 @@ public class Game implements Parcelable{
     }
 
     public boolean hasStarted() {return started;}
+
+    public int getNoPlayers() {
+        return players.size();
+    }
+
+    public Player getPlayerByID(String uuid) {
+        Player ret = null;
+        for(int i = 0; i < players.size(); i++) {
+            if(players.get(i).getUuid().equals(uuid))
+                ret = players.get(i);
+        }
+        return ret;
+    }
+
+    public Bomb getBomb() {
+        return bomb;
+    }
+
+    public Player getBombOwner() {
+        return bombOwner;
+    }
+
+    public void setBomb(int bomb) {
+        this.bomb = new Bomb(bomb);
+    }
+
+    public void setBombOwner(Player bombOwner) {
+        this.bombOwner = bombOwner;
+    }
+
+    public int getBombValue() {
+        return bomb.valueOf();
+    }
+
+    public synchronized int decreaseBomb() { //Synchronized to avoid race condition
+        int v = bomb.valueOf();
+        if (v > 1) { //No problem, score increase allowed
+            bomb.decrease();
+            return DEC_OKAY;
+        } else if(v == 1) { //Last decrement, score increase allowed but the bomb explodes
+            bomb.decrease();
+            return DEC_LAST;
+        } else { //Bomb already set to zero by another thread
+            return DEC_ERROR;
+        }
+    }
 
     // leave this empty please
     @Override
