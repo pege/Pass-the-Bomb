@@ -1,6 +1,8 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,20 +13,24 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class LobbyActivity extends AppCompatActivity implements MessageListener {
-// TODO: get information from server about the players and put it into the global variable 'game'
+    // TODO: get information from server about the players and put it into the global variable 'game'
     // TODO (cont.) at a regular interval
     // TODO (cont.) and update the table with updateTable()
     private Game game;
     private Player thisPlayer;
     private Boolean isCreator;
+    private SharedPreferences preferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +55,16 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
 //        this.startActivity(myIntent);
 
 
-        // initialize global variables
+        // initialize global variables from intent and shared preferences
+        preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
+
         Bundle extras = getIntent().getExtras();
-        game = (Game) extras.get("game");
-        thisPlayer = (Player) extras.get("thisPlayer");
-        isCreator = extras.getBoolean("isCreator");
+
+
+        game = Game.createFromJSON(extras.getString("message")); //Careful: owner is a uuid, not a name
+        thisPlayer = new Player(preferences.getString("user_name", ""),preferences.getString("userID", ""));
+        isCreator = game.getCreatorName().equals(thisPlayer.getName());
+
 
         setLobbyTitle();
         setStartButton();
