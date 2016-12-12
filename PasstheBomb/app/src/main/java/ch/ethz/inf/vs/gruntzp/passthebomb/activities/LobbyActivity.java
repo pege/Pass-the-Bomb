@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -118,17 +119,8 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
 
     @Override
     public void onBackPressed(){
-        if (isCreator) {
-            //TODO: send the server information to randomly select a new "creator"
-            // TODO (cont.) if there are still people in the lobby,
-            // TODO (cont.) else delete games from list of games available on server (but this is handled by the server)
-        } else {
-            //TODO: send server information that this player has exited the game
-
-            //not sure if this is necessary as it seems to be only local?
-            //Depends how you client people want to handle things...
-            game.removePlayer(thisPlayer);
-        }
+        //Server checks creator status/player number on it's own, just say I left.
+        controller.sendMessage(MessageFactory.leaveGame());
 
         finish();
     }
@@ -141,8 +133,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
             Toast toast = Toast.makeText(this, R.string.too_little_players, Toast.LENGTH_SHORT);
             toast.show();
         }else {
-            //TODO send start command to server
-            startGame();
+            controller.sendMessage(MessageFactory.startGame());
         }
     }
 
@@ -179,7 +170,21 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
 
     @Override
     public void onMessage(int type, JSONObject body) {
-        //TODO
+        switch(type) {
+            case 0:
+                Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case MessageFactory.SC_GAME_UPDATE:
+                game = Game.createFromJSON(body);
+                updateTable();
+                if(game.hasStarted()) {
+                    startGame();
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

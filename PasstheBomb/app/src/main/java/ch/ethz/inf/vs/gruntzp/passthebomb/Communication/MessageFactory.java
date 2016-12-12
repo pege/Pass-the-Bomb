@@ -95,7 +95,7 @@ public class MessageFactory {
 
             header.put("type", JOIN_GAME);
             body.put("game_id", game_id);
-            if (password != null) body.put("pw", password);
+            body.put("pw", password);
 
             return compose(header,body);
         } catch (JSONException e) {

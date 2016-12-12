@@ -23,8 +23,9 @@ public class Game implements Parcelable{
     private LinkedList<Player> players;
     private Boolean locked;
     private String password;
+    private boolean started;
 
-    public Game(String name, Player creator, Boolean locked, String password){
+    public Game(String name, Player creator, Boolean locked, String password, boolean started){
         this.name = name;
         this.creator = creator;
 
@@ -33,6 +34,7 @@ public class Game implements Parcelable{
 
         this.locked = locked;
         this.password = password;
+        this.started = started;
     }
 
     public Game(Parcel in){
@@ -95,6 +97,8 @@ public class Game implements Parcelable{
         this.password = password;
     }
 
+    public boolean hasStarted() {return started;}
+
     // leave this empty please
     @Override
     public int describeContents() {
@@ -133,7 +137,8 @@ public class Game implements Parcelable{
             Player c = null;
             String uuid = gameInfo.getString("owner");
             Game game = new Game(gameInfo.getString("name"), null,
-                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
+                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password"),
+                    gameInfo.getBoolean("started")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
             for(int i = 0; i < jArray.length(); i++) {
                 p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
                 if (uuid.equals(p.getUuid())) {
@@ -144,6 +149,46 @@ public class Game implements Parcelable{
                 }
             }
             game.setCreator(c);
+            return game;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Game createFromJSON(JSONObject gameInfo) {
+        try {
+            //Retrieve players from game
+            JSONArray jArray = new JSONArray(gameInfo.getJSONArray("players"));
+            Player p;
+            Player c = null;
+            String uuid = gameInfo.getString("owner");
+            Game game = new Game(gameInfo.getString("name"), null,
+                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password"),
+                    gameInfo.getBoolean("started")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
+            for(int i = 0; i < jArray.length(); i++) {
+                p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
+                if (uuid.equals(p.getUuid())) {
+                    c = p;
+                    game.setCreator(c);
+                } else {
+                    game.addPlayer(p);
+                }
+            }
+            game.setCreator(c);
+            return game;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Game createFromJSON0(JSONObject gameInfo) {
+        try {
+            //Retrieve players from game
+            Game game = new Game(gameInfo.getString("name"), null,
+                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password"),
+                    false);
             return game;
         } catch (JSONException e) {
             e.printStackTrace();
