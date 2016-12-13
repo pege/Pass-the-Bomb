@@ -2,13 +2,16 @@ package websockets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -269,34 +272,54 @@ public final class Connection {
 	private void createGame(Session session, JSONObject body) {
 		final String gamename = (String) body.get("game_id");
 		final String password = (String) body.get("password");
+		
 		registerLock.lock();
 		Player owner = map.get(session);
-		if (!NeedRegister(session, owner)) {
-			synchronized (owner) {
-				registerLock.unlock();
-				if (!alreadyInGame(session, owner)) {
-					Game game;
-					Optional<Integer> largest = games.stream().map(Game::getGamename)
-							.filter(s -> s.startsWith(gamename)).map(s -> s.substring(gamename.length()))
-							.map(s -> Integer.getInteger(s)).filter(i -> i != null).sorted().findFirst();
-					String newname = gamename;
-					if (largest.isPresent()) {
-						int addition = largest.get().intValue() + 1;
-						newname = gamename + Integer.toString(addition);
-					}
-					game = new Game(owner, newname, password);
-					games.add(game);
-
-					owner.joinGame(game);
-
-					sendMess(session, MessageFactory.SC_GameUpdate(game.toJSON(1)));
-					System.out.println("A game with gamename " + game.getGamename() + " was created");
-				}
-			}
-		} else {
+		
+		if (NeedRegister(session, owner)) {
 			registerLock.unlock();
+			return;
 		}
-	}
+		
+		
+						
+		synchronized (owner) {
+			registerLock.unlock();
+			if (!alreadyInGame(session, owner)) {
+				String newname = gamename;
+				Game game;
+				
+				//get strings starting with game name
+				String[] gs = (String[]) games.stream().map(Game::getGamename).filter(s -> s.startsWith(gamename))
+						.map(s -> s.substring(gamename.length())).toArray();
+				
+				//has strings starting with game name
+				if (gs.length > 0) {
+					//has exact game name
+					boolean hasSame = Arrays.stream(gs).anyMatch(s -> s.equals(""));
+					IntStream is = Arrays.stream(gs).map(s -> Integer.valueOf(s)).filter(s -> s != null).mapToInt(Integer::intValue);
+					//has some game names + prefix
+					OptionalInt max = is.max();
+					if (max.isPresent())
+						//take highest prefix and increase
+						newname += String.valueOf(max.getAsInt() + 1);
+					else if (hasSame)
+						//create first prefix
+						newname += "1";
+				}
+				
+				game = new Game(owner, newname, password);
+				games.add(game);
+
+				owner.joinGame(game);
+
+				sendMess(session, MessageFactory.SC_GameUpdate(game.toJSON(1)));
+				System.out.println("A game with gamename " + game.getGamename() + " was created");
+			}
+		}
+		
+	} 
+	
 
 	private void getGameList(Session session) {
 		// FIXME: Does player need to be registered?
