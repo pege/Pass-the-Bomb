@@ -30,19 +30,13 @@ public final class Connection {
 	private static final long timeBetweenPings = 10; // time to wait between
 														// sending a ping
 
-	// max times of clients: timeout/timeBetweenPings
-
-	// games as a concurrent Set, because of gameList()
 	private static Set<Game> games = new CopyOnWriteArraySet<>();
-	// All sessions
 	private static Set<Session> registeredSessions = new CopyOnWriteArraySet<>();
-
-	// Map from the session to the player, independent if they are in a game
 	private static Map<Session, Player> map = new HashMap<>();
-	
-	private static ReentrantLock registerLock = new ReentrantLock();
 
-	static { // Thread to send pings and check the connection
+	private static ReentrantLock registerLock = new ReentrantLock(); // locks
+
+	static {
 		new Thread() {
 			public void run() {
 				checkConnection();
@@ -127,6 +121,9 @@ public final class Connection {
 		}
 	}
 
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Connection Checking via Ping-pong
+
 	public static void checkConnection() {
 		while (true) {
 			// System.out.println("number of registered sessions: " +
@@ -157,8 +154,8 @@ public final class Connection {
 							System.out.println("==================================");
 							player.setMaybeConnection(true);
 							Game game = player.getJoinedGame();
-							synchronized (game) {
-								if (game != null) {
+							if (game != null) {
+								synchronized (game) { // TODO
 									game.broadcast_detailed_state();
 								}
 							}
@@ -195,7 +192,7 @@ public final class Connection {
 		buffer = pongMessage.getApplicationData();
 		registerLock.lock();
 		Player player = map.get(session);
-		if (player != null) { //TODO can this ve null?
+		if (player != null) { // TODO can this ve null?
 			synchronized (player) {
 				registerLock.unlock();
 				player.setLastPong(buffer.asLongBuffer().get());
@@ -205,9 +202,9 @@ public final class Connection {
 		}
 	}
 
-	//////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// methods a player can do
 
-	// Add to the session a Player and start pinging the session
 	private void register(Session session, JSONObject body) {
 		final String username = (String) body.get("username");
 		final String uuid = (String) body.get("user_id");
@@ -304,9 +301,7 @@ public final class Connection {
 	private void getGameList(Session session) {
 		// FIXME: Does player need to be registered?
 		JSONArray gameArray = new JSONArray();
-		synchronized (games) {// TODO really necessary?
-			games.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
-		}
+		games.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
 		sendMess(session, MessageFactory.SC_GameList(gameArray));
 	}
 
@@ -341,7 +336,7 @@ public final class Connection {
 								System.out.println(player.getName() + " joined the game " + game.getGamename());
 							}
 						}
-					} else if (game != null){ // wrong password
+					} else if (game != null) { // wrong password
 						sendMess(session, MessageFactory.Wrong_Password_Error());
 						System.out.println("Wrong password");
 					}
@@ -486,8 +481,9 @@ public final class Connection {
 		}
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// ERROR HADNLING
+
 	private boolean NeedBomb(Session s, Player player) {
 		if (!player.hasBomb()) {
 			sendMess(s, MessageFactory.DoesntOwnBombError());

@@ -53,27 +53,27 @@ public class ClientSide {
 			while (!mess.equals("exit")) {
 
 				System.out.println("Something to send?");
-				//mess = sc.nextLine();
+				mess = sc.nextLine();
 
-				if(i % 4 == 0)
-					mess = "join g1";
+				/*if(i % 4 == 0)
+					mess = "list";
 				if(i % 4 == 1)
-					mess = "leave";
+					mess = "list";
 				if(i % 4 == 2)
-					mess = "join g2";
+					mess = "list";
 				if(i % 4 == 3)
-					mess = "leave";
+					mess = "list";
 				try {
-					Thread.sleep(1);
+					Thread.sleep(50);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if(start){
 					start = false;
-					mess = "register p1";
+					mess = "register p2";
 				}
-				i++;
+				i++;*/
 				
 				String[] message = mess.split("\\s+");
 
