@@ -12,8 +12,8 @@ import android.support.v7.app.AppCompatActivity;
  */
 
 public class ServiceConnector {
-    private MessageService mService;
-    private boolean mBound = false;
+    static private MessageService mService;
+    static private boolean mBound = false;
 
     private static ServiceConnector instance;
 
@@ -55,8 +55,8 @@ public class ServiceConnector {
         if(!mBound)
         {
             Intent intent = new Intent(activity, MessageService.class);
-            intent.putExtra("ip", "54.213.92.251");
-            intent.putExtra("port", "8080");
+            intent.putExtra("ip", "10.0.2.2");
+            intent.putExtra("port", "8088");
 
             Reference r = new Reference();
             r.setActivity((MessageListener) activity);

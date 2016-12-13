@@ -1,18 +1,15 @@
 package websockets;
 //package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 /**
  * Created by niederbm on 11/25/16.
  */
 
-public class Message {
+public class MessageFactory {
 	
 	// FROM CLIENT TO SERVER
     public static final int CREATE_GAME = 1; 	// server
@@ -20,7 +17,7 @@ public class Message {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    //public static final int PLAYER_LIST = 6; 	// nö, ist redundant. haben wir auch im GameUpdate
+    //public static final int PLAYER_LIST = 6; 	// n, ist redundant. haben wir auch im GameUpdate
     //public static final int PLAYER_UNREACHABLE = 7; 
     public static final int RECONNECT = 8; 		// --
     //public static final int GAME_UPDATE = 9;
@@ -39,7 +36,8 @@ public class Message {
     public static final int SC_GAME_LIST = 19;
     public static final int SC_GAME_UPDATE = 20;
     // ERRORS
-    public static final int SC_RECONNECT_DENIED_ERROR = 11;			
+    public static final int SC_RECONNECT_DENIED_ERROR = 11;
+    public static final int SC_REGISTER_SUCCESSFUL = 21;
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
     public static final int NOT_REGISTERED_ERROR = -4;
@@ -47,7 +45,7 @@ public class Message {
     public static final int WRONG_PASSWORD_ERROR = -6;
     public static final int ALREADY_STARTED_ERROR = -7;
     public static final int GAME_NOT_FOUND_ERROR = -8;
-    public static final int NOT_IN_GAME_ERROR = -9; 
+    public static final int NOT_IN_GAME_ERROR = -9;
     public static final int NOT_GAME_OWNER_ERROR = -10; 
     public static final int DOESNT_OWN_BOMB_ERROR = -11;
     public static final int NOT_STARTED_ERROR = -12;
@@ -74,7 +72,7 @@ public class Message {
     }
 
 
-    public static String register(long user_id, String username) {
+    public static String register(String user_id, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
@@ -97,7 +95,7 @@ public class Message {
 
             header.put("type", JOIN_GAME);
             body.put("game_id", game_id);
-            if (password != null) body.put("pw", password);
+            body.put("pw", password);
 
             return compose(header,body);
         } catch (JSONException e) {
@@ -225,6 +223,19 @@ public class Message {
 
             return compose(header);
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String sc_registerSuccessful() {
+        try {
+            JSONObject header = new JSONObject();
+
+            header.put("type", SC_REGISTER_SUCCESSFUL);
+
+            return compose(header);
+        } catch( JSONException e) {
             e.printStackTrace();
         }
         return null;
@@ -380,7 +391,7 @@ public class Message {
     }
    
 
-    public static String passBomb(long target_uiid, int bomb) {
+    public static String passBomb(String target_uiid, int bomb) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();

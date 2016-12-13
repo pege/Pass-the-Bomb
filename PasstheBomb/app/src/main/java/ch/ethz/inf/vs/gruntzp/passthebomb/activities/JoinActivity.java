@@ -1,6 +1,8 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +23,12 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -30,6 +38,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     private TextView noGames;
     private TableLayout gamesTable;
     private TableRow headerRow;
+    private String password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +50,8 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
         gamesTable = (TableLayout) findViewById(R.id.games_table);
         headerRow = (TableRow) gamesTable.getChildAt(0);
 
+        password = "";
+
         //create the table for the first time
         onClickRefresh(findViewById(R.id.refresh));
     }
@@ -50,15 +61,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     ** Game[] contains necessary information about the game
     ** --> see Game.java in the gamelogic package
      */
-    public Game[] getGamesInfo(){
-        return null;
-    }
-
-
-    // Refreshes the table containing the games.
-    public void onClickRefresh(View view) {
-        Game[] games = getGamesInfo();
-
+    public void getGamesInfo(Game[] games){
         int numberOfGames;
         if(games != null) {
             numberOfGames = games.length;
@@ -74,6 +77,12 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
         */
 
         recreateTable(numberOfGames, games);
+    }
+
+
+    // Refreshes the table containing the games.
+    public void onClickRefresh(View view) {
+        controller.sendMessage(MessageFactory.getGames());
     }
 
     public void recreateTable(int numberOfGames, Game[] games){
@@ -164,6 +173,8 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     //TODO implement this finish; add other parameters if necessary (but don't forget to add them in the call of recreateTable())
     private void addJoinButton(TableRow tableRow, Game game, int padding, DisplayMetrics metrics){
         RelativeLayout buttonCell = new RelativeLayout(this);
+        final SharedPreferences preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
+
 
         // places cell border
         TextView cell = new TextView(this);
@@ -187,6 +198,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 **           Before checking if the game is locked and, if it is, also
                 **           after the password was put in correctly?
                 */
+                //Answer: we send a join request to the server and only start LobbyActivity if we get a positive response :)
 
                 if(thisGame.getLocked()){
                     // Initialize a new instance of LayoutInflater service
@@ -219,29 +231,20 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                                 Toast toast = Toast.makeText(view.getContext(), R.string.empty_password_field, Toast.LENGTH_SHORT);
                                 toast.show();
                             } else {
-                                if (inputPassword.getText().toString().equals(thisGame.getPassword())) {
                                     // Dismiss the popup window
                                     mPopupWindow.dismiss();
+
+                                    //Set password to be sent to server
+                                    password = inputPassword.getText().toString();
 
                                     // Make the screen colour turn back to normal
                                     blackout.setVisibility(View.INVISIBLE);
 
                                     // create a new intent
-                                    Intent myIntent = new Intent(view.getContext(), LobbyActivity.class);
-                                    // pass LobbyActivity extra information
-                                    Bundle extras = getIntent().getExtras();
-                                    Player thisPlayer = new Player(extras.getString("player_name"));
-                                    thisGame.addPlayer(thisPlayer);
-                                    myIntent.putExtra("game", thisGame);
-                                    myIntent.putExtra("isCreator", false);
-                                    myIntent.putExtra("thisPlayer", thisPlayer);
-                                    // Start LobbyActivity
-                                    view.getContext().startActivity(myIntent);
+                                    controller.sendMessage(MessageFactory.joinGame(preferences.getString("user_name",""),password));
+
                                     //TODO: pass information to server that the player is entering that game
-                                } else {
-                                    Toast toast = Toast.makeText(view.getContext(), R.string.wrong_password, Toast.LENGTH_SHORT);
-                                    toast.show();
-                                }
+
                             }
                         }
                     });
@@ -270,18 +273,9 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                     mPopupWindow.showAtLocation(mRelativeLayout, Gravity.CENTER,0,-80);
 
                 } else {
-                    Intent myIntent = new Intent(v.getContext(), LobbyActivity.class);
 
-                    // give LobbyActivity extra information
-                    Bundle extras = getIntent().getExtras();
-                    Player thisPlayer = new Player(extras.getString("player_name"));
-                    thisGame.addPlayer(thisPlayer);
-                    myIntent.putExtra("thisPlayer", thisPlayer);
-                    myIntent.putExtra("game", thisGame);
-                    myIntent.putExtra("isCreator", false);
+                    controller.sendMessage(MessageFactory.joinGame(preferences.getString("user_name",""),password));
 
-                    // start LobbyActivity
-                    v.getContext().startActivity(myIntent);
                     //TODO: pass information to server that the player is entering that game
                 }
             }
@@ -299,8 +293,46 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
+        Toast toast;
+        switch(type) {
+            case 0:
+                toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case MessageFactory.SC_GAME_LIST: //Read all games from array and call function to update GUI
+                try {
+                    JSONArray gameArr = new JSONArray(body.getJSONArray("games"));
+                    Game[] games = new Game[gameArr.length()];
+                    for (int i = 0; i < gameArr.length(); i++) {
+                        games[i] = Game.createFromJSON0(gameArr.getJSONObject(i));
+                    }
+                    getGamesInfo(games);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case MessageFactory.SC_GAME_UPDATE:
+                Intent myIntent = new Intent(this, LobbyActivity.class);
+                myIntent.putExtra("message", body.toString());
+                this.startActivity(myIntent);
+                break;
+            case MessageFactory.ALREADY_STARTED_ERROR:
+                toast = Toast.makeText(this, "That game already started", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case MessageFactory.WRONG_PASSWORD_ERROR:
+                toast = Toast.makeText(this, "The password you entered isn't correct", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case MessageFactory.GAME_NOT_FOUND_ERROR:
+                toast = Toast.makeText(this, "The game was not found", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

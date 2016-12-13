@@ -1,6 +1,8 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,28 +13,59 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class LobbyActivity extends AppCompatActivity implements MessageListener {
-// TODO: get information from server about the players and put it into the global variable 'game'
+    // TODO: get information from server about the players and put it into the global variable 'game'
     // TODO (cont.) at a regular interval
     // TODO (cont.) and update the table with updateTable()
     private Game game;
     private Player thisPlayer;
     private Boolean isCreator;
+    private SharedPreferences preferences;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lobby);
 
-        // initialize global variables
+        String game_update = getIntent().getExtras().getString("message");
+        try {
+            JSONObject body = new JSONObject(game_update);
+
+        } catch (JSONException e) {
+            return;
+        }
+
+//        Game game = new Game(name, creatorName, locked, password);
+//
+//        // give GameActivity extra information
+//        myIntent.putExtra("isCreator", true);
+//        myIntent.putExtra("game", game);
+//        myIntent.putExtra("thisPlayer", game.getPlayers().get(0));
+//
+//        this.startActivity(myIntent);
+
+
+        // initialize global variables from intent and shared preferences
+        preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
+
         Bundle extras = getIntent().getExtras();
-        game = (Game) extras.get("game");
-        thisPlayer = (Player) extras.get("thisPlayer");
-        isCreator = extras.getBoolean("isCreator");
+
+
+        game = Game.createFromJSON(extras.getString("message")); //Careful: owner is a uuid, not a name
+        thisPlayer = new Player(preferences.getString("user_name", ""),preferences.getString("userID", ""));
+        isCreator = game.getCreatorName().equals(thisPlayer.getName());
+
 
         setLobbyTitle();
         setStartButton();
@@ -86,17 +119,8 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
 
     @Override
     public void onBackPressed(){
-        if (isCreator) {
-            //TODO: send the server information to randomly select a new "creator"
-            // TODO (cont.) if there are still people in the lobby,
-            // TODO (cont.) else delete games from list of games available on server (but this is handled by the server)
-        } else {
-            //TODO: send server information that this player has exited the game
-
-            //not sure if this is necessary as it seems to be only local?
-            //Depends how you client people want to handle things...
-            game.removePlayer(thisPlayer);
-        }
+        //Server checks creator status/player number on it's own, just say I left.
+        controller.sendMessage(MessageFactory.leaveGame());
 
         finish();
     }
@@ -109,8 +133,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
             Toast toast = Toast.makeText(this, R.string.too_little_players, Toast.LENGTH_SHORT);
             toast.show();
         }else {
-            //TODO send start command to server
-            startGame();
+            controller.sendMessage(MessageFactory.startGame());
         }
     }
 
@@ -146,8 +169,28 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
     }
 
     @Override
-    public void onMessage(String message) {
-        //TODO
+    public void onMessage(int type, JSONObject body) {
+        switch(type) {
+            case 0:
+                Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case MessageFactory.SC_GAME_UPDATE:
+                game = Game.createFromJSON(body);
+                if(game.hasStarted()) {//hasStarted implies that the game has a bomb owner and a bomb
+                    try {
+                        game.setBomb(body.getInt("bomb"));
+                        game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                    }
+                    startGame();
+                }
+                updateTable();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override

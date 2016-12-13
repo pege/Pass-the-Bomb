@@ -3,7 +3,9 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 
 import org.glassfish.tyrus.client.ClientManager;
@@ -17,6 +19,8 @@ import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
+
+import org.json.*;
 
 /**
  * Created by Marc on 24.11.2016.
@@ -40,10 +44,31 @@ public class MessageService extends Service {
 
     @OnMessage
     public void onMessage(String message, Session session) {
-        System.out.println("Message: " + message);
+        System.out.println("MessageFactory: " + message);
         if(this.activity != null)
         {
-            this.activity.onMessage(message);
+            // Parse message to JSON Object
+            int type = 0;
+            JSONObject body = null;
+
+            try {
+                JSONTokener tokener = new JSONTokener(message);
+                JSONObject msg = new JSONObject(tokener);
+                type = msg.getJSONObject("header").getInt("type");
+                body = msg.getJSONObject("body");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            // Call onMessage() of the current activity, in MainThread
+            final int copy_type = type;
+            final JSONObject copy_body = body;
+
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                public void run() {
+                    activity.onMessage(copy_type, copy_body);
+                }
+            });
         }
     }
 
@@ -90,10 +115,12 @@ public class MessageService extends Service {
                 ClientManager client = ClientManager.createClient();
                 try{
                     URI uri = null;
-                    uri = new URI("ws://" + ip + ":" + port + "/websockets/echo");
+                    uri = new URI("ws://" + ip + ":" + port + "/websockets/passTheBomb");
                     wsSession = client.connectToServer(MessageService.class, uri);
                 }
-                catch(Exception ex){}
+                catch(Exception ex){
+                    ex.printStackTrace();
+                }
             }
         });
         t.start();

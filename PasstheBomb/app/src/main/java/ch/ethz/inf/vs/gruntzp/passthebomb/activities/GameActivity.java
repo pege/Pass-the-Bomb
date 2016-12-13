@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -43,6 +45,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         game = (Game) extras.get("game");
         thisPlayer = (Player) extras.get("thisPlayer");
         //TODO get information on who has the bomb and set that in the variable 'game'
+        //These things were already done in LobbyActivity
 
 
         //for testing only
@@ -446,7 +449,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
     }
 

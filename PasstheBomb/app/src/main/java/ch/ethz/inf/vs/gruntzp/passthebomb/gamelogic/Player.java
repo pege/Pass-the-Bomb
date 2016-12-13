@@ -16,17 +16,20 @@ public class Player implements Parcelable, Comparable<Player>{
     private int score;
     private boolean hasBomb;
     //TODO add unique player ID here (and make set and get methods)
+    private String uuid;
 
-    public Player(String name){
+    public Player(String name, String uuid){
         this.name = name;
         this.score = 0;
         this.hasBomb = false;
+        this.uuid = uuid;
     }
 
     public Player(Parcel in){
         this.name = in.readString();
         this.score = in.readInt();
         this.hasBomb = in.readByte() != 0;
+        this.uuid = in.readString();
     }
 
     public String getName() {
@@ -53,6 +56,12 @@ public class Player implements Parcelable, Comparable<Player>{
         this.hasBomb = hasBomb;
     }
 
+    public String getUuid() {return uuid;}
+
+    public void changeScore(int amount) {
+        score += amount;
+    }
+
     // leave this empty please
     @Override
     public int describeContents() {
@@ -64,6 +73,7 @@ public class Player implements Parcelable, Comparable<Player>{
         dest.writeString(name);
         dest.writeInt(score);
         dest.writeByte((byte) (hasBomb ? 1 : 0));
+        dest.writeString(uuid);
     }
 
     public static final Parcelable.Creator<Player> CREATOR = new Parcelable.Creator<Player>()

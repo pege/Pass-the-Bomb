@@ -4,22 +4,20 @@ import javax.websocket.Session;
 
 import org.json.JSONObject;
 
-public class Player {
+public final class Player {
 	
-	private long uuid;
-	private String name;
+	private final String uuid;
+	private final String name;
 	private int score;
 	
-	
-	//TODO connected is same as registered => map points to player
-	private boolean maybeDC; //if connected or not //TODO i think it's redundant (It's checked if map points to NULL or not)
+	private boolean maybeDC;
 	private Session session;
 	private long lastPong;
 	private Game inGame; //null if in no game
 	
 	
 	
-	public Player(String name, long uuid, Session session){
+	public Player(String name, String uuid, Session session){
 		this.name = name;
 		this.uuid = uuid;
 		this.session = session;
@@ -34,7 +32,7 @@ public class Player {
 		return name;
 	}
 	
-	public long getUuid(){
+	public String getUuid(){
 		return uuid;
 	}
 	
@@ -45,12 +43,7 @@ public class Player {
 	public void setScore(int new_score){
 		score = new_score;
 	}
-	
-//	public void setBomb(boolean hasB){
-//		hasBomb = hasB;
-//	}
-	
-	
+		
 	public void changeScore(int amount){
 		score = score +amount;
 	}
@@ -100,7 +93,7 @@ public class Player {
 		o.put("uuid", uuid);
 		o.put("name", name);
 		o.put("score", score);
-		o.put("connected", maybeDC);
+		o.put("disconnected", maybeDC);
 		return o;
 	}
 

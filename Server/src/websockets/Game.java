@@ -9,9 +9,8 @@ import javax.websocket.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+public final class Game {
 
-public class Game {
-	
 	private static final int finalScore = 100;
 	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
 	private static final int scoreIncrease = 50;
@@ -20,14 +19,13 @@ public class Game {
 	private Player owner;
 	private ArrayList<Player> players = new ArrayList<>();
 
-	private String gameName;
-	private String password;
-	
+	private final String gameName;
+	private final String password;
+
 	private boolean started;
-	
+
 	private Player bombOwner;
-	private int bomb;
-	
+	private int bomb = -1;
 
 	public Game(Player owner, String gamename, String password) {
 		this.gameName = gamename;
@@ -36,14 +34,26 @@ public class Game {
 		players.add(owner);
 	}
 
-	public Player getBombOwner() { return bombOwner; }
-	public void setBombOwner(Player owner) { bombOwner = owner; } 
-	
-	public boolean hasStarted() { return started; }
-	
-	public int getBomb() { return bomb; }
-	public void setBomb(int value) { bomb = value; }
-	
+	public Player getBombOwner() {
+		return bombOwner;
+	}
+
+	public void setBombOwner(Player owner) {
+		bombOwner = owner;
+	}
+
+	public boolean hasStarted() {
+		return started;
+	}
+
+	public int getBomb() {
+		return bomb;
+	}
+
+	public void setBomb(int value) {
+		bomb = value;
+	}
+
 	public String getGamename() {
 		return gameName;
 	}
@@ -51,12 +61,10 @@ public class Game {
 	public boolean checkPassword(String password) {
 		return this.password.equals(password);
 	}
-	
-	
-	public boolean hasPassword(){
-		return password != "";
+
+	public boolean hasPassword() {
+		return !password.equals("");
 	}
-	
 
 	public void addPlayer(Player player) {
 		players.add(player);
@@ -64,17 +72,17 @@ public class Game {
 
 	public void removePlayer(Player player) {
 		players.remove(player);
-		if (player == owner)
+		if (player == owner && numberOfPlayers()>0)
 			owner = players.get(0);
+		if (player.hasBomb() && numberOfPlayers()>0)
+			setBombOwner(pickRandom());
 	}
 
 	public String getPlayersName() {
-
 		String s = "";
 		for (Player p : players) {
 			s = s + p.getName() + ", ";
 		}
-
 		return s;
 	}
 
@@ -93,9 +101,8 @@ public class Game {
 	public int numberOfPlayers() {
 		return players.size();
 	}
-	
 
-	public void startGame(){
+	public void startGame() {
 		started = true;
 		bombOwner = pickRandom();
 		bomb = createBomb();
@@ -104,47 +111,34 @@ public class Game {
 
 	public void bomb_exploded(Player p) {
 		p.changeScore(scoreDecrease);
-		
-		for (Player player: players) {
-			if (p != player)
-			{
+
+		for (Player player : players) {
+			if (p != player) {
 				player.changeScore(scoreIncrease);
 			}
 		}
 	}
-	
+
 	private static Random random = new Random();
-	
+
 	private static int createBomb() {
 		return random.nextInt(lifetimeBomb);
 	}
-	
+
 	private Player pickRandom() {
 		int size = players.size();
 		int choice = random.nextInt(size);
 		return players.get(choice);
 	}
-	
-	
-	public int indexOfPlayer(Player player){
+
+	public int indexOfPlayer(Player player) {
 		return players.indexOf(player);
 	}
 
-	
-	//FIXME: DEPRECATED
-	public String getPlayerInfos(){
-		String s = "";
-		for (Player p : players){
-			s = s + "Name:" + p.getName() + ", UUID:" + p.getUuid(); 
-		}
-		return s;
+	public void broadcast_detailed_state() {
+		broadcast(MessageFactory.SC_GameUpdate(this.toJSON(1)));
 	}
-	
-	public void broadcast_detailed_state()
-	{
-		broadcast(Message.SC_GameUpdate(this.toJSON(1)));
-	}
-	
+
 	public void broadcast(String message) {
 		for (Player player : players) {
 			Session s = player.getSession();
@@ -157,45 +151,45 @@ public class Game {
 			}
 		}
 	}
-	
-	public boolean isFinished(){
-		for (Player p: players) {
+
+	public boolean isFinished() {
+		for (Player p : players) {
 			if (p.getScore() >= finalScore)
 				return true;
 		}
 		return false;
 	}
-	
-	
+
 	public void destroy() {
 		for (Player p : players) {
 			p.leaveGame();
 			p.resetScore();
 		}
 	}
-	
-	
-	
-	
-	
+
 	public JSONObject toJSON(int level) {
-		JSONObject o = new JSONObject();
-		o.put("name", gameName);
-		o.put("hasPasswort", password != "");
-		o.put("noP", numberOfPlayers());
-		
+		// JSONObject header = new JSONObject();
+		JSONObject body = new JSONObject();
+
+		// header.put("type", Message.SC_GAME_UPDATE);
+
+		body.put("name", gameName);
+		body.put("hasPasswort", hasPassword());
+		body.put("noP", numberOfPlayers());
+		body.put("started", started);
+
 		if (level > 0) {
-		o.put("owner", owner.getUuid());
-		o.put("started", started);
-		o.put("hasPasswort", hasPassword());
-		o.put("bombOwner", bombOwner);
-		o.put("bomb", bomb);
-		
-		JSONArray players = new JSONArray();
-		for (Player player: this.getPlayers())
-			players.put(player.toJSON());
+			body.put("owner", owner.getUuid());
+			body.put("hasPasswort", hasPassword());
+			body.put("bombOwner", bombOwner==null ? -1 : bombOwner.getUuid());
+			body.put("bomb", bomb);
+
+			JSONArray players = new JSONArray();
+			for (Player player : this.getPlayers())
+				players.put(player.toJSON());
+
+			body.put("players", players);
 		}
-		
-		return o;	
+		return body;
 	}
 }

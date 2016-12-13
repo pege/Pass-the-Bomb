@@ -22,9 +22,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>src/websockets/Message.java</name>
+			<name>src/websockets/MessageFactory.java</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/PasstheBomb/app/src/main/java/ch/ethz/inf/vs/gruntzp/passthebomb/Communication/Message.java</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/PasstheBomb/app/src/main/java/ch/ethz/inf/vs/gruntzp/passthebomb/Communication/MessageFactory.java</locationURI>
 		</link>
-	</linkedResources> 
+	</linkedResources>
 </projectDescription>
