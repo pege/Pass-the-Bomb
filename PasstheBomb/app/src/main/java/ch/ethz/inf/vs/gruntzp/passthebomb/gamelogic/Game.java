@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Michelle on 19.11.2016.
@@ -28,9 +30,10 @@ public class Game implements Parcelable{
     private Player bombOwner;
 
     public final int TAP_VALUE = 2;
-    public final int DEC_OKAY = 1;
-    public final int DEC_LAST = 2;
-    public final int DEC_ERROR = 3;
+    public static final int DEC_OKAY = 1;
+    public static final int DEC_LAST = 2;
+    public static final int DEC_ERROR = 3;
+    public Lock bombLock = new ReentrantLock();
 
     public Game(String name, Player creator, Boolean locked, String password, boolean started){
         this.name = name;

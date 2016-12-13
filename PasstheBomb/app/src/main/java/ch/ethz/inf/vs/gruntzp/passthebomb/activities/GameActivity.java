@@ -17,9 +17,11 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
+import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -45,6 +47,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         Bundle extras = getIntent().getExtras();
         game = (Game) extras.get("game");
         thisPlayer = (Player) extras.get("thisPlayer");
+        thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
         //TODO get information on who has the bomb and set that in the variable 'game'
         //These things were already done in LobbyActivity
 
@@ -265,7 +268,27 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 touch[i] = false;
                                 //TODO and if it was touching, then send server information to pass the bomb on
                                 //TODO make bomb invisible; remember to set ishasbomb for thisplayer to false
+                                game.bombLock.lock();
+                                if(game.getBombValue() > 0) {//The timer might have run out in the meantime
+                                    controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
+                                }
+                                game.bombLock.unlock();
                                 Log.i("up", "no!");
+                            } else { //Doesn't touch anything, so it decreases the bomb life
+                                int ret = game.decreaseBomb();
+                                switch (ret) {
+                                    case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                                        thisPlayer.changeScore(game.TAP_VALUE);
+                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                                        break;
+                                    case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                                        thisPlayer.changeScore(game.TAP_VALUE);
+                                        controller.sendMessage(MessageFactory.exploded());
+                                        break;
+                                    case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                                        break;
+                                }
+
                             }
                             else {
                                 //move bomb back to center via movement-motion
@@ -461,6 +484,21 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onMessage(int type, JSONObject body) {
         //TODO
+        switch(type) {
+            case 0:
+                Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case MessageFactory.SC_GAME_UPDATE: //Diverse möglichkeiten was für ein Update das ist
+                game = Game.createFromJSON(body);
+                setUpPlayers();
+                setUpBomb();
+                break;
+
+            default:
+                break;
+        }
+
     }
 
     @Override
