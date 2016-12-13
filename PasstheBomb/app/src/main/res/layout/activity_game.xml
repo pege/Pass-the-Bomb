@@ -65,7 +65,8 @@
         <FrameLayout android:id="@+id/bomb_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:elevation="10dp">
+            android:elevation="10dp"
+            android:animateLayoutChanges="true">
 
             <ImageView android:id="@+id/bomb"
                 android:layout_width="wrap_content"
