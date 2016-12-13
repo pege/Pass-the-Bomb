@@ -11,11 +11,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.UUID;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class MainActivity extends AppCompatActivity implements MessageListener {
 
@@ -132,8 +135,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 toast.show();
                 break;
             case MessageFactory.SC_RECONNECT_DENIED_ERROR: //Already registered, don't care and fall through
-            //case MessageFactory.SC_REGISTER_SUCCESSFUL: //Newly registered
-            case MessageFactory.SC_GAME_UPDATE: //Server sends a game update if register is accepted
+            case MessageFactory.SC_REGISTER_SUCCESSFUL: //Newly registered
                 registered = true;
                 if (creating) {
                     creating = false; //For the next time
@@ -149,6 +151,31 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     this.startActivity(myIntent);
                 }
                 break;
+            case MessageFactory.SC_GAME_UPDATE: //Server sends a game update if register is accepted
+                Game game = Game.createFromJSON(body);
+                if(game.hasStarted()) {//hasStarted implies that the game has a bomb owner and a bomb
+                    try {
+                        game.setBomb(body.getInt("bomb"));
+                        game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
+                    } catch(JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Intent myIntent = new Intent(this, GameActivity.class);
+
+                    // give the next activity extra information
+                    myIntent.putExtra("game", game);
+                    myIntent.putExtra("thisPlayer", new Player(preferences.getString("user_name",""),preferences.getString("userID","")));
+
+                    this.startActivity(myIntent);
+
+                    //destroy myself
+                    finish();
+                } else { //Disconnected while in Lobby
+                    Intent myIntent = new Intent(this, LobbyActivity.class);
+                    myIntent.putExtra("message", body.toString());
+                    this.startActivity(myIntent);
+                    break;
+                }
             default:
                 break;
         }

@@ -62,8 +62,8 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         Bundle extras = getIntent().getExtras();
 
 
-        game = Game.createFromJSON(extras.getString("message")); //Careful: owner is a uuid, not a name
-        thisPlayer = new Player(preferences.getString("user_name", ""),preferences.getString("userID", ""));
+        game = Game.createFromJSON(extras.getString("message"));
+        thisPlayer = game.getPlayerByID(preferences.getString("userID", ""));
         isCreator = game.getCreatorName().equals(thisPlayer.getName());
 
 
@@ -158,8 +158,10 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
 
         // destroy intent with MainActivity
         getParent().getParent().finish();
-        // destroy intent with CreateActivity/LobbyActivity
+        // destroy intent with CreateActivity/JoinActivity
         getParent().finish();
+        //destroy myself
+        finish();
     }
 
     @Override
