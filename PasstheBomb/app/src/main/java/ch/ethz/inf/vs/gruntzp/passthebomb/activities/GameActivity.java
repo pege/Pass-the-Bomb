@@ -1,5 +1,6 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
+import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
@@ -53,11 +54,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         //for testing only
         /*
-        game = new Game("herp derp", "theBest", false, "");
-        game.addPlayer(new Player("Senpai"));
-        game.addPlayer(new Player("herp"));
-        game.addPlayer(new Player("derp"));
-        game.addPlayer(new Player("somebody"));
+        Player creator = new Player("Senpai", "0");
+        game = new Game("herp derp", creator, false, "", true);
+        game.addPlayer(creator);
+        game.addPlayer(new Player("herp", "1"));
+        game.addPlayer(new Player("derp", "2"));
+        game.addPlayer(new Player("somebody", "3"));
         game.getPlayers().get(1).setScore(9000);
         thisPlayer = game.getPlayers().get(0);
         thisPlayer.setHasBomb(true);
@@ -110,7 +112,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
          */
 
     }
-
+    //Issue: If names are too long, then they overlap with the borders of the buttons
+    //probably because the button is actually a rectangle, but the visual button is a trapezoid
     private void setUpPlayers(){
         int j = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
@@ -123,6 +126,25 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
         TextView own_score = (TextView) findViewById(R.id.Score_number);
         own_score.setText(thisPlayer.getScore()+"");
+    }
+
+    //adds "has bomb"-Icon to player_field
+    public void addBombIcon (int player_number) {
+        Button player_field = (Button) gameView.getChildAt(player_number);
+        player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.bomb_36dp, 0, 0, 0);
+    }
+
+    //removes (not invisible, but removed!) "has bomb"-Icon or "target"-icon from player_field
+    public void removeDrawableIcon (int player_number){
+        Button player_field = (Button) gameView.getChildAt(player_number);
+        player_field.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+    }
+
+    //analogous to addBombIcon, This icon shows that the bomb is currently on it's way to target player
+    //but has not arrived yet
+    public void addTargetIcon (int player_number) {
+        Button player_field = (Button) gameView.getChildAt(player_number);
+        player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.target_36dp, 0, 0, 0);
     }
 
     public void updateScore(){
@@ -155,7 +177,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void setBombInCenter(){
+        FrameLayout layout= (FrameLayout) findViewById(R.id.bomb_layout);
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
+        LayoutTransition transition = layout.getLayoutTransition();
+        transition.enableTransitionType(LayoutTransition.CHANGING);
         par.gravity = Gravity.CENTER;
         bomb.setLayoutParams(par);
     }
@@ -263,6 +288,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                                         break;
                                 }
+
+                            }
+                            else {
+                                //move bomb back to center via movement-motion
+                                setBombInCenter();
 
                             }
                             break;
