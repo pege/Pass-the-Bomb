@@ -83,7 +83,9 @@ public class MessageService extends Service {
         {
             try {
                 wsSession.close();
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         initializeConnection(ip, port);
@@ -99,7 +101,9 @@ public class MessageService extends Service {
                     ClientManager client = ClientManager.createClient();
                     try {
                         wsSession.getBasicRemote().sendText(message);
-                    } catch (Exception e) {}
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             });
             t.start();
