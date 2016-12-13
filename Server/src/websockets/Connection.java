@@ -2,18 +2,12 @@ package websockets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -21,7 +15,6 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.glassfish.tyrus.core.MaskingKeyGenerator;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -288,7 +281,7 @@ public final class Connection {
 						
 		synchronized (owner) {
 			registerLock.unlock();
-			if (!alreadyInGame(session, owner)) {
+			if (!NeedNotInGame(session, owner)) {
 				String newname = gamename;
 				Game game;
 				
@@ -327,7 +320,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!alreadyInGame(session, player)) {
+				if (!NeedNotInGame(session, player)) {
 					String gamename = (String) body.get("game_id");
 					String password = (String) body.get("pw");
 
@@ -373,7 +366,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!notInGame(session, player)) {
+				if (!NeedInGame(session, player)) {
 					Game game = player.getJoinedGame();
 					synchronized (game) {
 						player.leaveGame();
@@ -399,7 +392,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!notInGame(session, player)) {
+				if (!NeedInGame(session, player)) {
 					Game game = player.getJoinedGame();
 					synchronized (game) {
 						if (!NeedStarted(session, game, false)) {
@@ -425,7 +418,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!notInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true)
+				if (!NeedInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true)
 						&& !NeedBomb(session, player)) {
 					boolean transfered = false;
 					Game game = player.getJoinedGame();
@@ -461,7 +454,7 @@ public final class Connection {
 		if (!NeedRegister(s, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
+				if (!NeedInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
 					Game game = player.getJoinedGame();
 					game.bomb_exploded(player);
 					game.broadcast_detailed_state();
@@ -486,7 +479,7 @@ public final class Connection {
 		if (!NeedRegister(s, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
+				if (NeedInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
 					player.getJoinedGame().broadcast_detailed_state();
@@ -527,7 +520,7 @@ public final class Connection {
 		return false;
 	}
 
-	private boolean notInGame(Session s, Player p) {
+	private boolean NeedInGame(Session s, Player p) {
 		if (p.getJoinedGame() == null) {
 			sendMess(s, MessageFactory.NotInGameError());
 			return true;
@@ -535,7 +528,7 @@ public final class Connection {
 		return false;
 	}
 
-	private boolean alreadyInGame(Session s, Player p) {
+	private boolean NeedNotInGame(Session s, Player p) {
 		if (p.getJoinedGame() != null) {
 			sendMess(s, MessageFactory.AlreadyInGameError());
 			return true;
