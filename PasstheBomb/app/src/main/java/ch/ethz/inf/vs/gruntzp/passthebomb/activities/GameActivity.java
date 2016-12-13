@@ -1,6 +1,5 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
-import android.animation.LayoutTransition;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
@@ -12,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -34,6 +34,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private Player thisPlayer;
     private RelativeLayout gameView;
     private ImageView bomb;
+    private final int[] centerPos = new int[2];
 
 
     @Override
@@ -177,12 +178,45 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void setBombInCenter(){
-        FrameLayout layout= (FrameLayout) findViewById(R.id.bomb_layout);
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
-        LayoutTransition transition = layout.getLayoutTransition();
-        transition.enableTransitionType(LayoutTransition.CHANGING);
         par.gravity = Gravity.CENTER;
         bomb.setLayoutParams(par);
+    }
+
+    private void moveBombToCenter(){
+        RelativeLayout root = (RelativeLayout) findViewById( R.id.game );
+
+        int originalPos[] = new int[2];
+        bomb.getLocationOnScreen( originalPos );
+
+        TranslateAnimation anim = new TranslateAnimation( 0, centerPos[0] - originalPos[0] , 0, centerPos[1] - originalPos[1] );
+        anim.setDuration(500);
+        anim.setFillAfter(true);
+
+        anim.setAnimationListener(
+                new Animation.AnimationListener() {
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {}
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {}
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        //make the bomb movable again and set the coordinates right
+                        bomb.clearAnimation();
+
+                        FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
+                        par.leftMargin = centerPos[0];
+                        par.topMargin = centerPos[1];
+                        bomb.setLayoutParams(par);
+                    }
+                }
+        );
+        bomb.startAnimation(anim);
+
+
     }
 
     private void enableOnTouchAndDragging(){
@@ -205,15 +239,16 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             par.bottomMargin=-2*v.getHeight();
                             par.rightMargin=-2*v.getWidth();
 
+                            v.setLayoutParams(par);
                             // makes sure that the bomb image doesn't jump around
                             if(par.gravity == Gravity.CENTER) {
                                 int[] location = new int[2];
                                 bomb.getLocationOnScreen(location);
-                                int x = location[0];
-                                int y = location[1];
+                                centerPos[0] = location[0];
+                                centerPos[1] = location[1];
                                 par.gravity = Gravity.NO_GRAVITY;
-                                par.topMargin = y;
-                                par.leftMargin = x;
+                                par.leftMargin = centerPos[0];
+                                par.topMargin = centerPos[1];
                             }
 
                             v.setLayoutParams(par);
@@ -270,12 +305,25 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 //TODO make bomb invisible; remember to set ishasbomb for thisplayer to false
                                 game.bombLock.lock();
                                 if(game.getBombValue() > 0) {//The timer might have run out in the meantime
-                                    controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
+
+                                    //find out index of the player who you're sending the bomb to
+                                    //because index i does not count thisPlayer
+                                    int k = 0;
+                                    int j = 0;
+                                    while (j<i){
+                                        if (game.getPlayers().get(j) != thisPlayer){
+                                            j++;
+                                        }
+                                        k++;
+                                    }
+                                    controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(k).getUuid(), game.getBombValue()));
                                 }
                                 game.bombLock.unlock();
                                 Log.i("up", "no!");
                             } else { //Doesn't touch anything, so it decreases the bomb life
-                                setBombInCenter();
+                                moveBombToCenter();
+
+
                                 int ret = game.decreaseBomb();
                                 switch (ret) {
                                     case Game.DEC_OKAY: //Bomb was decreased and game can go on
@@ -289,6 +337,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                                         break;
                                 }
+
                             }
                             break;
                         }
