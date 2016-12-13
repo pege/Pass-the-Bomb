@@ -275,6 +275,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 game.bombLock.unlock();
                                 Log.i("up", "no!");
                             } else { //Doesn't touch anything, so it decreases the bomb life
+                                setBombInCenter();
                                 int ret = game.decreaseBomb();
                                 switch (ret) {
                                     case Game.DEC_OKAY: //Bomb was decreased and game can go on
@@ -288,12 +289,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                                         break;
                                 }
-
-                            }
-                            else {
-                                //move bomb back to center via movement-motion
-                                setBombInCenter();
-
                             }
                             break;
                         }
