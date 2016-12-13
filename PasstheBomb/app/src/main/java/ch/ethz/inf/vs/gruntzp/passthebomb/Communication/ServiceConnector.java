@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 /**
  * Created by Marc on 25.11.2016.
@@ -84,6 +85,9 @@ public class ServiceConnector {
 
         // Bind to service (every activity should do this at the beginning
         boolean b = activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        if(!b){
+            Log.d("BINDSERVICE","Didn't bind to service");
+        }
     }
 
     public void unbind(AppCompatActivity activity)

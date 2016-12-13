@@ -484,8 +484,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
-            case MessageFactory.SC_GAME_UPDATE: //Diverse möglichkeiten was für ein Update das ist
-                game = Game.createFromJSON(body);
+            case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist
+                Game gameNew = Game.createFromJSON(body);
+                //if()
                 setUpPlayers();
                 setUpBomb();
                 break;

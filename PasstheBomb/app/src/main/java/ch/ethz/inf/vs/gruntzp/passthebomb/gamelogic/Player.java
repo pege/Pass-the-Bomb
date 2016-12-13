@@ -17,12 +17,14 @@ public class Player implements Parcelable, Comparable<Player>{
     private boolean hasBomb;
     //TODO add unique player ID here (and make set and get methods)
     private String uuid;
+    private boolean maybeDC;
 
     public Player(String name, String uuid){
         this.name = name;
         this.score = 0;
         this.hasBomb = false;
         this.uuid = uuid;
+        this.maybeDC = false;
     }
 
     public Player(Parcel in){
@@ -30,6 +32,7 @@ public class Player implements Parcelable, Comparable<Player>{
         this.score = in.readInt();
         this.hasBomb = in.readByte() != 0;
         this.uuid = in.readString();
+        this.maybeDC = in.readByte() != 0;
     }
 
     public String getName() {
@@ -60,6 +63,11 @@ public class Player implements Parcelable, Comparable<Player>{
 
     public void changeScore(int amount) {
         score += amount;
+    }
+
+    public boolean getMaybeDC() { return maybeDC;}
+    public void setMaybeDC(boolean value) {
+        this.maybeDC = value;
     }
 
     // leave this empty please

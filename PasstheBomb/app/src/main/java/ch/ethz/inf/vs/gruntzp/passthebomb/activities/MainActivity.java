@@ -176,8 +176,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                     Intent myIntent = new Intent(this, LobbyActivity.class);
                     myIntent.putExtra("message", body.toString());
                     this.startActivity(myIntent);
-                    break;
                 }
+                break;
             default:
                 break;
         }
