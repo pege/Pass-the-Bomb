@@ -97,7 +97,7 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
-            case MessageFactory.SC_GAME_UPDATE:
+            case MessageFactory.SC_GAME_CREATED:
                 Intent myIntent = new Intent(this, LobbyActivity.class);
                 myIntent.putExtra("message", body.toString());
                 this.startActivity(myIntent);

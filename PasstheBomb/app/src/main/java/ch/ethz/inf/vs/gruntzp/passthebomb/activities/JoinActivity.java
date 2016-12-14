@@ -315,7 +315,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                     e.printStackTrace();
                 }
                 break;
-            case MessageFactory.SC_GAME_UPDATE:
+            case MessageFactory.SC_PLAYER_JOINED: //I joined
                 Intent myIntent = new Intent(this, LobbyActivity.class);
                 myIntent.putExtra("message", body.toString());
                 this.startActivity(myIntent);
