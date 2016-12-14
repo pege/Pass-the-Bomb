@@ -6,4 +6,7 @@
     <color name="black">#FF000000</color>
     <color name="grey">#FF888888</color>
     <color name="lightBlue">#b5efff</color>
+    <color name="lightGrey">#ffeeeeee</color>
+    <color name="darkGrey">#99000000</color>
+    <color name="darkerGrey">#bb000000</color>
 </resources>

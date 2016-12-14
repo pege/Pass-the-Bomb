@@ -3,6 +3,7 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -61,8 +62,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //for testing only
         /*
         Player creator = new Player("Senpai", "0");
-        game = new Game("herp derp", creator, false, "", true);
-        game.addPlayer(creator);
+        game = new Game("herp derp", creator, false, true);
         game.addPlayer(new Player("herp", "1"));
         game.addPlayer(new Player("derp", "2"));
         game.addPlayer(new Player("somebody", "3"));
@@ -397,6 +397,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         anim.setFillAfter(true);
     }
 
+    //used to check the intersection between bomb and playerfields
     private boolean checkInterSection(View view, int childID, float rawX, float rawY) {
         int[] location = new int[2];
         view.getLocationOnScreen(location);
@@ -433,10 +434,28 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
      * call this when the server sends information that the game has ended
      */
     public void endGame(){
-        TextView gameOver = (TextView) findViewById(R.id.game_over);
-        Button toScoreboard = (Button) findViewById(R.id.to_scoreboard);
+        if(thisPlayer.isHasBomb()){
+            //TODO make bomb explode
+        }
 
-        gameOver.setVisibility(View.VISIBLE);
+        //darken rest of the screen
+        RelativeLayout darkBG = (RelativeLayout) findViewById(R.id.game_over_screen);
+        darkBG.setVisibility(View.VISIBLE);
+
+        //show winner/loser
+        Boolean isWinner = true;
+        for(int i=0; i<game.getPlayers().size(); i++){
+            isWinner &= (thisPlayer.getScore() >= game.getPlayers().get(i).getScore());
+        }
+        if(isWinner){
+            ImageView showWinner = (ImageView) findViewById(R.id.you_win_image);
+            showWinner.setVisibility(View.VISIBLE);
+        } else {
+            ImageView showLoser = (ImageView) findViewById(R.id.you_lose_image);
+            showLoser.setVisibility(View.VISIBLE);
+        }
+        //show button to continue
+        Button toScoreboard = (Button) findViewById(R.id.to_scoreboard);
         toScoreboard.setVisibility(View.VISIBLE);
     }
 
