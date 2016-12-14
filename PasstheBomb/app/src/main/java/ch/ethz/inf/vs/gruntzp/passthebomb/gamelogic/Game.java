@@ -204,8 +204,7 @@ public class Game implements Parcelable{
     }
 
     public static Game createFromJSON(JSONObject gameInfo) {
-        gameInfo.toString();
-        return createFromJSON(gameInfo);
+            return createFromJSON(gameInfo.toString());
     }
 
     public static Game createFromJSON0(JSONObject gameInfo) {
