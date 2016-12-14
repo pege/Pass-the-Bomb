@@ -2,12 +2,17 @@ package websockets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
+
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -278,11 +283,11 @@ public final class Connection {
 								
 		synchronized (owner) {
 			registerLock.unlock();
-			if (!NeedNotInGame(session, owner)) {
+			if (!alreadyInGame(session, owner)) {
 				String newname = gamename;
 				Game game;
 				
-				newname = makeUnique(gamename);
+				
 				
 				game = new Game(owner, newname, password);
 				games.add(game);
@@ -296,13 +301,6 @@ public final class Connection {
 		
 	} 
 	
-	private String makeUnique(String proposed) { return makeUnique(proposed, 0); }
-	private String makeUnique(String proposed, int level) {
-		if (games.stream().anyMatch(game -> game.getGamename().equals(proposed)))
-			return makeUnique(proposed + (level == 0 ? "_x" : "x"), level + 1);
-		else
-			return proposed;
-	}
 
 	private void getGameList(Session session) {
 		JSONArray gameArray = new JSONArray();
@@ -316,7 +314,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!NeedNotInGame(session, player)) {
+				if (!alreadyInGame(session, player)) {
 					String gamename = (String) body.get("game_id");
 					String password = (String) body.get("pw");
 
@@ -362,7 +360,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!NeedInGame(session, player)) {
+				if (!notInGame(session, player)) {
 					Game game = player.getJoinedGame();
 					synchronized (game) {
 						player.leaveGame();
@@ -388,7 +386,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!NeedInGame(session, player)) {
+				if (!notInGame(session, player)) {
 					Game game = player.getJoinedGame();
 					synchronized (game) {
 						if (!NeedStarted(session, game, false)) {
@@ -414,7 +412,7 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!NeedInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true)
+				if (!notInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true)
 						&& !NeedBomb(session, player)) {
 					boolean transfered = false;
 					Game game = player.getJoinedGame();
@@ -450,7 +448,7 @@ public final class Connection {
 		if (!NeedRegister(s, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!NeedInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
+				if (!notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
 					Game game = player.getJoinedGame();
 					game.bomb_exploded(player);
 					game.broadcast_detailed_state();
@@ -475,7 +473,7 @@ public final class Connection {
 		if (!NeedRegister(s, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (NeedInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
+				if (notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
 					player.getJoinedGame().broadcast_detailed_state();
@@ -516,7 +514,7 @@ public final class Connection {
 		return false;
 	}
 
-	private boolean NeedInGame(Session s, Player p) {
+	private boolean notInGame(Session s, Player p) {
 		if (p.getJoinedGame() == null) {
 			sendMess(s, MessageFactory.NotInGameError());
 			return true;
@@ -524,7 +522,7 @@ public final class Connection {
 		return false;
 	}
 
-	private boolean NeedNotInGame(Session s, Player p) {
+	private boolean alreadyInGame(Session s, Player p) {
 		if (p.getJoinedGame() != null) {
 			sendMess(s, MessageFactory.AlreadyInGameError());
 			return true;
