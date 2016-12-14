@@ -171,8 +171,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private void setUpBomb(){
         enableOnTouchAndDragging();
-        setBombVisibility();
         setBombInCenter();
+        setBombVisibility();
 
     }
 
