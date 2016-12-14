@@ -180,7 +180,7 @@ public final class Game {
 
 		if (level > 0) {
 			body.put("owner", owner.getUuid());
-			body.put("hasPasswort", hasPassword());
+			body.put("hasPassword", hasPassword());
 			body.put("bombOwner", bombOwner==null ? -1 : bombOwner.getUuid());
 			body.put("bomb", bomb);
 
