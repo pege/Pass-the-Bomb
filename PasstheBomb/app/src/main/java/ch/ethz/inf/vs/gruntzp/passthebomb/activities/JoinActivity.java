@@ -303,7 +303,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_GAME_LIST: //Read all games from array and call function to update GUI
                 try {
-                    JSONArray gameArr = new JSONArray(body.getJSONArray("games"));
+                    JSONArray gameArr = body.getJSONArray("games");
                     Game[] games = new Game[gameArr.length()];
                     for (int i = 0; i < gameArr.length(); i++) {
                         games[i] = Game.createFromJSON0(gameArr.getJSONObject(i));
