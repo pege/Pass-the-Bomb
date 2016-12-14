@@ -46,8 +46,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         // initialize global variables
         bomb = (ImageView) findViewById(R.id.bomb);
         Bundle extras = getIntent().getExtras();
-        game = (Game) extras.get("game");
-        thisPlayer = (Player) extras.get("thisPlayer");
+        game = extras.getParcelable("game");
+        thisPlayer = (Player) extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
         //TODO get information on who has the bomb and set that in the variable 'game'
         //These things were already done in LobbyActivity
