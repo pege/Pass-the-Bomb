@@ -50,14 +50,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         game = extras.getParcelable("game");
         thisPlayer = extras.getParcelable("thisPlayer");
-
-
-
-
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
-        //TODO get information on who has the bomb and set that in the variable 'game'
-        //These things were already done in LobbyActivity
-
 
         //for testing only
         /*
@@ -73,20 +66,17 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //endGame();
         */
 
-
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
         setUpBomb();
         setUpPlayers();
-
-
     }
 
     /* When a player gets disconnected call this method.
      * This method greys out the given player's field.
      */
-    public void showPlayerAsDisconnected(){
+    public void showPlayerAsDisconnected(String uuid) {
         /** TODO add player ID in the parameter
          ** -> iterate over the list of players and check which player has the same ID
          *  then if game.getPlayers.get(i) has it call
@@ -102,6 +92,15 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
          *
          *  if i != 3, else use R.drawable.greyed_out_field_upsidedown instead
          **/
+
+        Player disco = game.getPlayerByID(uuid);
+        int i = game.getPlayers().indexOf(disco);
+        int pos = game.getPlayers().indexOf(thisPlayer);
+        Button playerField = (Button) gameView.getChildAt((i < pos) ? i : (i - 1));
+        playerField.setBackground((i != 3) ?
+                getDrawable(R.drawable.greyed_out_field) : getDrawable(R.drawable.greyed_out_field_upsidedown));
+
+
 
 
         /* Testing that the positions of the fields don't get messed up
@@ -123,10 +122,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void setUpPlayers(){
         int j = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
-            if (thisPlayer != game.getPlayers().get(i)) {
+            Player curr =game.getPlayers().get(i);
+            if (thisPlayer != curr) {
                 Button player_field = (Button) gameView.getChildAt(j);
                 player_field.setVisibility(View.VISIBLE);
-                player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
+                player_field.setText(curr.getName() + "\n" + curr.getScore());
+                if(curr.isHasBomb())
+                    addBombIcon(i);
                 j++;
             }
         }
@@ -306,8 +308,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 // run scale animation and make it smaller
                                 scaleOut(playerfield, i);
                                 touch[i] = false;
-                                //TODO and if it was touching, then send server information to pass the bomb on
-                                //TODO make bomb invisible; remember to set ishasbomb for thisplayer to false
+
                                 game.bombLock.lock();
                                 if(game.getBombValue() > 0) {//The timer might have run out in the meantime
 
@@ -317,8 +318,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                         ++i;
                                     controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
                                 }
-
                                 game.bombLock.unlock();
+                                thisPlayer.setHasBomb(false);
+                                setUpBomb();
                                 Log.i("up", "no!");
                             } else { //Doesn't touch anything, so it decreases the bomb life
                                 moveBombToCenter();
@@ -522,8 +524,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     **/
     @Override
     public void onBackPressed(){
-
-        super.onBackPressed(); //to change?
+        //super.onBackPressed();
+        finish();
     }
 
     public void onClickContinue(View view) {
@@ -554,10 +556,29 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 toast.show();
                 break;
             case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist
-                Game gameNew = Game.createFromJSON(body);
+                game = Game.createFromJSON(body);
                 setUpPlayers();
                 updateScore();
                 break;
+            case MessageFactory.SC_PLAYER_LEFT:
+                game = Game.createFromJSON(body);
+                setUpPlayers();
+                updateScore();
+                break;
+            case MessageFactory.SC_UPDATE_SCORE:
+                game = Game.createFromJSON(body);
+                updateScore();
+                break;
+            case MessageFactory.SC_PLAYER_MAYBEDC:
+                game = Game.createFromJSON(body);
+                for(Player p : game.getPlayers()) {
+                    if(p.getMaybeDC()) {
+                        showPlayerAsDisconnected(p.getUuid());
+                    }
+                }
+                break;
+            case MessageFactory.SC_BOMB_PASSED:
+                game = Game.createFromJSON(body);
 
             default:
                 break;

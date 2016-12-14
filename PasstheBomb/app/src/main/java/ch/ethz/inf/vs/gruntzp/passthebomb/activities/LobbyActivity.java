@@ -154,6 +154,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.putExtra("game", game);
         myIntent.putExtra("thisPlayer", thisPlayer);
 
+        //These flags render GameActivity on top of the stack with no other activities on the backstack -> on finish() app closes
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
         this.startActivity(myIntent);
 
         // destroy intent with MainActivity
@@ -177,19 +182,20 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
-            case MessageFactory.SC_GAME_UPDATE:
+            case MessageFactory.SC_GAME_STARTED:
                 game = Game.createFromJSON(body);
-                if(game.hasStarted()) {//hasStarted implies that the game has a bomb owner and a bomb
-                    try {
-                        game.setBomb(body.getInt("bomb"));
-                        game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
-                    } catch(JSONException e) {
-                        e.printStackTrace();
-                    }
-                    startGame();
+                try {
+                    game.setBomb(body.getInt("bomb"));
+                    game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
+                } catch(JSONException e) {
+                    e.printStackTrace();
                 }
-                updateTable();
+                startGame();
                 break;
+            case MessageFactory.SC_PLAYER_LEFT://Fall through
+            case MessageFactory.SC_PLAYER_JOINED:
+                game = Game.createFromJSON(body);
+                updateTable();
             default:
                 break;
         }

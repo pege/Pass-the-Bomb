@@ -245,8 +245,8 @@ public final class Connection {
 							}
 							// TODO - client
 							// sendMess(session,
-							// MessageFactory.SC_GameUpdate(p.getJoinedGame().toJSON(1)));
-							sendMess(session, MessageFactory.sc_registerSuccessful());
+							MessageFactory.SC_GameUpdate(player.getJoinedGame().toJSON(1));
+							//sendMess(session, MessageFactory.sc_registerSuccessful());
 							System.out.println("=== " + username + " has reconnected ===");
 							reconnect = true;
 						}
