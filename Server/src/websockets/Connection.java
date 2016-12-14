@@ -20,6 +20,7 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.glassfish.grizzly.utils.LogFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -307,7 +308,7 @@ public final class Connection {
 	private void getGameList(Session session) {
 		// FIXME: Does player need to be registered?
 		JSONArray gameArray = new JSONArray();
-		games.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
+		games.stream().filter(g -> !g.hasStarted()).map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
 		sendMess(session, MessageFactory.SC_GameList(gameArray));
 	}
 
@@ -331,7 +332,7 @@ public final class Connection {
 					if (game != null && game.checkPassword(password)) {
 						synchronized (game) {
 							if (game.hasStarted()) {
-								sendMess(session, MessageFactory.Already_Started_Error());
+								sendMess(session, MessageFactory.Already_Started_Error(game.getGamename()));
 								System.out.println("Game already started");
 							} else { // not started
 								player.joinGame(game);
@@ -370,6 +371,7 @@ public final class Connection {
 						game.removePlayer(player);
 						if (game.numberOfPlayers() == 0) {
 							games.remove(game);
+							System.out.println("Game deleted: " + game.getGamename());
 						} else {
 							System.out.println(player.getName() + "left the game " + game.getGamename());
 							game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
@@ -500,7 +502,7 @@ public final class Connection {
 
 	private boolean NeedStarted(Session s, Game g, boolean status) {
 		if (g.hasStarted() && !status) {
-			sendMess(s, MessageFactory.Already_Started_Error());
+			sendMess(s, MessageFactory.Already_Started_Error(g.getGamename()));
 			return true;
 		} else if (!g.hasStarted() && status) {
 			sendMess(s, MessageFactory.NotStartedError());

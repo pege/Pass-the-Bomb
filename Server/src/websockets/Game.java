@@ -26,6 +26,7 @@ public final class Game {
 
 	private Player bombOwner;
 	private int bomb = -1;
+	private int initialbomb = -1;
 
 	public Game(Player owner, String gamename, String password) {
 		this.gameName = gamename;
@@ -106,6 +107,7 @@ public final class Game {
 		started = true;
 		bombOwner = pickRandom();
 		bomb = createBomb();
+		initialbomb = bomb;
 		System.out.println(getGamename() + " has started");
 	}
 
@@ -174,16 +176,15 @@ public final class Game {
 		// header.put("type", Message.SC_GAME_UPDATE);
 
 		body.put("name", gameName);
-		body.put("hasPasswort", hasPassword());
+		body.put("hasPassword", hasPassword());
 		body.put("noP", numberOfPlayers());
 		body.put("started", started);
 
 		if (level > 0) {
 			body.put("owner", owner.getUuid());
-			body.put("hasPassword", hasPassword());
 			body.put("bombOwner", bombOwner==null ? -1 : bombOwner.getUuid());
 			body.put("bomb", bomb);
-
+			body.put("initial_bomb", initialbomb);
 			JSONArray players = new JSONArray();
 			for (Player player : this.getPlayers())
 				players.put(player.toJSON());

@@ -1,5 +1,5 @@
-//package websockets;
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
+//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -308,11 +308,13 @@ public class MessageFactory {
         return null;
 	}
     
-    public static String Already_Started_Error() {
+    public static String Already_Started_Error(String gameName) {
         try {
             JSONObject header = new JSONObject();
             header.put("type", ALREADY_STARTED_ERROR);
-            return compose(header);
+            JSONObject body = new JSONObject();
+            body.put("game_id", gameName);
+            return compose(header, body);
         } catch (JSONException e) {
             e.printStackTrace();
         }
