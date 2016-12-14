@@ -157,11 +157,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         this.startActivity(myIntent);
 
         // destroy intent with MainActivity
-        getParent().getParent().finish();
+        //getParent().getParent().finish();
         // destroy intent with CreateActivity/JoinActivity
-        getParent().finish();
+        //getParent().finish();
         //destroy myself
-        finish();
+        //finish();
     }
 
     @Override
