@@ -4,49 +4,62 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/lightBlue"
+    android:orientation="vertical"
     tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.MainActivity">
 
-    <TextView android:id="@+id/title"
+    <ImageView
+        android:id="@+id/title_image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:text="@string/app_name" />
+        android:scaleType="fitStart"
+        android:src="@drawable/title_image" />
 
-    <!-- Note that although singleLine is deprecated,
-         it is needed as maxLines=1 does not change the
-         "next line" into a "done" button
-         and we do not want multiple lines for the username
-    -->
-    <EditText android:id="@+id/text_field"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/request_username"
-        android:imeOptions="actionDone"
-        android:singleLine="true"
-        android:layout_below="@id/title"/>
+        android:layout_height="match_parent"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
 
-    <Button android:id="@+id/create_game"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text_field"
-        android:onClick="onClickCreate"
-        android:text="@string/create"/>
+        <Button
+            android:id="@+id/tutorial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:onClick="onClickTutorial"
+            android:text="@string/tutorial" />
 
-    <Button android:id="@+id/join_game"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/create_game"
-        android:onClick="onClickJoin"
-        android:text="@string/join"/>
+        <Button
+            android:id="@+id/join_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/tutorial"
+            android:onClick="onClickJoin"
+            android:text="@string/join" />
 
-    <Button android:id="@+id/tutorial"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/join_game"
-        android:onClick="onClickTutorial"
-        android:text="@string/tutorial"/>
+        <Button
+            android:id="@+id/create_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/join_game"
+            android:onClick="onClickCreate"
+            android:text="@string/create" />
+
+        <!-- Note that although singleLine is deprecated,
+             it is needed as maxLines=1 does not change the
+             "next line" into a "done" button
+             and we do not want multiple lines for the username
+        -->
+        <EditText
+            android:id="@+id/text_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/create_game"
+            android:hint="@string/request_username"
+            android:imeOptions="actionDone"
+            android:singleLine="true" />
+
+    </RelativeLayout>
 </RelativeLayout>

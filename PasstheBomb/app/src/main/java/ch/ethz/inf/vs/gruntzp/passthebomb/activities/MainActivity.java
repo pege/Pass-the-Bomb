@@ -3,9 +3,12 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -33,6 +36,20 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mEdit   = (EditText)findViewById(R.id.text_field);
+
+        //change status bar colour
+        Window window = getWindow();
+        // clear FLAG_TRANSLUCENT_STATUS flag:
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        // add FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS flag to the window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        // finally change the color
+        if(Build.VERSION.SDK_INT >= 23) {
+            window.setStatusBarColor(getColor(R.color.black));
+        }else{
+            //noinspection deprecation
+            window.setStatusBarColor(getResources().getColor(R.color.black));
+        }
 
         registered = false;
         creating = false;
