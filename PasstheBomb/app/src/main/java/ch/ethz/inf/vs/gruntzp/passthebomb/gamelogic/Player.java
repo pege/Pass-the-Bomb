@@ -82,6 +82,7 @@ public class Player implements Parcelable, Comparable<Player>{
         dest.writeInt(score);
         dest.writeByte((byte) (hasBomb ? 1 : 0));
         dest.writeString(uuid);
+        dest.writeByte((byte) (maybeDC ? 1 : 0));
     }
 
     public static final Parcelable.Creator<Player> CREATOR = new Parcelable.Creator<Player>()
