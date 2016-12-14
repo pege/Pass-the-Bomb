@@ -49,7 +49,13 @@ public class MessageFactory {
     public static final int NOT_GAME_OWNER_ERROR = -10; 
     public static final int DOESNT_OWN_BOMB_ERROR = -11;
     public static final int NOT_STARTED_ERROR = -12;
-   
+    
+    // GAMEUPDATEREASONS
+    public static final int UR_UNDEFINED = -1;
+//    public static final int UR_LOBBY_PLAYER_UPDATED = -1;
+//    public static final int UR_UNDEFINED = -1;
+//    public static final int UR_UNDEFINED = -1;
+//    public static final int UR_UNDEFINED = -1;
     
     // CLIENT TO SERVER CS_
 
@@ -380,9 +386,14 @@ public class MessageFactory {
     }
 
     public static String SC_GameUpdate(JSONObject game) {
+    	return SC_GameUpdate(game, UR_UNDEFINED);
+    }
+    
+    public static String SC_GameUpdate(JSONObject game, int updateReason) {
         try {
             JSONObject header = new JSONObject();
             header.put("type", SC_GAME_UPDATE);
+            header.put("reason", updateReason);
             JSONObject body = new JSONObject();
             body.put("game", game);
             return compose(header, body);
