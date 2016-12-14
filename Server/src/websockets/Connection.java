@@ -37,7 +37,6 @@ public final class Connection {
 	static {
 		new Thread() {
 			public void run() {
-				//TODO: uncomment  
 				checkConnection();
 			};
 		}.start();
@@ -46,7 +45,7 @@ public final class Connection {
 
 	@OnOpen
 	public void onOpen(Session session) throws IOException {
-		// map.put(session, null); //not good
+		// map.put(session, null); //TODO or not TODO
 
 		System.out.println("Client Connected");
 	}
@@ -208,8 +207,8 @@ public final class Connection {
 		final String username = (String) body.get("username");
 		final String uuid = (String) body.get("user_id");
 		boolean reconnect = false;
+		registerLock.lock();
 		try {
-			registerLock.lock();
 			if (map.containsKey(session)) {
 				// player is already registered
 				System.out.println("Second register try received");
@@ -276,9 +275,7 @@ public final class Connection {
 			registerLock.unlock();
 			return;
 		}
-		
-		
-						
+								
 		synchronized (owner) {
 			registerLock.unlock();
 			if (!NeedNotInGame(session, owner)) {
@@ -308,7 +305,6 @@ public final class Connection {
 	}
 
 	private void getGameList(Session session) {
-		// FIXME: Does player need to be registered?
 		JSONArray gameArray = new JSONArray();
 		games.stream().map(g -> g.toJSON(0)).forEach(g -> gameArray.put(g));
 		sendMess(session, MessageFactory.SC_GameList(gameArray));
