@@ -4,6 +4,7 @@
     android:id="@+id/activity_lobby"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lightBlue"
     tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.LobbyActivity">
 
     <TableLayout android:id="@+id/players_table"

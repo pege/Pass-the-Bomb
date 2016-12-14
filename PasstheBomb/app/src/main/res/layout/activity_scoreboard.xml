@@ -4,6 +4,7 @@
     android:id="@+id/activity_scoreboard"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lightBlue"
     android:paddingTop="81dp"
     tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.ScoreboardActivity">
 
