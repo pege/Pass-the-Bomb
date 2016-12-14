@@ -160,7 +160,7 @@ public final class Connection {
 							Game game = player.getJoinedGame();
 							if (game != null) {
 								synchronized (game) { // TODO
-									game.broadcast_detailed_state();
+									game.broadcast_detailed_state(MessageFactory.SC_PLAYER_MAYBEDC);
 								}
 							}
 						}
@@ -295,7 +295,7 @@ public final class Connection {
 
 				owner.joinGame(game);
 
-				sendMess(session, MessageFactory.SC_GameUpdate(game.toJSON(1)));
+				sendMess(session, MessageFactory.SC_GameCreated(game.toJSON(1)));
 				System.out.println("A game with gamename " + game.getGamename() + " was created");
 			}
 		}
@@ -336,7 +336,7 @@ public final class Connection {
 								game.addPlayer(player);
 								// Send all players the updated game
 								// status
-								game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
+								game.broadcast(MessageFactory.SC_PlayerJoined(game.toJSON(1)));
 								System.out.println(player.getName() + " joined the game " + game.getGamename());
 							}
 						}
@@ -371,7 +371,7 @@ public final class Connection {
 							System.out.println("Game deleted: " + game.getGamename());
 						} else {
 							System.out.println(player.getName() + "left the game " + game.getGamename());
-							game.broadcast(MessageFactory.SC_GameUpdate(game.toJSON(1)));
+							game.broadcast(MessageFactory.SC_PlayerLeft(game.toJSON(1)));
 						}
 					}
 				}
@@ -396,7 +396,7 @@ public final class Connection {
 								sendMess(session, MessageFactory.NotGameOwnerError());
 							} else {
 								game.startGame();
-								game.broadcast_detailed_state();
+								game.broadcast_detailed_state(MessageFactory.SC_GAME_STARTED);
 							}
 						}
 					}
@@ -426,7 +426,7 @@ public final class Connection {
 						for (Player p : game.getPlayers()) {
 							if (p.getUuid().equals(targetUUID)) {
 								game.setBombOwner(p);
-								game.broadcast_detailed_state();
+								game.broadcast_detailed_state(MessageFactory.SC_BOMB_PASSED);
 								transfered = true;
 								break;
 							}
@@ -453,7 +453,7 @@ public final class Connection {
 				if (!notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
 					Game game = player.getJoinedGame();
 					game.bomb_exploded(player);
-					game.broadcast_detailed_state();
+					game.broadcast_detailed_state(MessageFactory.SC_BOMB_EXPLODED);
 					if (game.isFinished()) {
 						game.destroy();
 						System.out.println("Game Over");
@@ -478,7 +478,7 @@ public final class Connection {
 				if (notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
-					player.getJoinedGame().broadcast_detailed_state();
+					player.getJoinedGame().broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
 				}
 			}
 		} else {

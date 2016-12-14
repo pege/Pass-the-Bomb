@@ -313,16 +313,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                                     //find out index of the player who you're sending the bomb to
                                     //because index i does not count thisPlayer
-                                    int k = 0;
-                                    int j = 0;
-                                    while (j<i){
-                                        if (game.getPlayers().get(j) != thisPlayer){
-                                            j++;
-                                        }
-                                        k++;
-                                    }
-                                    controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(k).getUuid(), game.getBombValue()));
+                                    if(game.getPlayers().indexOf(thisPlayer)  <= i )
+                                        ++i;
+                                    controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
                                 }
+
                                 game.bombLock.unlock();
                                 Log.i("up", "no!");
                             } else { //Doesn't touch anything, so it decreases the bomb life
@@ -541,9 +536,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist
                 Game gameNew = Game.createFromJSON(body);
-                //if()
                 setUpPlayers();
-                setUpBomb();
+                updateScore();
                 break;
 
             default:

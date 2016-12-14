@@ -137,8 +137,27 @@ public final class Game {
 		return players.indexOf(player);
 	}
 
-	public void broadcast_detailed_state() {
-		broadcast(MessageFactory.SC_GameUpdate(this.toJSON(1)));
+	public void broadcast_detailed_state(int type) {
+		switch(type) {
+		case MessageFactory.SC_UPDATE_SCORE:
+			broadcast(MessageFactory.SC_UpdateScore(this.toJSON(1)));
+			break;
+		case MessageFactory.SC_PLAYER_MAYBEDC:
+			broadcast(MessageFactory.SC_PlayerMaybeDC(this.toJSON(1)));
+			break;
+		case MessageFactory.SC_GAME_STARTED:
+			broadcast(MessageFactory.SC_GameStarted(this.toJSON(1)));
+			break;
+		case MessageFactory.SC_BOMB_PASSED:
+			broadcast(MessageFactory.SC_BombPassed(this.toJSON(1)));
+			break;
+		case MessageFactory.SC_BOMB_EXPLODED:
+			broadcast(MessageFactory.SC_BombExploded(this.toJSON(1)));
+			break;	
+		default:
+			break;
+		}
+		
 	}
 
 	public void broadcast(String message) {

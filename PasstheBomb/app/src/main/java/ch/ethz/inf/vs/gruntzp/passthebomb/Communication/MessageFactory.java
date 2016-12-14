@@ -1,5 +1,5 @@
-//package websockets;
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
+//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,29 +17,29 @@ public class MessageFactory {
     public static final int REGISTER = 3; 		// server
     public static final int JOIN_GAME = 4; 		// server
     public static final int LEAVE_GAME = 5; 	// server
-    //public static final int PLAYER_LIST = 6; 	// n, ist redundant. haben wir auch im GameUpdate
-    //public static final int PLAYER_UNREACHABLE = 7; 
-    public static final int RECONNECT = 8; 		// --
-    //public static final int GAME_UPDATE = 9;
-    //public static final int SC_END_OF_ROUND = 10;	
-    public static final int PASS_BOMB = 12;		// server
-    public static final int EXPLODED = 13;		// server
-    //public static final int GAME_OVER = 14;
-    //public static final int INHERIT_CREATOR = 15; 
-    public static final int START_GAME = 16;	// server
-    //Bei Antippen der Bombe und bei ablaufendem Timer.
-    public static final int UPDATE_SCORE = 17;
+    public static final int RECONNECT = 6; 		// --
+    public static final int PASS_BOMB = 7;		// server
+    public static final int EXPLODED = 8;		// server
+    public static final int START_GAME = 9;	// server
+    public static final int UPDATE_SCORE = 10;
     
-    public static final int STATUS = -3;
-       
-    // FROM SERVER TO CLIENT
-    public static final int SC_GAME_LIST = 19;
-    public static final int SC_GAME_UPDATE = 20;
-    // ERRORS
-    public static final int SC_RECONNECT_DENIED_ERROR = 11;
-    public static final int SC_REGISTER_SUCCESSFUL = 21;
+ // FROM SERVER TO CLIENT
+    public static final int SC_GAME_LIST = 11;
+    public static final int SC_GAME_UPDATE = 12;
+    public static final int SC_REGISTER_SUCCESSFUL = 13;
+    public static final int SC_GAME_CREATED = 14;
+    public static final int SC_PLAYER_JOINED = 15;
+    public static final int SC_PLAYER_LEFT = 16;
+    public static final int SC_UPDATE_SCORE = 17;
+    public static final int SC_PLAYER_MAYBEDC = 18;
+    public static final int SC_GAME_STARTED = 19; 
+    public static final int SC_BOMB_PASSED = 20;
+    public static final int SC_BOMB_EXPLODED = 21;
+    
+    // ERRORS (and, mysteriously, STATUS)
     public static final int PARSE_ERROR = -1;
     public static final int TYPE_ERROR = -2;
+    public static final int STATUS = -3;
     public static final int NOT_REGISTERED_ERROR = -4;
     public static final int ALREADY_IN_GAME_ERROR = -5;
     public static final int WRONG_PASSWORD_ERROR = -6;
@@ -49,6 +49,8 @@ public class MessageFactory {
     public static final int NOT_GAME_OWNER_ERROR = -10; 
     public static final int DOESNT_OWN_BOMB_ERROR = -11;
     public static final int NOT_STARTED_ERROR = -12;
+    public static final int SC_RECONNECT_DENIED_ERROR = -13;
+
     
     // GAMEUPDATEREASONS
     public static final int UR_UNDEFINED = -1;
@@ -117,7 +119,6 @@ public class MessageFactory {
     public static String leaveGame() {
         try {
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
 
             header.put("type", LEAVE_GAME);
 
@@ -127,36 +128,6 @@ public class MessageFactory {
         }
         return null;
     }
-
-//    public static String playerList(String[] player_names) {
-//        try {
-//            JSONObject header = new JSONObject();
-//            JSONObject body = new JSONObject();
-//
-//            header.put("type", PLAYER_LIST);
-//            body.put("player_names",new JSONArray(Arrays.asList(player_names)));
-//
-//            return compose(header);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-//
-////    public static String playerUnreachable(String player_id) {
-//        try {
-//            JSONObject header = new JSONObject();
-//            JSONObject body = new JSONObject();
-//
-//            header.put("type", PLAYER_UNREACHABLE);
-//            body.put("player_id", player_id);
-//
-//            return compose(header,body);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 
     public static String reconnect(String user_id) {
         try {
@@ -173,21 +144,6 @@ public class MessageFactory {
         return null;
     }
 
-//    public static String gameUpdate(String bomb_player, int[] scores) {
-//        try {
-//            JSONObject header = new JSONObject();
-//            JSONObject body = new JSONObject();
-//
-//            header.put("type", GAME_UPDATE);
-//            body.put("bomb_player", bomb_player);
-//            body.put("scores", scores);
-//
-//            return compose(header, body);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
     
     public static String updateScore(int bomb, int score) {
         try {
@@ -205,17 +161,6 @@ public class MessageFactory {
         return null;
     }
 
-//    public static String SC_endOfRound() {
-//        try {
-//            JSONObject header = new JSONObject();
-//            header.put("type", SC_END_OF_ROUND);
-//
-//            return compose(header);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 
     
     // SERVER TO CLIENT SC_
@@ -223,7 +168,6 @@ public class MessageFactory {
     public static String SC_denyRegister() {
         try {
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
 
             header.put("type", SC_RECONNECT_DENIED_ERROR);
 
@@ -384,16 +328,115 @@ public class MessageFactory {
         }
         return null;
     }
-
-    public static String SC_GameUpdate(JSONObject game) {
-    	return SC_GameUpdate(game, UR_UNDEFINED);
-    }
     
-    public static String SC_GameUpdate(JSONObject game, int updateReason) {
+    public static String SC_GameUpdate(JSONObject game) {
         try {
             JSONObject header = new JSONObject();
             header.put("type", SC_GAME_UPDATE);
-            header.put("reason", updateReason);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_GameCreated(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_GAME_CREATED);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_PlayerJoined(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_PLAYER_JOINED);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_PlayerLeft(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_PLAYER_LEFT);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_UpdateScore(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_UPDATE_SCORE);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_PlayerMaybeDC(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_PLAYER_MAYBEDC);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_GameStarted(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_GAME_STARTED);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_BombPassed(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_BOMB_PASSED);
+            JSONObject body = new JSONObject();
+            body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_BombExploded(JSONObject game) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_BOMB_EXPLODED);
             JSONObject body = new JSONObject();
             body.put("game", game);
             return compose(header, body);
@@ -424,7 +467,6 @@ public class MessageFactory {
     public static String exploded() {
         try {
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
 
             header.put("type", EXPLODED);
 
@@ -435,39 +477,10 @@ public class MessageFactory {
         return null;
     }
 
-//    public static String gameOver(int[] scores) {
-//        try {
-//            JSONObject header = new JSONObject();
-//            JSONObject body = new JSONObject();
-//
-//            header.put("type", GAME_OVER);
-//            body.put("scores", scores);
-//
-//            return compose(header, body);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
-
-//    public static String inheritCreator() {
-//        try {
-//            JSONObject header = new JSONObject();
-//            //JSONObject body = new JSONObject();
-//
-//            header.put("type", INHERIT_CREATOR);
-//
-//            return compose(header);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
 
     public static String getGames() {
         try {
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
 
             header.put("type", LIST_GAMES);
 
@@ -481,7 +494,6 @@ public class MessageFactory {
     public static String startGame() {
         try {
             JSONObject header = new JSONObject();
-            //JSONObject body = new JSONObject();
 
             header.put("type", START_GAME);
 
