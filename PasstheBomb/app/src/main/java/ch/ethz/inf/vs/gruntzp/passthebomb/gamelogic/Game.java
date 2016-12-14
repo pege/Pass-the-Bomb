@@ -204,13 +204,11 @@ public class Game implements Parcelable{
     }
 
     public static Game createFromJSON(JSONObject gameInfo) {
-        gameInfo.toString();
-        return createFromJSON(gameInfo);
+            return createFromJSON(gameInfo.toString());
     }
 
     public static Game createFromJSON0(JSONObject gameInfo) {
         try {
-            gameInfo = gameInfo.getJSONObject("game");
             //Retrieve players from game
             Game game = new Game(gameInfo.getString("name"), null,
                     gameInfo.getBoolean("hasPassword"), false);

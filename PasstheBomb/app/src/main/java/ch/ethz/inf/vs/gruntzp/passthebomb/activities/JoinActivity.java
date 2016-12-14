@@ -39,6 +39,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     private TableLayout gamesTable;
     private TableRow headerRow;
     private String password;
+    private Game[] games;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +62,8 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     ** Game[] contains necessary information about the game
     ** --> see Game.java in the gamelogic package
      */
-    public void getGamesInfo(Game[] games){
+    public void getGamesInfo(Game[] newGames){
+        this.games = newGames;
         int numberOfGames;
         if(games != null) {
             numberOfGames = games.length;
@@ -241,7 +243,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                                     blackout.setVisibility(View.INVISIBLE);
 
                                     // create a new intent
-                                    controller.sendMessage(MessageFactory.joinGame(preferences.getString("user_name",""),password));
+                                    controller.sendMessage(MessageFactory.joinGame(thisGame.getName(),password));
 
                                     //TODO: pass information to server that the player is entering that game
 
@@ -274,7 +276,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
 
                 } else {
 
-                    controller.sendMessage(MessageFactory.joinGame(preferences.getString("user_name",""),password));
+                    controller.sendMessage(MessageFactory.joinGame(thisGame.getName(),password));
 
                     //TODO: pass information to server that the player is entering that game
                 }
@@ -303,7 +305,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_GAME_LIST: //Read all games from array and call function to update GUI
                 try {
-                    JSONArray gameArr = new JSONArray(body.getJSONArray("games"));
+                    JSONArray gameArr = body.getJSONArray("games");
                     Game[] games = new Game[gameArr.length()];
                     for (int i = 0; i < gameArr.length(); i++) {
                         games[i] = Game.createFromJSON0(gameArr.getJSONObject(i));
@@ -320,6 +322,11 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.ALREADY_STARTED_ERROR:
                 toast = Toast.makeText(this, "That game already started", Toast.LENGTH_SHORT);
+                try {
+                    String gameName = body.getString("game_id");
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
                 toast.show();
                 break;
             case MessageFactory.WRONG_PASSWORD_ERROR:
