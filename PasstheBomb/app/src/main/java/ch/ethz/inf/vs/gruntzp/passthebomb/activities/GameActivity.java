@@ -503,6 +503,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     **/
     @Override
     public void onBackPressed(){
+
         super.onBackPressed(); //to change?
     }
 
@@ -551,4 +552,5 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         super.onStop();
         controller.unbind(this);
     }
+
 }
