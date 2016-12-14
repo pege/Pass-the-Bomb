@@ -24,7 +24,6 @@ public class Game implements Parcelable{
     private Player creator;
     private LinkedList<Player> players;
     private Boolean locked;
-    private String password;
     private boolean started;
     private Bomb bomb;
     private Player bombOwner;
@@ -35,7 +34,7 @@ public class Game implements Parcelable{
     public static final int DEC_ERROR = 3;
     public Lock bombLock = new ReentrantLock();
 
-    public Game(String name, Player creator, Boolean locked, String password, boolean started){
+    public Game(String name, Player creator, Boolean locked, boolean started){
         this.name = name;
         this.creator = creator;
 
@@ -43,7 +42,6 @@ public class Game implements Parcelable{
         players.addFirst(creator);
 
         this.locked = locked;
-        this.password = password;
         this.started = started;
         this.bomb = null;
         this.bombOwner = null;
@@ -55,7 +53,6 @@ public class Game implements Parcelable{
         players = new LinkedList<>();
         in.readList(players, Player.class.getClassLoader());
         locked = in.readByte() != 0;
-        password = in.readString();
     }
 
     public String getName() {
@@ -99,14 +96,6 @@ public class Game implements Parcelable{
 
     public void setLocked(Boolean locked) {
         this.locked = locked;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public boolean hasStarted() {return started;}
@@ -169,7 +158,6 @@ public class Game implements Parcelable{
         dest.writeParcelable(creator, flags);
         dest.writeList(players);
         dest.writeByte((byte) (locked ? 1 : 0));
-        dest.writeString(password);
     }
 
     public static final Parcelable.Creator<Game> CREATOR = new Parcelable.Creator<Game>()
@@ -189,13 +177,14 @@ public class Game implements Parcelable{
         JSONTokener tokener = new JSONTokener(jsonGame);
         try {
             gameInfo = new JSONObject(tokener);
+            gameInfo = gameInfo.getJSONObject("game");
             //Retrieve players from game
-            JSONArray jArray = new JSONArray(gameInfo.getJSONArray("players"));
+            JSONArray jArray = gameInfo.getJSONArray("players");
             Player p;
             Player c = null;
             String uuid = gameInfo.getString("owner");
             Game game = new Game(gameInfo.getString("name"), null,
-                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password"),
+                    gameInfo.getBoolean("hasPassword"),
                     gameInfo.getBoolean("started")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
             for(int i = 0; i < jArray.length(); i++) {
                 p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
@@ -215,38 +204,16 @@ public class Game implements Parcelable{
     }
 
     public static Game createFromJSON(JSONObject gameInfo) {
-        try {
-            //Retrieve players from game
-            JSONArray jArray = new JSONArray(gameInfo.getJSONArray("players"));
-            Player p;
-            Player c = null;
-            String uuid = gameInfo.getString("owner");
-            Game game = new Game(gameInfo.getString("name"), null,
-                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password"),
-                    gameInfo.getBoolean("started")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
-            for(int i = 0; i < jArray.length(); i++) {
-                p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
-                if (uuid.equals(p.getUuid())) {
-                    c = p;
-                    game.setCreator(c);
-                } else {
-                    game.addPlayer(p);
-                }
-            }
-            game.setCreator(c);
-            return game;
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
+        gameInfo.toString();
+        return createFromJSON(gameInfo);
     }
 
     public static Game createFromJSON0(JSONObject gameInfo) {
         try {
+            gameInfo = gameInfo.getJSONObject("game");
             //Retrieve players from game
             Game game = new Game(gameInfo.getString("name"), null,
-                    gameInfo.getBoolean("hasPassword"), gameInfo.getString("password"),
-                    false);
+                    gameInfo.getBoolean("hasPassword"), false);
             return game;
         } catch (JSONException e) {
             e.printStackTrace();

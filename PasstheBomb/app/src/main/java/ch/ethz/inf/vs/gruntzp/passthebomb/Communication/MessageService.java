@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 
 import org.glassfish.tyrus.client.ClientManager;
 
@@ -90,6 +91,7 @@ public class MessageService extends Service {
 
         initializeConnection(ip, port);
     }
+
 
     public void sendMessage(final String message)
     {

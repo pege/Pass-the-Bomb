@@ -85,8 +85,8 @@ public class ServiceConnector {
 
         // Bind to service (every activity should do this at the beginning
         boolean b = activity.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        if(!b){
-            Log.d("BINDSERVICE","Didn't bind to service");
+        if(b){
+            MessageService.activity = (MessageListener) activity;
         }
     }
 
