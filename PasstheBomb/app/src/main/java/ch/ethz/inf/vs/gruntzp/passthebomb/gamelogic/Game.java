@@ -214,11 +214,13 @@ public class Game implements Parcelable{
             Player p;
             Player c = null;
             String uuid = gameInfo.getString("owner");
+            String bombUuid = gameInfo.getString("bombOwner");
             Game game = new Game(gameInfo.getString("name"), null,
                     gameInfo.getBoolean("hasPassword"),
                     gameInfo.getBoolean("started")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
             for(int i = 0; i < jArray.length(); i++) {
                 p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
+                p.setHasBomb(p.getUuid().equals(bombUuid));
                 if (uuid.equals(p.getUuid())) {
                     c = p;
                     game.newCreator(c);

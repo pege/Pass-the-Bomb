@@ -51,6 +51,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         Bundle extras = getIntent().getExtras();
 
         game = extras.getParcelable("game");
+        game.setPlayersAndRoles(game.getPlayers(),game.getCreator().getUuid());
         thisPlayer = extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
