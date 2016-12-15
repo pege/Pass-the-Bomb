@@ -46,7 +46,7 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -55,7 +55,7 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
-
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,9 +64,9 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
                         .setAction("Action", null).show();
             }
         });
-
+        */
     }
-
+/*
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -89,7 +89,7 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
 
         return super.onOptionsItemSelected(item);
     }
-
+*/
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -120,7 +120,8 @@ public class TutorialActivity extends AppCompatActivity implements MessageListen
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_tutorial, container, false);
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            textView.setText("pege stinkt");
             return rootView;
         }
     }

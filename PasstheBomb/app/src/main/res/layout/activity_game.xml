@@ -79,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
                 android:foregroundGravity="center"
-                android:src="@drawable/derp_bomb"
+                android:src="@drawable/bomb_stage1"
                 android:visibility="visible" />
         </FrameLayout>
 
