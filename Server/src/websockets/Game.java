@@ -164,6 +164,7 @@ public final class Game {
 	}
 
 	public void broadcast(String message) {
+		System.out.println(message);
 		for (Player player : players) {
 			Session s = player.getSession();
 
