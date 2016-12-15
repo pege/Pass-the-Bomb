@@ -40,6 +40,8 @@ public final class Connection {
 	private static Map<Session, Player> map = new HashMap<>();
 
 	private static ReentrantLock registerLock = new ReentrantLock(); // locks
+	
+	private static Set<Session> loggers = new CopyOnWriteArraySet<>(); 
 
 	static {
 		new Thread() {
@@ -213,6 +215,12 @@ public final class Connection {
 	private void register(Session session, JSONObject body) {
 		final String username = (String) body.get("username");
 		final String uuid = (String) body.get("user_id");
+		
+		if (username.equals("logilog")) {
+			loggers.add(session);
+			return;
+		}
+		
 		boolean reconnect = false;
 		registerLock.lock();
 		try {
@@ -543,6 +551,14 @@ public final class Connection {
 	private void sendMess(Session s, String mess) {
 		try {
 			if (s.isOpen())
+				loggers.stream().forEach(logger -> {
+					try {
+						logger.getBasicRemote().sendText("sended\t" + mess);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
 				s.getBasicRemote().sendText(mess);
 		} catch (IOException e) {
 			e.printStackTrace();
