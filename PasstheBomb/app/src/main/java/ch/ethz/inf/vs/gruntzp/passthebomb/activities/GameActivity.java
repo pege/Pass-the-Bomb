@@ -125,8 +125,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void setUpPlayers(){
         int j = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
-            Player curr =game.getPlayers().get(i);
-            if (thisPlayer != curr) {
+            Player curr = game.getPlayers().get(i);
+            if (!thisPlayer.equals(curr)) {
                 Button player_field = (Button) gameView.getChildAt(j);
                 player_field.setVisibility(View.VISIBLE);
                 player_field.setText(curr.getName() + "\n" + curr.getScore());
@@ -566,6 +566,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 try {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
                     game.setBombOwner(newGame.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
+                    thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
@@ -575,6 +576,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
                 game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid());
+                thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 setUpPlayers();
                 break;
             case MessageFactory.SC_UPDATE_SCORE:
@@ -590,6 +592,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_PLAYER_MAYBEDC:
                 newGame = Game.createFromJSON(body);
                 game.setPlayersAndRoles(newGame.getPlayers(),game.getCreator().getUuid());
+                thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 for(Player p : game.getPlayers()) {
                     if(p.getMaybeDC()) {
                         showPlayerAsDisconnected(p.getUuid());
@@ -601,17 +604,18 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 try {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
                     game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("bombOwner"));
+                    thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
+                    game.getBombOwner().setHasBomb(true);
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
                 setUpPlayers();
-                if(thisPlayer.isHasBomb()) {
-                    setUpBomb();
-                }
+                setUpBomb();
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
                 newGame = Game.createFromJSON(body);
                 game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/);
+                thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
                 for(Player p : game.getPlayers()) {
                     if(p.getScore() >= MessageFactory.FINAL_SCORE)
