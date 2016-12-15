@@ -476,15 +476,15 @@ public final class Connection {
 		}
 	}
 
-	private void update_score(Session s, JSONObject body) {
+	private void update_score(Session session, JSONObject body) {
 		// Inform other players
 		registerLock.lock();
-		Player player = map.get(s);
+		Player player = map.get(session);
 
-		if (!NeedRegister(s, player)) {
+		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
+				if (!notInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true) && !NeedBomb(session, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
 					player.getJoinedGame().broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
