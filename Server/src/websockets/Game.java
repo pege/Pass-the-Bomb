@@ -10,11 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class Game {
-
-	private static final int finalScore = 100;
-	private static final int lifetimeBomb = 100; // max Lifetime of a bomb
-	private static final int scoreIncrease = 50;
-	private static final int scoreDecrease = -10;
+	
+	private static final int maxBombLifeTime = 100; // max Lifetime of a bomb
+	private static final int minBombLifetime = 20;
+	
+	private static final int scoreIncrease = 20;
+	private static final int scoreDecrease = -20;
 
 	private Player owner;
 	private ArrayList<Player> players = new ArrayList<>();
@@ -111,9 +112,10 @@ public final class Game {
 		System.out.println(getGamename() + " has started");
 	}
 
+	
 	public void bomb_exploded(Player p) {
 		p.changeScore(scoreDecrease);
-
+		
 		for (Player player : players) {
 			if (p != player) {
 				player.changeScore(scoreIncrease);
@@ -124,7 +126,8 @@ public final class Game {
 	private static Random random = new Random();
 
 	private static int createBomb() {
-		return random.nextInt(lifetimeBomb);
+		//TODO: Gauss
+		return random.nextInt(maxBombLifeTime);
 	}
 
 	private Player pickRandom() {
@@ -175,7 +178,7 @@ public final class Game {
 
 	public boolean isFinished() {
 		for (Player p : players) {
-			if (p.getScore() >= finalScore)
+			if (p.getScore() >= MessageFactory.FINAL_SCORE)
 				return true;
 		}
 		return false;
