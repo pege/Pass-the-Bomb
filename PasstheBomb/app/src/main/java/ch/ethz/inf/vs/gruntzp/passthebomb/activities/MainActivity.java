@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
@@ -173,8 +174,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 Game game = Game.createFromJSON(body);
                 if(game.hasStarted()) {//hasStarted implies that the game has a bomb owner and a bomb
                     try {
-                        game.setBomb(body.getInt("bomb"));
-                        game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
+                        game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+                        game.setBombOwner(game.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
                     } catch(JSONException e) {
                         e.printStackTrace();
                     }

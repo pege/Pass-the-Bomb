@@ -563,8 +563,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist. Actually never called xD
                 newGame = Game.createFromJSON(body);
                 try {
-                    game.setBomb(body.getInt("bomb"));
-                    game.setBombOwner(newGame.getPlayerByID(body.getString("bombOwner")));
+                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+                    game.setBombOwner(newGame.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
@@ -580,7 +580,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 newGame = Game.createFromJSON(body);
                 game.adoptScore(newGame);
                 try {
-                    game.setBomb(body.getInt("bomb"));
+                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
@@ -598,8 +598,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_BOMB_PASSED:
                 newGame = Game.createFromJSON(body);
                 try {
-                    game.setBomb(body.getInt("bomb"));
-                    game.setPlayersAndRoles(newGame.getPlayers(), body.getString("bombOwner"));
+                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("bombOwner"));
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }

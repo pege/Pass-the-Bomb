@@ -187,8 +187,8 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 game = Game.createFromJSON(body);
                 isCreator = game.getCreatorName().equals(thisPlayer.getName());
                 try {
-                    game.newBomb(new Bomb(body.getInt("bomb"),body.getInt("initial_bomb")));
-                    game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
+                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+                    game.setBombOwner(game.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
