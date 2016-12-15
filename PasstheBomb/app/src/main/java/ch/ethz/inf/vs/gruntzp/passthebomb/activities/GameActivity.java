@@ -131,9 +131,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 player_field.setVisibility(View.VISIBLE);
                 player_field.setText(curr.getName() + "\n" + curr.getScore());
                 if(curr.isHasBomb())
-                    addBombIcon(i);
+                    addBombIcon(j);
                 else
-                    removeDrawableIcon(i);
+                    removeDrawableIcon(j);
                 j++;
             }
         }
