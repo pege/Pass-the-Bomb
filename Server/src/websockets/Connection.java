@@ -25,8 +25,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-
-
 @ServerEndpoint("/passTheBomb")
 public final class Connection {
 
@@ -40,11 +38,11 @@ public final class Connection {
 	private static Map<Session, Player> map = new HashMap<>();
 
 	private static ReentrantLock registerLock = new ReentrantLock(); // locks
-	
+
 	static {
 		new Thread() {
 			public void run() {
-				//checkConnection();
+				 checkConnection();
 			};
 		}.start();
 		System.out.println("Thread started");
@@ -213,7 +211,7 @@ public final class Connection {
 	private void register(Session session, JSONObject body) {
 		final String username = (String) body.get("username");
 		final String uuid = (String) body.get("user_id");
-		
+
 		boolean reconnect = false;
 		registerLock.lock();
 		try {
@@ -248,7 +246,8 @@ public final class Connection {
 							// TODO - client
 							// sendMess(session,
 							MessageFactory.SC_GameUpdate(player.getJoinedGame().toJSON(1));
-							//sendMess(session, MessageFactory.sc_registerSuccessful());
+							// sendMess(session,
+							// MessageFactory.sc_registerSuccessful());
 							System.out.println("=== " + username + " has reconnected ===");
 							reconnect = true;
 						}
@@ -275,23 +274,23 @@ public final class Connection {
 	private void createGame(Session session, JSONObject body) {
 		final String gamename = (String) body.get("game_id");
 		final String password = (String) body.get("password");
-		
+
 		registerLock.lock();
 		Player owner = map.get(session);
-		
+
 		if (NeedRegister(session, owner)) {
 			registerLock.unlock();
 			return;
 		}
-								
+
 		synchronized (owner) {
 			registerLock.unlock();
 			if (!alreadyInGame(session, owner)) {
 				String newname = gamename;
 				Game game;
-				
+
 				newname = makeUnique(gamename);
-				
+
 				game = new Game(owner, newname, password);
 				games.add(game);
 
@@ -301,16 +300,19 @@ public final class Connection {
 				System.out.println("A game with gamename " + game.getGamename() + " was created");
 			}
 		}
-		
-	} 
-	private String makeUnique(final String proposed) { return makeUnique(proposed, 0); }
+
+	}
+
+	private String makeUnique(final String proposed) {
+		return makeUnique(proposed, 0);
+	}
+
 	private String makeUnique(String proposed, int level) {
 		if (games.stream().anyMatch(game -> game.getGamename().equals(proposed)))
 			return makeUnique(proposed + (level == 0 ? "_x" : "x"), level + 1);
 		else
 			return proposed;
 	}
-	
 
 	private void getGameList(Session session) {
 		JSONArray gameArray = new JSONArray();
@@ -341,12 +343,17 @@ public final class Connection {
 								sendMess(session, MessageFactory.Already_Started_Error(game.getGamename()));
 								System.out.println("Game already started");
 							} else { // not started
-								player.joinGame(game);
-								game.addPlayer(player);
-								// Send all players the updated game
-								// status
-								game.broadcast(MessageFactory.SC_PlayerJoined(game.toJSON(1)));
-								System.out.println(player.getName() + " joined the game " + game.getGamename());
+								if (game.numberOfPlayers() >= 5) {
+									sendMess(session, MessageFactory.SC_joinDenied());
+									System.out.println("Game already full");
+								} else {
+									player.joinGame(game);
+									game.addPlayer(player);
+									// Send all players the updated game
+									// status
+									game.broadcast(MessageFactory.SC_PlayerJoined(game.toJSON(1)));
+									System.out.println(player.getName() + " joined the game " + game.getGamename());
+								}
 							}
 						}
 					} else if (game != null) { // wrong password
@@ -484,7 +491,8 @@ public final class Connection {
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
-				if (!notInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true) && !NeedBomb(session, player)) {
+				if (!notInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true)
+						&& !NeedBomb(session, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
 					player.getJoinedGame().broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
@@ -542,6 +550,7 @@ public final class Connection {
 	}
 
 	private void sendMess(Session s, String mess) {
+		System.out.println(mess);
 		try {
 			if (s.isOpen())
 				s.getBasicRemote().sendText(mess);

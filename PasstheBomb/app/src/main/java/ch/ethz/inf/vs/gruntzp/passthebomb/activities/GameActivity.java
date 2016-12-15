@@ -51,7 +51,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         Bundle extras = getIntent().getExtras();
 
         game = extras.getParcelable("game");
-        game.setPlayersAndRoles(game.getPlayers(),game.getCreator().getUuid());
+        game.setPlayersAndRoles(game.getPlayers(),game.getCreator().getUuid(),game.getBombOwner().getUuid());
         game.getBombOwner().setHasBomb(true);
         thisPlayer = extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
@@ -576,7 +576,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
-                game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid());
+                game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid(), newGame.getBombOwner().getUuid());
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 setUpPlayers();
                 break;
@@ -592,7 +592,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_PLAYER_MAYBEDC:
                 newGame = Game.createFromJSON(body);
-                game.setPlayersAndRoles(newGame.getPlayers(),game.getCreator().getUuid());
+                game.setPlayersAndRoles(newGame.getPlayers(),game.getCreator().getUuid(), game.getCreator().getUuid());
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 for(Player p : game.getPlayers()) {
                     if(p.getMaybeDC()) {
@@ -604,9 +604,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 newGame = Game.createFromJSON(body);
                 try {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
-                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"));
+                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"), body.getJSONObject("game").getString("bombOwner"));
                     thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
-                    game.getBombOwner().setHasBomb(true);
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
@@ -615,7 +614,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
                 newGame = Game.createFromJSON(body);
-                game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/);
+                game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
                 for(Player p : game.getPlayers()) {

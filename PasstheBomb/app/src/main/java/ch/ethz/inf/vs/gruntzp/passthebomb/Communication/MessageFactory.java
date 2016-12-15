@@ -29,6 +29,7 @@ public class MessageFactory {
     public static final int SC_REGISTER_SUCCESSFUL = 13;
     public static final int SC_GAME_CREATED = 14;
     public static final int SC_PLAYER_JOINED = 15;
+    public static final int SC_JOIN_DENIED = 23;
     public static final int SC_PLAYER_LEFT = 16;
     public static final int SC_UPDATE_SCORE = 17;
     public static final int SC_PLAYER_MAYBEDC = 18;
@@ -123,6 +124,19 @@ public class MessageFactory {
             JSONObject header = new JSONObject();
 
             header.put("type", LEAVE_GAME);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_joinDenied() {
+        try {
+            JSONObject header = new JSONObject();
+
+            header.put("type", SC_JOIN_DENIED);
 
             return compose(header);
         } catch (JSONException e) {
