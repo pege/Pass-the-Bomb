@@ -52,6 +52,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         game = extras.getParcelable("game");
         game.setPlayersAndRoles(game.getPlayers(),game.getCreator().getUuid());
+        game.getBombOwner().setHasBomb(true);
         thisPlayer = extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
