@@ -606,7 +606,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
                     game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"), body.getJSONObject("game").getString("bombOwner"));
                     thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
-                    game.getBombOwner().setHasBomb(true);
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }

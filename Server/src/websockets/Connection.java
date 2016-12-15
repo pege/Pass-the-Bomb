@@ -550,6 +550,7 @@ public final class Connection {
 	}
 
 	private void sendMess(Session s, String mess) {
+		System.out.println(mess);
 		try {
 			if (s.isOpen())
 				s.getBasicRemote().sendText(mess);
