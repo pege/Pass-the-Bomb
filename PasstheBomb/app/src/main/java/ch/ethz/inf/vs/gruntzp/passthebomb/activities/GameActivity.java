@@ -183,11 +183,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void setBombVisibility(){
+        bomb.clearAnimation();
         if(!thisPlayer.isHasBomb()){
             bomb.setVisibility(View.INVISIBLE);
         } else {
             bomb.setVisibility(View.VISIBLE);
         }
+        bomb.invalidate();
     }
 
     private void setBombInCenter(){
