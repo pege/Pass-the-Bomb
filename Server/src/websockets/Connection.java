@@ -20,11 +20,12 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.glassfish.grizzly.utils.LogFilter;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+
 
 @ServerEndpoint("/passTheBomb")
 public final class Connection {
@@ -43,7 +44,7 @@ public final class Connection {
 	static {
 		new Thread() {
 			public void run() {
-				checkConnection();
+				//checkConnection();
 			};
 		}.start();
 		System.out.println("Thread started");
@@ -301,7 +302,7 @@ public final class Connection {
 		}
 		
 	} 
-	private String makeUnique(String proposed) { return makeUnique(proposed, 0); }
+	private String makeUnique(final String proposed) { return makeUnique(proposed, 0); }
 	private String makeUnique(String proposed, int level) {
 		if (games.stream().anyMatch(game -> game.getGamename().equals(proposed)))
 			return makeUnique(proposed + (level == 0 ? "_x" : "x"), level + 1);
