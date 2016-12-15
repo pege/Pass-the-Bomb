@@ -20,6 +20,7 @@ import org.json.JSONTokener;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
@@ -185,7 +186,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
             case MessageFactory.SC_GAME_STARTED:
                 game = Game.createFromJSON(body);
                 try {
-                    game.setBomb(body.getInt("bomb"));
+                    game.newBomb(new Bomb(body.getInt("bomb"),body.getInt("initial_bomb")));
                     game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
                 } catch(JSONException e) {
                     e.printStackTrace();

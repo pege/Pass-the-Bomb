@@ -19,10 +19,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
@@ -129,6 +131,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 player_field.setText(curr.getName() + "\n" + curr.getScore());
                 if(curr.isHasBomb())
                     addBombIcon(i);
+                else
+                    removeDrawableIcon(i);
                 j++;
             }
         }
@@ -530,28 +534,42 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void onMessage(int type, JSONObject body) {
+        Game newGame;
         //TODO
         switch(type) {
             case 0:
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
-            case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist
-                game = Game.createFromJSON(body);
+            case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist. Actually never called xD
+                newGame = Game.createFromJSON(body);
+                try {
+                    game.setBomb(body.getInt("bomb"));
+                    game.setBombOwner(newGame.getPlayerByID(body.getString("bombOwner")));
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
                 setUpPlayers();
                 updateScore();
                 break;
             case MessageFactory.SC_PLAYER_LEFT:
-                game = Game.createFromJSON(body);
+                newGame = Game.createFromJSON(body);
+                game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid());
                 setUpPlayers();
-                updateScore();
                 break;
             case MessageFactory.SC_UPDATE_SCORE:
-                game = Game.createFromJSON(body);
+                newGame = Game.createFromJSON(body);
+                game.adoptScore(newGame);
+                try {
+                    game.setBomb(body.getInt("bomb"));
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
                 updateScore();
                 break;
             case MessageFactory.SC_PLAYER_MAYBEDC:
-                game = Game.createFromJSON(body);
+                newGame = Game.createFromJSON(body);
+                game.setPlayersAndRoles(newGame.getPlayers(),game.getCreator().getUuid());
                 for(Player p : game.getPlayers()) {
                     if(p.getMaybeDC()) {
                         showPlayerAsDisconnected(p.getUuid());
@@ -559,7 +577,28 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case MessageFactory.SC_BOMB_PASSED:
-                game = Game.createFromJSON(body);
+                newGame = Game.createFromJSON(body);
+                try {
+                    game.setBomb(body.getInt("bomb"));
+                    game.setPlayersAndRoles(newGame.getPlayers(), body.getString("bombOwner"));
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+                setUpPlayers();
+                if(thisPlayer.isHasBomb()) {
+                    setUpBomb();
+                }
+                break;
+            case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
+                newGame = Game.createFromJSON(body);
+                game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/);
+                game.adoptScore(newGame);
+                for(Player p : game.getPlayers()) {
+                    if(p.getScore() >= MessageFactory.FINAL_SCORE)
+                        endGame();
+                }
+                //No player won, so we have to wait for next gameupdate
+                break;
 
             default:
                 break;

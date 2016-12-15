@@ -59,7 +59,8 @@ public class MessageFactory {
 //    public static final int UR_UNDEFINED = -1;
 //    public static final int UR_UNDEFINED = -1;
     
-    // CLIENT TO SERVER CS_
+    //Shared constants
+    public static final int FINAL_SCORE = 100;
 
 
     public static String createGame(String game_id, String password)

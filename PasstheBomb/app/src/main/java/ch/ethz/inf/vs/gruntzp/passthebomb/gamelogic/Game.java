@@ -43,7 +43,7 @@ public class Game implements Parcelable{
 
         this.locked = locked;
         this.started = started;
-        this.bomb = null;
+        this.bomb = new Bomb(Bomb.blank_initializer,Bomb.blank_initializer);
         this.bombOwner = null;
     }
 
@@ -67,10 +67,13 @@ public class Game implements Parcelable{
 
     public void setCreator(Player creator) {
         this.creator = creator;
+    }
+
+    public void newCreator(Player creator) {
+        this.creator = creator;
         players.remove(0);
         players.addFirst(creator);
     }
-
 
     public Player getCreator() {return creator;}
 
@@ -80,6 +83,16 @@ public class Game implements Parcelable{
 
     public void setPlayers(LinkedList<Player> players) {
         this.players = players;
+    }
+
+    public void setPlayersAndRoles(LinkedList<Player> players, String creatorUuid) {
+        this.players = players;
+        for(Player p : this.players) {
+            if(p.isHasBomb())
+                this.bombOwner = p;
+            if(p.getUuid().equals(creatorUuid))
+                this.creator = p;
+        }
     }
 
     public void addPlayer(Player player){
@@ -104,6 +117,16 @@ public class Game implements Parcelable{
         return players.size();
     }
 
+    public void adoptScore(Game other) {
+        LinkedList<Player> p1 = this.getPlayers();
+        LinkedList<Player> p2 = other.getPlayers();
+        if(this.getNoPlayers() == other.getNoPlayers()) {
+            for(int i = 0; i < this.getNoPlayers(); i++) { //Players are never shuffled, so we don't check if uuids match
+                p1.get(i).setScore(p2.get(i).getScore());
+            }
+        }
+    }
+
     public Player getPlayerByID(String uuid) {
         Player ret = null;
         for(int i = 0; i < players.size(); i++) {
@@ -113,16 +136,22 @@ public class Game implements Parcelable{
         return ret;
     }
 
-    public Bomb getBomb() {
+    /*public Bomb getBomb() {
         return bomb;
-    }
+    }*/
 
     public Player getBombOwner() {
         return bombOwner;
     }
 
     public void setBomb(int bomb) {
-        this.bomb = new Bomb(bomb);
+        this.bomb.setCounter(bomb);
+    }
+
+    public void newBomb(Bomb b) {this.bomb = b;}
+
+    public int getBombInitValue() {
+        return bomb.initValue();
     }
 
     public void setBombOwner(Player bombOwner) {
