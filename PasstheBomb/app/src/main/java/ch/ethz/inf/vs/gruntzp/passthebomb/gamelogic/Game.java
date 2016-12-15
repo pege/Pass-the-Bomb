@@ -89,7 +89,7 @@ public class Game implements Parcelable{
     public void setPlayersAndRoles(LinkedList<Player> players, String creatorUuid) {
         this.players = players;
         for(Player p : this.players) {
-            if(p.isHasBomb())
+            if(p.getUuid().equals(this.bombOwner.getUuid()))
                 this.bombOwner = p;
             if(p.getUuid().equals(creatorUuid))
                 this.creator = p;
