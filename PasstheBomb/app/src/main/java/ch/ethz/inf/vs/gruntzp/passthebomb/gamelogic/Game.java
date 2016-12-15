@@ -219,7 +219,7 @@ public class Game implements Parcelable{
                 p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
                 if (uuid.equals(p.getUuid())) {
                     c = p;
-                    game.setCreator(c);
+                    game.newCreator(c);
                 } else {
                     game.addPlayer(p);
                 }

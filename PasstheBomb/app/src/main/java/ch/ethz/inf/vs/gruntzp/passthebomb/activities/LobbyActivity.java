@@ -185,6 +185,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 break;
             case MessageFactory.SC_GAME_STARTED:
                 game = Game.createFromJSON(body);
+                isCreator = game.getCreatorName().equals(thisPlayer.getName());
                 try {
                     game.newBomb(new Bomb(body.getInt("bomb"),body.getInt("initial_bomb")));
                     game.setBombOwner(game.getPlayerByID(body.getString("bombOwner")));
@@ -196,6 +197,8 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
             case MessageFactory.SC_PLAYER_LEFT://Fall through
             case MessageFactory.SC_PLAYER_JOINED:
                 game = Game.createFromJSON(body);
+                isCreator = game.getCreatorName().equals(thisPlayer.getName());
+                setStartButton();
                 updateTable();
             default:
                 break;
