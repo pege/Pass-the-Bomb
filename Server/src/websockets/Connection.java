@@ -288,7 +288,7 @@ public final class Connection {
 				String newname = gamename;
 				Game game;
 				
-				
+				newname = makeUnique(gamename);
 				
 				game = new Game(owner, newname, password);
 				games.add(game);
@@ -301,6 +301,13 @@ public final class Connection {
 		}
 		
 	} 
+	private String makeUnique(String proposed) { return makeUnique(proposed, 0); }
+	private String makeUnique(String proposed, int level) {
+		if (games.stream().anyMatch(game -> game.getGamename().equals(proposed)))
+			return makeUnique(proposed + (level == 0 ? "_x" : "x"), level + 1);
+		else
+			return proposed;
+	}
 	
 
 	private void getGameList(Session session) {
