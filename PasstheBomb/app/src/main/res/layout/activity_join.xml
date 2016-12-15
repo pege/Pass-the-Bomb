@@ -81,7 +81,7 @@
         android:id="@+id/blackout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#99000000"
+        android:background="@color/darkGrey"
         android:visibility="invisible"
         android:elevation="10dp"
         tools:context="ch.ethz.inf.vs.gruntzp.passthebomb.activities.CreateActivity"/>
