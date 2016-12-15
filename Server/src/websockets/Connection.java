@@ -487,7 +487,7 @@ public final class Connection {
 		// Inform other players
 		registerLock.lock();
 		Player player = map.get(session);
-
+		//TODO stor value bomb
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
@@ -495,6 +495,7 @@ public final class Connection {
 						&& !NeedBomb(session, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
+					//TODO synchronize game
 					player.getJoinedGame().broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
 				}
 			}
