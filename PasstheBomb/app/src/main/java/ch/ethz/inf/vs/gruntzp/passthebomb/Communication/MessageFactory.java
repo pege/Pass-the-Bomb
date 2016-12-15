@@ -1,5 +1,5 @@
-//package websockets;
-package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
+package websockets;
+//package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +34,7 @@ public class MessageFactory {
     public static final int SC_PLAYER_MAYBEDC = 18;
     public static final int SC_GAME_STARTED = 19; 
     public static final int SC_BOMB_PASSED = 20;
+    public static final int SC_BOMB_TRAVELLING = 22;
     public static final int SC_BOMB_EXPLODED = 21;
     
     // ERRORS (and, mysteriously, STATUS)
@@ -427,6 +428,19 @@ public class MessageFactory {
             header.put("type", SC_BOMB_PASSED);
             JSONObject body = new JSONObject();
             body.put("game", game);
+            return compose(header, body);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_BombTravelling(String player_id) {
+    	try {
+            JSONObject header = new JSONObject();
+            header.put("type", SC_BOMB_PASSED);
+            JSONObject body = new JSONObject();
+            body.put("player_id", player_id);
             return compose(header, body);
         } catch (JSONException e) {
             e.printStackTrace();
