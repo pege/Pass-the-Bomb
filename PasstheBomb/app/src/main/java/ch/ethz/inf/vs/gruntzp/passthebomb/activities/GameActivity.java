@@ -603,7 +603,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 newGame = Game.createFromJSON(body);
                 try {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
-                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("bombOwner"));
+                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"));
                     thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                     game.getBombOwner().setHasBomb(true);
                 } catch(JSONException e) {

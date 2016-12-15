@@ -54,6 +54,7 @@ public class Game implements Parcelable{
         in.readList(players, Player.class.getClassLoader());
         locked = in.readByte() != 0;
         bomb = in.readParcelable(Bomb.class.getClassLoader());
+        bombOwner = in.readParcelable(Player.class.getClassLoader());
     }
 
     public String getName() {
@@ -89,7 +90,7 @@ public class Game implements Parcelable{
     public void setPlayersAndRoles(LinkedList<Player> players, String creatorUuid) {
         this.players = players;
         for(Player p : this.players) {
-            if(p.isHasBomb())
+            if(p.getUuid().equals(this.bombOwner.getUuid()))
                 this.bombOwner = p;
             if(p.getUuid().equals(creatorUuid))
                 this.creator = p;
@@ -189,6 +190,7 @@ public class Game implements Parcelable{
         dest.writeList(players);
         dest.writeByte((byte) (locked ? 1 : 0));
         dest.writeParcelable(bomb, flags);
+        dest.writeParcelable(bombOwner, flags);
     }
 
     public static final Parcelable.Creator<Game> CREATOR = new Parcelable.Creator<Game>()
