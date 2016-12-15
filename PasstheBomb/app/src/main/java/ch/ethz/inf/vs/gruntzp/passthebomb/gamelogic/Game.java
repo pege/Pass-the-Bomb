@@ -53,6 +53,7 @@ public class Game implements Parcelable{
         players = new LinkedList<>();
         in.readList(players, Player.class.getClassLoader());
         locked = in.readByte() != 0;
+        bomb = in.readParcelable(Bomb.class.getClassLoader());
     }
 
     public String getName() {
@@ -187,6 +188,7 @@ public class Game implements Parcelable{
         dest.writeParcelable(creator, flags);
         dest.writeList(players);
         dest.writeByte((byte) (locked ? 1 : 0));
+        dest.writeParcelable(bomb, flags);
     }
 
     public static final Parcelable.Creator<Game> CREATOR = new Parcelable.Creator<Game>()
