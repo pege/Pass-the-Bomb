@@ -549,16 +549,10 @@ public final class Connection {
 	}
 
 	private void sendMess(Session s, String mess) {
+		System.out.println(mess);
 		try {
 			if (s.isOpen())
-				loggers.stream().forEach(logger -> {
-					try {
-						logger.getBasicRemote().sendText("sended\t" + mess);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
+				
 				s.getBasicRemote().sendText(mess);
 		} catch (IOException e) {
 			e.printStackTrace();
