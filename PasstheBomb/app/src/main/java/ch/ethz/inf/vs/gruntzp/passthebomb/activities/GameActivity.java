@@ -38,6 +38,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private RelativeLayout gameView;
     private ImageView bomb;
     private final int[] centerPos = new int[2];
+    private View.OnTouchListener touchListener;
 
 
     @Override
@@ -73,6 +74,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
+        enableOnTouchAndDragging();
         setUpBomb();
         setUpPlayers();
     }
@@ -176,7 +178,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void setUpBomb(){
-        enableOnTouchAndDragging();
         setBombInCenter();
         setBombVisibility();
 
@@ -233,7 +234,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void enableOnTouchAndDragging(){
-        bomb.setOnTouchListener(new View.OnTouchListener() {
+        touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
             int prevX,prevY;
             @Override
@@ -354,7 +355,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 return true;
             }
-        });
+        };
+        bomb.setOnTouchListener(touchListener);
     }
 
     private void scaleIn(View v, int childID){
