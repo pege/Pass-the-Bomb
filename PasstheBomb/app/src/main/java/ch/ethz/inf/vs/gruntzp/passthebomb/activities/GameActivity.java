@@ -610,9 +610,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     e.printStackTrace();
                 }
                 setUpPlayers();
-                if(thisPlayer.isHasBomb()) {
-                    setUpBomb();
-                }
+                setUpBomb();
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
                 newGame = Game.createFromJSON(body);
