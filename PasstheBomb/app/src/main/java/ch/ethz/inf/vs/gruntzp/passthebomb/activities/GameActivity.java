@@ -61,7 +61,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
         //for testing only
-        /*
+/*
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
         game.addPlayer(creator);
@@ -73,8 +73,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer.setHasBomb(true);
         thisPlayer.setScore(2000);
         //endGame();
-
 */
+
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
@@ -231,8 +231,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void changeBombImage(int level) {
+        //Animation anim;
         switch(level) {
             case 1:
+                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1, getApplicationContext().getTheme()));
                 } else {
@@ -241,6 +243,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 2:
+                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2, getApplicationContext().getTheme()));
                 } else {
@@ -249,6 +252,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 3:
+                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3, getApplicationContext().getTheme()));
                 } else {
@@ -257,6 +261,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 4:
+                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4, getApplicationContext().getTheme()));
                 } else {
@@ -265,6 +270,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 5:
+                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5, getApplicationContext().getTheme()));
                 } else {
@@ -273,9 +279,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             default:
+                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 break;
         }
-
+        //anim.setFillAfter(true);
+        //bomb.startAnimation(anim);
     }
 
     private void setBombInCenter(){
