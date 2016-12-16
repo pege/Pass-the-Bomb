@@ -29,14 +29,15 @@ public class MessageFactory {
     public static final int SC_REGISTER_SUCCESSFUL = 13;
     public static final int SC_GAME_CREATED = 14;
     public static final int SC_PLAYER_JOINED = 15;
-    public static final int SC_JOIN_DENIED = 23;
     public static final int SC_PLAYER_LEFT = 16;
     public static final int SC_UPDATE_SCORE = 17;
     public static final int SC_PLAYER_MAYBEDC = 18;
     public static final int SC_GAME_STARTED = 19; 
     public static final int SC_BOMB_PASSED = 20;
-    public static final int SC_BOMB_TRAVELLING = 22;
     public static final int SC_BOMB_EXPLODED = 21;
+    public static final int SC_BOMB_TRAVELLING = 22;
+    public static final int SC_JOIN_DENIED = 23;
+    public static final int SC_InstantWin = 24;
     
     // ERRORS (and, mysteriously, STATUS)
     public static final int PARSE_ERROR = -1;
@@ -63,6 +64,7 @@ public class MessageFactory {
     
     //Shared constants
     public static final int FINAL_SCORE = 100;
+	
 
 
     public static String createGame(String game_id, String password)
@@ -137,6 +139,19 @@ public class MessageFactory {
             JSONObject header = new JSONObject();
 
             header.put("type", SC_JOIN_DENIED);
+
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static String SC_InstantWin() {
+        try {
+            JSONObject header = new JSONObject();
+
+            header.put("type", SC_InstantWin);
 
             return compose(header);
         } catch (JSONException e) {

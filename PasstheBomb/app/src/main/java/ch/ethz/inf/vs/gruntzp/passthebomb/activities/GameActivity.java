@@ -6,7 +6,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CountDownTimer;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -174,7 +173,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.target_36dp, 0, 0, 0);
     }
 
-    public void updateScore(){
+    public void updateScores(){
         int j = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
             if (thisPlayer != game.getPlayers().get(i)) {
@@ -199,7 +198,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             bomb.clearAnimation();
             bomb.setVisibility(View.INVISIBLE);
         } else {
+            //Adjust looks of the bomb
+            changeBombImage(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
+
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
 
                 public void onTick(long millisUntilFinished) {
@@ -224,6 +226,49 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
             }.start();
 
+        }
+
+    }
+
+    private void changeBombImage(int level) {
+        switch(level) {
+            case 1:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1));
+                }
+                break;
+            case 2:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2));
+                }
+                break;
+            case 3:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3));
+                }
+                break;
+            case 4:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4));
+                }
+                break;
+            case 5:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5));
+                }
+                break;
+            default:
+                break;
         }
 
     }
@@ -276,6 +321,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void enableOnTouchAndDragging(){
         touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
+            private int missedPlayer = 0;
             int prevX,prevY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -352,6 +398,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             //check if touching
                             if (touch[i] && playerfield.getVisibility() == View.VISIBLE) {
+                                missedPlayer--;
                                 // run scale animation and make it smaller
                                 scaleOut(playerfield, i);
                                 touch[i] = false;
@@ -371,7 +418,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 thisPlayer.setHasBomb(false);
                                 setUpBomb();
                                 Log.i("up", "no!");
-                            } else { //Doesn't touch anything, so it decreases the bomb life
+                            }
+
+                            if(missedPlayer == game.getNoPlayers()-1) { //No player hit, decrease bomb and update score
                                 moveBombToCenter();
 
                                 game.bombLock.lock();
@@ -390,13 +439,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                         break;
                                 }
                                 game.bombLock.unlock();
-
                             }
                             break;
                         }
 
                     }
                 }
+
                 return true;
             }
         };
@@ -498,7 +547,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         //show winner/loser
         Boolean isWinner = true;
-        for(int i=0; i<game.getPlayers().size(); i++){
+        for(int i=0; i<game.getNoPlayers(); i++){
             isWinner &= (thisPlayer.getScore() >= game.getPlayers().get(i).getScore());
         }
         if(isWinner){
@@ -627,7 +676,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     e.printStackTrace();
                 }
                 setUpPlayers();
-                updateScore();
+                updateScores();
                 break;
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
@@ -643,7 +692,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
-                updateScore();
+                updateScores();
                 break;
             case MessageFactory.SC_PLAYER_MAYBEDC:
                 newGame = Game.createFromJSON(body);

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import javax.websocket.Session;
-import javax.xml.soap.MessageFactory;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -75,10 +74,12 @@ public final class Game {
 
 	public void removePlayer(Player player) {
 		players.remove(player);
-		if (player == owner && numberOfPlayers()>0)
-			owner = players.get(0);
-		if (player.hasBomb() && numberOfPlayers()>0)
-			setBombOwner(pickRandom());
+		if (numberOfPlayers() > 0) {
+			if (player == owner)
+				owner = players.get(0);
+			if (player.hasBomb())
+				setBombOwner(pickRandom());
+		}	
 	}
 
 	public String getPlayersName() {
@@ -128,7 +129,7 @@ public final class Game {
 
 	private static int createBomb() {
 		//TODO: Gauss
-		return random.nextInt(maxBombLifeTime);
+		return random.nextInt(maxBombLifeTime - minBombLifetime) + minBombLifetime;
 	}
 
 	private Player pickRandom() {
@@ -186,14 +187,14 @@ public final class Game {
 		return false;
 	}
 
+	
 	public void destroy() {
 		for (Player p : players) {
 			p.leaveGame();
-			p.resetScore();
 		}
 	}
 
-	public JSONObject toJSON(int level) {
+	public synchronized JSONObject toJSON(int level) {
 		// JSONObject header = new JSONObject();
 		JSONObject body = new JSONObject();
 

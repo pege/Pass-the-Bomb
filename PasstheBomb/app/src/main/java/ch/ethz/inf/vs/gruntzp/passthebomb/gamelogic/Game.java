@@ -119,6 +119,8 @@ public class Game implements Parcelable{
         this.locked = locked;
     }
 
+    public int bombLevel() { return bomb.getLevel();}
+
     public boolean hasStarted() {return started;}
 
     public int getNoPlayers() {
