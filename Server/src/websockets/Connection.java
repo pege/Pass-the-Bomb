@@ -21,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 
 @ServerEndpoint("/passTheBomb")
 public final class Connection {
