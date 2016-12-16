@@ -147,6 +147,12 @@ public class MessageService extends Service {
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        System.out.println("Service DESTROYED");
+    }
+
     //--- Binder for Service -------------------------------------------------------------------------------------------------
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();

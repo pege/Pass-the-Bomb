@@ -178,23 +178,29 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void setUpBomb(){
-        setBombInCenter();
         setBombVisibility();
+        setBombInCenter();
 
     }
 
     private void setBombVisibility(){
         if(!thisPlayer.isHasBomb()){
+            bomb.clearAnimation();
             bomb.setVisibility(View.INVISIBLE);
         } else {
             bomb.setVisibility(View.VISIBLE);
         }
+
     }
 
     private void setBombInCenter(){
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
         par.gravity = Gravity.CENTER;
+        par.leftMargin = centerPos[0];
+        par.topMargin = centerPos[1];
+
         bomb.setLayoutParams(par);
+
     }
 
     private void moveBombToCenter(){
