@@ -38,6 +38,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private RelativeLayout gameView;
     private ImageView bomb;
     private final int[] centerPos = new int[2];
+    private View.OnTouchListener touchListener;
 
 
     @Override
@@ -74,8 +75,15 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
-        setUpBomb();
         setUpPlayers();
+        enableOnTouchAndDragging();
+
+        //set bomb to centre for the first time
+        FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
+        par.gravity = Gravity.CENTER;
+        bomb.setLayoutParams(par);
+
+        setUpBomb();
     }
 
     /* When a player gets disconnected call this method.
@@ -177,7 +185,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void setUpBomb(){
-        enableOnTouchAndDragging();
         setBombVisibility();
         setBombInCenter();
 
@@ -195,7 +202,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private void setBombInCenter(){
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
-        //par.gravity = Gravity.CENTER;
         par.leftMargin = centerPos[0];
         par.topMargin = centerPos[1];
 
@@ -240,7 +246,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void enableOnTouchAndDragging(){
-        bomb.setOnTouchListener(new View.OnTouchListener() {
+        touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
             int prevX,prevY;
             @Override
@@ -361,7 +367,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 return true;
             }
-        });
+        };
+        bomb.setOnTouchListener(touchListener);
     }
 
     private void scaleIn(View v, int childID){

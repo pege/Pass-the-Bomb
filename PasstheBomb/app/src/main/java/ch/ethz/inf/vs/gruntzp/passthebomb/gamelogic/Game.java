@@ -27,6 +27,7 @@ public class Game implements Parcelable{
     private boolean started;
     private Bomb bomb;
     private Player bombOwner;
+    private int numberOfPlayers;
 
     public final int TAP_VALUE = 2;
     public static final int DEC_OKAY = 1;
@@ -45,6 +46,7 @@ public class Game implements Parcelable{
         this.started = started;
         this.bomb = new Bomb(Bomb.blank_initializer,Bomb.blank_initializer);
         this.bombOwner = null;
+        this.numberOfPlayers = 0;
     }
 
     public Game(Parcel in){
@@ -120,7 +122,15 @@ public class Game implements Parcelable{
     public boolean hasStarted() {return started;}
 
     public int getNoPlayers() {
-        return players.size();
+        if (players.get(0) == null) //Players not initialized
+            return numberOfPlayers;
+        else
+            return players.size();
+
+    }
+
+    public void setNumberOfPlayers(int n) { //Only call in JoinActivity
+        this.numberOfPlayers = n;
     }
 
     public void adoptScore(Game other) {
@@ -250,9 +260,9 @@ public class Game implements Parcelable{
 
     public static Game createFromJSON0(JSONObject gameInfo) {
         try {
-            //Retrieve players from game
             Game game = new Game(gameInfo.getString("name"), null,
                     gameInfo.getBoolean("hasPassword"), false);
+            game.setNumberOfPlayers(gameInfo.getInt("noP"));
             return game;
         } catch (JSONException e) {
             e.printStackTrace();
