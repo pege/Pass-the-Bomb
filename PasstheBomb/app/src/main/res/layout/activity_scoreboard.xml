@@ -100,6 +100,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:onClick="onClickBackToMainMenu"
+        android:textSize="20sp"
         android:text="@string/back_to_main_menu"/>
 
 </RelativeLayout>

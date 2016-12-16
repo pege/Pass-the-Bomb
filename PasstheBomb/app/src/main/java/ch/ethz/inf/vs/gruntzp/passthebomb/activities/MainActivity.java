@@ -3,6 +3,8 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +56,34 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             //noinspection deprecation
             window.setStatusBarColor(getResources().getColor(R.color.black));
         }
+
+        //font
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
+        //get textviews
+        Button create = (Button) findViewById(R.id.create_game);
+        Button join = (Button) findViewById(R.id.join_game);
+        Button tutorial = (Button) findViewById(R.id.tutorial);
+        //set their font
+        mEdit.setTypeface(font);
+        create.setTypeface(font);
+        join.setTypeface(font);
+        tutorial.setTypeface(font);
+        //set colour
+        if(Build.VERSION.SDK_INT >= 23) {
+            create.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            join.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            tutorial.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            create.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            //noinspection deprecation
+            join.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            //noinspection deprecation
+            tutorial.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
+
+
 
         registered = false;
         creating = false;

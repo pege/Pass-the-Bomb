@@ -1,10 +1,14 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
@@ -34,6 +38,18 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
         gameName = (EditText) findViewById(R.id.edit_name);
 
         managePasswordField();
+
+        //button stuff
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
+        Button create = (Button) findViewById(R.id.create_game2);
+        create.setTypeface(font);
+        if(Build.VERSION.SDK_INT >= 23) {
+            create.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            create.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
     }
 
 

@@ -3,6 +3,8 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -35,6 +37,7 @@ import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class JoinActivity extends AppCompatActivity implements MessageListener {
 
+    private Typeface font;
     private TextView noGames;
     private TableLayout gamesTable;
     private TableRow headerRow;
@@ -52,6 +55,18 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
         headerRow = (TableRow) gamesTable.getChildAt(0);
 
         password = "";
+
+        //button stuff
+        font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
+        Button refresh = (Button) findViewById(R.id.refresh);
+        refresh.setTypeface(font);
+        if(Build.VERSION.SDK_INT >= 23) {
+            refresh.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            refresh.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
 
         //create the table for the first time
         onClickRefresh(findViewById(R.id.refresh));
@@ -188,6 +203,14 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
         Button joinButton = new Button(this);
         joinButton.setPadding(0, (int) Math.ceil(16 * metrics.density),0, (int) Math.ceil(16 * metrics.density));
         joinButton.setText(getResources().getString(R.string.join));
+        joinButton.setTypeface(font);
+        if(Build.VERSION.SDK_INT >= 23) {
+            joinButton.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            joinButton.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
 
         // defines what happens when the button is clicked
         final Game thisGame = game;
@@ -221,6 +244,14 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
 
                     // Get a reference for the popup window view join button
                     Button joinButton = (Button) passwordPopUp.findViewById(R.id.join_game_button);
+                    joinButton.setTypeface(font);
+                    if(Build.VERSION.SDK_INT >= 23) {
+                        joinButton.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+                    } else {
+                        //noinspection deprecation
+                        joinButton.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+                    }
 
                     // Get a reference for the popup window view input password field
                     final EditText inputPassword = (EditText) passwordPopUp.findViewById(R.id.input_password);

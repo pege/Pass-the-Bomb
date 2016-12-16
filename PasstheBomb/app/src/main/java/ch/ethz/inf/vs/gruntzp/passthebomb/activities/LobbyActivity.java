@@ -3,6 +3,8 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -80,7 +82,17 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
     }
 
     private void setStartButton(){
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
         Button startButton = (Button) findViewById(R.id.start_game);
+        startButton.setTypeface(font);
+        if(Build.VERSION.SDK_INT >= 23) {
+            startButton.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            startButton.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
+
         if (isCreator){
             startButton.setVisibility(View.VISIBLE);
         } else
