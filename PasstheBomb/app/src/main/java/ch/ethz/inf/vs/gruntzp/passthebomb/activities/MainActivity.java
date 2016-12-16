@@ -62,9 +62,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);
-        bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
+        /*bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
         bgm.setLooping(true);
-        bgm.start();
+        bgm.start();*/
     }
 
     public void onClickCreate(View view) {

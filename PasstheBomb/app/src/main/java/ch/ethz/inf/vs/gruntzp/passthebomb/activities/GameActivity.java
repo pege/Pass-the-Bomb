@@ -3,6 +3,7 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private ImageView bomb;
     private final int[] centerPos = new int[2];
     private View.OnTouchListener touchListener;
+    private CountDownTimer timer;
 
 
     @Override
@@ -196,6 +198,30 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             bomb.setVisibility(View.INVISIBLE);
         } else {
             bomb.setVisibility(View.VISIBLE);
+            timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    game.bombLock.lock();
+                    int ret = game.decreaseBomb();
+                    switch (ret) {
+                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            break;
+                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            controller.sendMessage(MessageFactory.exploded());
+                            break;
+                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                            this.cancel();
+                            break;
+                    }
+                    game.bombLock.unlock();
+                }
+
+                public void onFinish() {//Bomb explodes
+                }
+            }.start();
+
         }
 
     }
@@ -331,6 +357,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 game.bombLock.lock();
                                 if(game.getBombValue() > 0) {//The timer might have run out in the meantime
 
+                                    //Kill timer. It has to exist here, because time is greater than zero and we have the bomb
+                                    timer.cancel();
                                     //find out index of the player who you're sending the bomb to
                                     //because index i does not count thisPlayer
                                     if(game.getPlayers().indexOf(thisPlayer)  <= i )
@@ -344,7 +372,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             } else { //Doesn't touch anything, so it decreases the bomb life
                                 moveBombToCenter();
 
-
+                                game.bombLock.lock();
                                 int ret = game.decreaseBomb();
                                 switch (ret) {
                                     case Game.DEC_OKAY: //Bomb was decreased and game can go on
@@ -353,11 +381,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                         break;
                                     case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
                                         thisPlayer.changeScore(game.TAP_VALUE);
+                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
                                         controller.sendMessage(MessageFactory.exploded());
                                         break;
                                     case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                                         break;
                                 }
+                                game.bombLock.unlock();
 
                             }
                             break;
