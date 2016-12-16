@@ -48,8 +48,9 @@ public final class Player {
 		score = score +amount;
 	}
 	
-	public void resetScore(){
+	public void reset(){
 		score = 0;
+		inGame = null;
 	}
 	
 	public void setMaybeConnection(boolean status){
@@ -73,7 +74,7 @@ public final class Player {
 	}
 	
 	public void leaveGame(){
-		inGame = null;
+		reset();
 	}
 	
 	public Game getJoinedGame(){
