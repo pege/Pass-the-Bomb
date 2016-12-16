@@ -802,6 +802,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
+                thisPlayer.setHasBomb(false);
                 setUpBomb();
                 for(Player p : game.getPlayers()) {
                     if(p.getScore() >= MessageFactory.FINAL_SCORE)
@@ -822,6 +823,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 setUpPlayers();
                 setUpBomb();
+                break;
+            case MessageFactory.SC_InstantWin:
+                endGame();
                 break;
             default:
                 break;
