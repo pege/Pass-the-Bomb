@@ -2,16 +2,12 @@ package websockets;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
 
 import javax.websocket.OnClose;
 import javax.websocket.OnMessage;
@@ -385,7 +381,7 @@ public final class Connection {
 						if (game.numberOfPlayers() == 0) {
 							games.remove(game);
 							System.out.println("Game deleted: " + game.getGamename());
-						} else {
+						} else {//TODO if one player and already started?
 							System.out.println(player.getName() + "left the game " + game.getGamename());
 							game.broadcast(MessageFactory.SC_PlayerLeft(game.toJSON(1)));
 						}
@@ -431,9 +427,7 @@ public final class Connection {
 			synchronized (player) {
 				registerLock.unlock();
 				if (!notInGame(session, player) && !NeedStarted(session, player.getJoinedGame(), true)
-				// && !NeedBomb(session, player)) {
-
-				) {
+						&& !NeedBomb(session, player)) {
 					boolean transfered = false;
 					Game game = player.getJoinedGame();
 					synchronized (game) {
@@ -490,7 +484,6 @@ public final class Connection {
 		// Inform other players
 		registerLock.lock();
 		Player player = map.get(session);
-		// TODO stor value bomb
 		if (!NeedRegister(session, player)) {
 			synchronized (player) {
 				registerLock.unlock();
@@ -498,8 +491,11 @@ public final class Connection {
 						&& !NeedBomb(session, player)) {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
-					// TODO synchronize game
-					player.getJoinedGame().broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
+					Game game = player.getJoinedGame();
+					synchronized(game){
+						game.setBomb((int)body.getInt("bomb"));
+						game.broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
+					}
 				}
 			}
 		} else {
