@@ -236,6 +236,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1, getApplicationContext().getTheme()));
                 } else {
+                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1));
                 }
                 break;
@@ -243,6 +244,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2, getApplicationContext().getTheme()));
                 } else {
+                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2));
                 }
                 break;
@@ -250,6 +252,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3, getApplicationContext().getTheme()));
                 } else {
+                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3));
                 }
                 break;
@@ -257,6 +260,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4, getApplicationContext().getTheme()));
                 } else {
+                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4));
                 }
                 break;
@@ -264,6 +268,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5, getApplicationContext().getTheme()));
                 } else {
+                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5));
                 }
                 break;
