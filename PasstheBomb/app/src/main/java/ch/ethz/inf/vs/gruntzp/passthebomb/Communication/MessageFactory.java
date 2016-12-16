@@ -53,7 +53,7 @@ public class MessageFactory {
     public static final int DOESNT_OWN_BOMB_ERROR = -11;
     public static final int NOT_STARTED_ERROR = -12;
     public static final int SC_RECONNECT_DENIED_ERROR = -13;
-
+    public static final int CONNECTION_FAILED = -14;
     
     // GAMEUPDATEREASONS
     public static final int UR_UNDEFINED = -1;
@@ -153,6 +153,17 @@ public class MessageFactory {
 
             header.put("type", SC_InstantWin);
 
+            return compose(header);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String Connection_Failed() {
+        try {
+            JSONObject header = new JSONObject();
+            header.put("type", CONNECTION_FAILED);
             return compose(header);
         } catch (JSONException e) {
             e.printStackTrace();
