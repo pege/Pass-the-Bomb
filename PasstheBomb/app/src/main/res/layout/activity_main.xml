@@ -27,24 +27,30 @@
             android:id="@+id/tutorial"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
             android:layout_alignParentBottom="true"
             android:onClick="onClickTutorial"
+            android:textSize="20sp"
             android:text="@string/tutorial" />
 
         <Button
             android:id="@+id/join_game"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
             android:layout_above="@id/tutorial"
             android:onClick="onClickJoin"
+            android:textSize="20sp"
             android:text="@string/join" />
 
         <Button
             android:id="@+id/create_game"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
             android:layout_above="@id/join_game"
             android:onClick="onClickCreate"
+            android:textSize="20sp"
             android:text="@string/create" />
 
         <!-- Note that although singleLine is deprecated,
@@ -59,6 +65,7 @@
             android:layout_above="@id/create_game"
             android:hint="@string/request_username"
             android:imeOptions="actionDone"
+            android:textSize="20sp"
             android:singleLine="true" />
 
     </RelativeLayout>

@@ -2,10 +2,13 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -34,6 +37,18 @@ public class ScoreboardActivity extends AppCompatActivity /*implements MessageLi
         hideNavigationBar();
 
         displayScores();
+
+        //button stuff
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
+        Button back = (Button) findViewById(R.id.back_to_main_menu);
+        back.setTypeface(font);
+        if(Build.VERSION.SDK_INT >= 23) {
+            back.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            back.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
     }
 
     public void displayScores(){

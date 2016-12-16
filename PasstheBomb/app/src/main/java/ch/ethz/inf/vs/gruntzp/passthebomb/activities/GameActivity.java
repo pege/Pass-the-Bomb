@@ -1,9 +1,14 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +30,7 @@ import org.json.JSONObject;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -40,6 +46,26 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private final int[] centerPos = new int[2];
     private View.OnTouchListener touchListener;
     private CountDownTimer timer;
+    private AudioService audioService;
+    //boolean to check whether bound to audioservice or not
+    boolean mBound;
+
+    //define callbacks which are called in the AudioService,
+    //once binding is sucessful, but isn't called somehow.
+    //Todo: fix it.
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            AudioService.LocalBinder binder = (AudioService.LocalBinder) service;
+            audioService = binder.getService();
+            mBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
 
     @Override
@@ -59,7 +85,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
         //for testing only
-        /*
+/*
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
         game.addPlayer(creator);
@@ -71,8 +97,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer.setHasBomb(true);
         thisPlayer.setScore(2000);
         //endGame();
-
 */
+
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
@@ -85,6 +111,31 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         bomb.setLayoutParams(par);
 
         setUpBomb();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        //audioService.stopAudio();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //audioService.resumeAudio();
+    }
+
+    //playsSound and changeBGM do not work yet, since serviceBinding is not successful.
+
+    //plays appropriate soundfile. There are sounds for: Receiving and Sending Bombs & bomb exploding
+    // use R.raw.filename for arguments
+    private void playSound(int soundfile){
+        audioService.playSound(soundfile);
+    }
+
+    //changes background music according to bombstages. use R.raw.filename for arguments
+    private void changeBGM(int musicfile){
+        audioService.startAudio(musicfile);
     }
 
     /* When a player gets disconnected call this method.
@@ -176,7 +227,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         for(int i=0; i<game.getPlayers().size(); i++){
             if (thisPlayer != game.getPlayers().get(i)) {
                 Button player_field = (Button) gameView.getChildAt(j);
-               //we include score in the name-string
+                //we include score in the name-string
                 player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
                 j++;
             }
@@ -198,6 +249,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         } else {
             //Adjust looks of the bomb
             changeBombImage(game.bombLevel());
+            setBombAnimation(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
@@ -268,7 +320,32 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             default:
                 break;
         }
+    }
 
+    private void setBombAnimation(int level){
+        Animation anim;
+        switch(level) {
+            case 1:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 2:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 3:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 4:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 5:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            default:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+        }
+        anim.setFillAfter(true);
+        bomb.startAnimation(anim);
     }
 
     private void setBombInCenter(){
@@ -308,6 +385,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         par.leftMargin = centerPos[0];
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
+
+                        setBombAnimation(game.bombLevel());
                     }
                 }
         );
@@ -319,10 +398,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void enableOnTouchAndDragging(){
         touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
-            private int missedPlayer = 0;
+            private int missedPlayer;
+            int eq;
             int prevX,prevY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                missedPlayer = 0;
 
                 final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
 
@@ -351,6 +432,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             v.setLayoutParams(par);
                             scaleIn(bomb, 5);
+                            setBombAnimation(game.bombLevel());
 
                             //check intersection
                             if(checkInterSection(playerfield, i,  event.getRawX(), event.getRawY())
@@ -396,7 +478,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             //check if touching
                             if (touch[i] && playerfield.getVisibility() == View.VISIBLE) {
-                                missedPlayer--;
                                 // run scale animation and make it smaller
                                 scaleOut(playerfield, i);
                                 touch[i] = false;
@@ -416,32 +497,34 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 thisPlayer.setHasBomb(false);
                                 setUpBomb();
                                 Log.i("up", "no!");
-                            }
-
-                            if(missedPlayer == game.getNoPlayers()-1) { //No player hit, decrease bomb and update score
+                            } else {
+                                missedPlayer++;
                                 moveBombToCenter();
-
-                                game.bombLock.lock();
-                                int ret = game.decreaseBomb();
-                                switch (ret) {
-                                    case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                                        thisPlayer.changeScore(game.TAP_VALUE);
-                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                        break;
-                                    case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                                        thisPlayer.changeScore(game.TAP_VALUE);
-                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                        controller.sendMessage(MessageFactory.exploded());
-                                        break;
-                                    case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                                        break;
-                                }
-                                game.bombLock.unlock();
                             }
                             break;
                         }
 
                     }
+                }
+                eq = game.getNoPlayers()-1;
+                if(missedPlayer == eq) { //No player hit, decrease bomb and update score
+
+                    game.bombLock.lock();
+                    int ret = game.decreaseBomb();
+                    switch (ret) {
+                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            break;
+                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            controller.sendMessage(MessageFactory.exploded());
+                            break;
+                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                            break;
+                    }
+                    game.bombLock.unlock();
                 }
 
                 return true;
@@ -557,6 +640,15 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
         //show button to continue
         Button toScoreboard = (Button) findViewById(R.id.to_scoreboard);
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
+        toScoreboard.setTypeface(font);
+        if(Build.VERSION.SDK_INT >= 23) {
+            toScoreboard.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            toScoreboard.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
         toScoreboard.setVisibility(View.VISIBLE);
     }
 
@@ -617,10 +709,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     /** TODO? if user somehow manages to bring back the navigation bar,
-    ** should it not do anything, or
-    ** should it bring them back to the main menu or something
-    ** and kick him out of the game?
-    **/
+     ** should it not do anything, or
+     ** should it bring them back to the main menu or something
+     ** and kick him out of the game?
+     **/
     @Override
     public void onBackPressed(){
         //super.onBackPressed();
