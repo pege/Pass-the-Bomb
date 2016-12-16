@@ -185,8 +185,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     //Issue: If names are too long, then they overlap with the borders of the buttons
     //probably because the button is actually a rectangle, but the visual button is a trapezoid
     private void setUpPlayers(){
+        for (int j = 0; j < 4; j++)
+        {
+            Button player_field = (Button) gameView.getChildAt(j);
+            player_field.setVisibility(View.INVISIBLE);
+        }
+
         int j = 0; //index for player field
-        for(int i=0; i<game.getPlayers().size(); i++){
+        for(int i = 0; i < game.getNoPlayers(); i++){
             Player curr = game.getPlayers().get(i);
             if (!thisPlayer.equals(curr)) {
                 Button player_field = (Button) gameView.getChildAt(j);
