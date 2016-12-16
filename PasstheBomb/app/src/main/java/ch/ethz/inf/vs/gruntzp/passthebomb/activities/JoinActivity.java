@@ -146,7 +146,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     private void addNumberOfPlayers(TableRow tableRow, Game game, int padding, DisplayMetrics metrics){
         // add number of players
         TextView numberOfPlayers = new TextView(this);
-        numberOfPlayers.setText(game.getPlayers().size() + " / 5");
+        numberOfPlayers.setText(game.getNoPlayers() + " / 5");
         numberOfPlayers.setPadding(padding, padding, padding, padding);
         numberOfPlayers.setBackground(getDrawable(R.drawable.cell_shape_input));
         numberOfPlayers.setWidth((int) Math.ceil(80 * metrics.density));
