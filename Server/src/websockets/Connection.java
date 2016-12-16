@@ -39,7 +39,7 @@ public final class Connection {
 	static {
 		new Thread() {
 			public void run() {
-				checkConnection();
+				//checkConnection();
 			};
 		}.start();
 		System.out.println("Thread started");
@@ -152,7 +152,7 @@ public final class Connection {
 							player.setMaybeConnection(true);
 							Game game = player.getJoinedGame();
 							if (game != null) {
-								synchronized (game) { 
+								synchronized (game) {
 									game.broadcast_detailed_state(MessageFactory.SC_PLAYER_MAYBEDC);
 								}
 							}
@@ -189,16 +189,16 @@ public final class Connection {
 		buffer = pongMessage.getApplicationData();
 		registerLock.lock();
 		Player player = map.get(session);
-		if (player != null) { 
+		if (player != null) {
 			synchronized (player) {
 				registerLock.unlock();
 				player.setLastPong(buffer.asLongBuffer().get());
 			}
 		} else {
-			//TODO: wieder rausnehmen
+			// TODO: wieder rausnehmen
 			System.out.println("Darf nicht passieren");
 			System.exit(-1);
-			//registerLock.unlock();
+			// registerLock.unlock();
 		}
 	}
 
@@ -240,10 +240,9 @@ public final class Connection {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
-							
-							
+
 							MessageFactory.SC_GameUpdate(player.getJoinedGame().toJSON(1));
-							
+
 							System.out.println("=== " + username + " has reconnected ===");
 							reconnect = true;
 						}
@@ -255,7 +254,7 @@ public final class Connection {
 				p.setLastPong(System.currentTimeMillis());
 				map.put(session, p);
 				registeredSessions.add(session); // start pinging
-				
+
 				sendMess(session, MessageFactory.sc_registerSuccessful());
 				System.out.println(username + " has been registered");
 			}
@@ -376,12 +375,12 @@ public final class Connection {
 					synchronized (game) {
 						player.leaveGame();
 						game.removePlayer(player);
-						
+
 						if (game.hasStarted() && game.numberOfPlayers() == 1) {
-							sendMess(session, MessageFactory.SC_InstantWin());
+							sendMess(game.getPlayers().get(0).getSession(), MessageFactory.SC_InstantWin());
 							games.remove(game);
 						} else {
-							//TODO if one player and already started?
+							// TODO if one player and already started?
 							System.out.println(player.getName() + "left the game " + game.getGamename());
 							game.broadcast(MessageFactory.SC_PlayerLeft(game.toJSON(1)));
 						}
@@ -469,18 +468,19 @@ public final class Connection {
 				registerLock.unlock();
 				Game game = player.getJoinedGame();
 				synchronized (game) {
-				if (!notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true) && !NeedBomb(s, player)) {
-					game.bomb_exploded(player);
-					game.broadcast_detailed_state(MessageFactory.SC_BOMB_EXPLODED);
-					if (game.isFinished()) {
-						game.destroy();
-						games.remove(game);
-						System.out.println("Game Over");
-					} else {
-						game.startGame();
-						game.broadcast_detailed_state(MessageFactory.SC_GAME_STARTED);
+					if (!notInGame(s, player) && !NeedStarted(s, player.getJoinedGame(), true)
+							&& !NeedBomb(s, player)) {
+						game.bomb_exploded(player);
+						game.broadcast_detailed_state(MessageFactory.SC_BOMB_EXPLODED);
+						if (game.isFinished()) {
+							game.destroy();
+							games.remove(game);
+							System.out.println("Game Over");
+						} else {
+							game.startGame();
+							game.broadcast_detailed_state(MessageFactory.SC_GAME_STARTED);
+						}
 					}
-				}
 				}
 			}
 		} else {
@@ -500,8 +500,8 @@ public final class Connection {
 					int new_score = (int) body.get("score");
 					player.setScore(new_score);
 					Game game = player.getJoinedGame();
-					synchronized(game){
-						game.setBomb((int)body.getInt("bomb"));
+					synchronized (game) {
+						game.setBomb((int) body.getInt("bomb"));
 						game.broadcast_detailed_state(MessageFactory.SC_UPDATE_SCORE);
 					}
 				}

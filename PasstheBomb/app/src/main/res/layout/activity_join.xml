@@ -71,6 +71,7 @@
         android:layout_alignParentBottom="true"
         android:onClick="onClickRefresh"
         android:drawableStart="@drawable/ic_refresh_black_48dp"
+        android:textSize="20sp"
         android:text="@string/refresh"
         android:paddingLeft="100dp"
         android:paddingRight="100dp"/>

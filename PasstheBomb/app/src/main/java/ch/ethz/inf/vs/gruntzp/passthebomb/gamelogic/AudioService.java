@@ -16,15 +16,37 @@ public class AudioService extends Service {
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     private MediaPlayer bgm;
+
+
     /**
           * Class used for the client Binder.  Because we know this service always
           * runs in the same process as its clients, we don't need to deal with IPC.
           */
     public class LocalBinder extends Binder {
-        AudioService getService() {
+        public AudioService getService() {
             // Return this instance of LocalService so clients can call public methods
             return AudioService.this;
         }
+    }
+
+    @Override
+    public void onCreate() {
+        bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
+        bgm.setLooping(true);
+        bgm.start();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (bgm != null) {
+            bgm.stop();
+            bgm.release();
+        }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId){
+        return START_STICKY;
     }
 
     @Override
@@ -34,6 +56,10 @@ public class AudioService extends Service {
 
     /** method for clients */
     public void startAudio(int audiofile){
+        if (bgm != null) {
+            bgm.stop();
+            bgm.release();
+        }
         bgm = MediaPlayer.create(this, audiofile);
         bgm.setLooping(true);
         bgm.start();
@@ -42,7 +68,17 @@ public class AudioService extends Service {
     public void stopAudio(){
         if (bgm != null) {
             bgm.stop();
-            bgm.release();
         }
+    }
+
+    public void resumeAudio(){
+        if (bgm != null)
+            bgm.start();
+    }
+
+    public void playSound(int soundfile){
+        MediaPlayer sound = MediaPlayer.create(this, soundfile);
+        sound.start();
+        sound.release();
     }
 }

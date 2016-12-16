@@ -1,16 +1,22 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +27,7 @@ import java.util.UUID;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -32,7 +39,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private boolean registered;
     private boolean creating;
     private boolean joining;
-    private MediaPlayer bgm;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +63,34 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             window.setStatusBarColor(getResources().getColor(R.color.black));
         }
 
+        //font
+        Typeface font = Typeface.createFromAsset(getAssets(), "fonts/sensei_medium.otf");
+        //get textviews
+        Button create = (Button) findViewById(R.id.create_game);
+        Button join = (Button) findViewById(R.id.join_game);
+        Button tutorial = (Button) findViewById(R.id.tutorial);
+        //set their font
+        mEdit.setTypeface(font);
+        create.setTypeface(font);
+        join.setTypeface(font);
+        tutorial.setTypeface(font);
+        //set colour
+        if(Build.VERSION.SDK_INT >= 23) {
+            create.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            join.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            tutorial.getBackground().setColorFilter(getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+
+        } else {
+            //noinspection deprecation
+            create.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            //noinspection deprecation
+            join.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+            //noinspection deprecation
+            tutorial.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
+        }
+
+
+
         registered = false;
         creating = false;
         joining = false;
@@ -62,9 +99,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);
-        /*bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
-        bgm.setLooping(true);
-        bgm.start();*/
+        Intent intent = new Intent(this, AudioService.class);
+        startService(intent);
     }
 
     public void onClickCreate(View view) {
