@@ -1,12 +1,15 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -24,6 +27,7 @@ import java.util.UUID;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -35,7 +39,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private boolean registered;
     private boolean creating;
     private boolean joining;
-    private MediaPlayer bgm;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,9 +99,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);
-        /*bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
-        bgm.setLooping(true);
-        bgm.start();*/
+        Intent intent = new Intent(this, AudioService.class);
+        startService(intent);
     }
 
     public void onClickCreate(View view) {
