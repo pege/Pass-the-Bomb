@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -252,6 +253,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         if(!thisPlayer.isHasBomb()){
             bomb.clearAnimation();
             bomb.setVisibility(View.INVISIBLE);
+            bomb.clearAnimation();
+            bomb.invalidate();
+            bomb.setVisibility(View.INVISIBLE);
         } else {
             //Adjust looks of the bomb
             changeBombImage(game.bombLevel());
@@ -265,9 +269,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     int ret = game.decreaseBomb();
                     switch (ret) {
                         case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            if (game.IDLE_VALUE > 0) {
+                                thisPlayer.changeScore(game.IDLE_VALUE);
+                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            }
                             break;
                         case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            thisPlayer.changeScore(game.TAP_VALUE);
                             controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
                             controller.sendMessage(MessageFactory.exploded());
                             break;
