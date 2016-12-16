@@ -812,7 +812,17 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_GAME_STARTED:
                 toast = Toast.makeText(this, "The bomb exploded, new round started.", Toast.LENGTH_SHORT);
                 toast.show();
-
+                newGame = Game.createFromJSON(body);
+                try {
+                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"), body.getJSONObject("game").getString("bombOwner"));
+                    thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+                setUpPlayers();
+                setUpBomb();
+                break;
             default:
                 break;
         }
