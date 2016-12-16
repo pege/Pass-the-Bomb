@@ -249,6 +249,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         } else {
             //Adjust looks of the bomb
             changeBombImage(game.bombLevel());
+            setBombAnimation(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
@@ -280,10 +281,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     private void changeBombImage(int level) {
-        //Animation anim;
         switch(level) {
             case 1:
-                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1, getApplicationContext().getTheme()));
                 } else {
@@ -291,7 +290,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 2:
-                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2, getApplicationContext().getTheme()));
                 } else {
@@ -299,7 +297,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 3:
-                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3, getApplicationContext().getTheme()));
                 } else {
@@ -307,7 +304,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 4:
-                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4, getApplicationContext().getTheme()));
                 } else {
@@ -315,7 +311,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             case 5:
-                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5, getApplicationContext().getTheme()));
                 } else {
@@ -323,11 +318,34 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 break;
             default:
-                //anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 break;
         }
-        //anim.setFillAfter(true);
-        //bomb.startAnimation(anim);
+    }
+
+    private void setBombAnimation(int level){
+        Animation anim;
+        switch(level) {
+            case 1:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 2:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 3:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 4:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 5:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            default:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+        }
+        anim.setFillAfter(true);
+        bomb.startAnimation(anim);
     }
 
     private void setBombInCenter(){
@@ -367,6 +385,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         par.leftMargin = centerPos[0];
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
+
+                        setBombAnimation(game.bombLevel());
                     }
                 }
         );
@@ -412,6 +432,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             v.setLayoutParams(par);
                             scaleIn(bomb, 5);
+                            setBombAnimation(game.bombLevel());
 
                             //check intersection
                             if(checkInterSection(playerfield, i,  event.getRawX(), event.getRawY())
@@ -480,7 +501,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 missedPlayer++;
                                 moveBombToCenter();
                             }
-
                             break;
                         }
 
