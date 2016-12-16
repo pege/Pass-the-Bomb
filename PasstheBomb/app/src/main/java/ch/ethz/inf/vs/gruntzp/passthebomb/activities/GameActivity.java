@@ -319,7 +319,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void enableOnTouchAndDragging(){
         touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
-            private boolean hitPlayer = false;
+            private int missedPlayer = 0;
             int prevX,prevY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -396,7 +396,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             //check if touching
                             if (touch[i] && playerfield.getVisibility() == View.VISIBLE) {
-                                hitPlayer = true;
+                                missedPlayer--;
                                 // run scale animation and make it smaller
                                 scaleOut(playerfield, i);
                                 touch[i] = false;
@@ -417,31 +417,33 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 setUpBomb();
                                 Log.i("up", "no!");
                             }
+
+                            if(missedPlayer == game.getNoPlayers()-1) { //No player hit, decrease bomb and update score
+                                moveBombToCenter();
+
+                                game.bombLock.lock();
+                                int ret = game.decreaseBomb();
+                                switch (ret) {
+                                    case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                                        thisPlayer.changeScore(game.TAP_VALUE);
+                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                                        break;
+                                    case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                                        thisPlayer.changeScore(game.TAP_VALUE);
+                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                                        controller.sendMessage(MessageFactory.exploded());
+                                        break;
+                                    case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                                        break;
+                                }
+                                game.bombLock.unlock();
+                            }
                             break;
                         }
 
                     }
                 }
-                if(!hitPlayer) { //No player hit, decrease bomb and update score
-                    moveBombToCenter();
 
-                    game.bombLock.lock();
-                    int ret = game.decreaseBomb();
-                    switch (ret) {
-                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                            thisPlayer.changeScore(game.TAP_VALUE);
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            break;
-                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            thisPlayer.changeScore(game.TAP_VALUE);
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
-                            break;
-                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                            break;
-                    }
-                    game.bombLock.unlock();
-                }
                 return true;
             }
         };
