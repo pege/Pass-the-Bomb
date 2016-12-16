@@ -60,6 +60,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         /*
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
+        game.addPlayer(creator);
         game.addPlayer(new Player("herp", "1"));
         game.addPlayer(new Player("derp", "2"));
         game.addPlayer(new Player("somebody", "3"));
@@ -68,8 +69,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer.setHasBomb(true);
         thisPlayer.setScore(2000);
         //endGame();
-        */
 
+*/
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
