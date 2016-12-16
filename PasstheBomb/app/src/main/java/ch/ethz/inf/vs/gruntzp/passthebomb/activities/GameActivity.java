@@ -1,11 +1,14 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +30,7 @@ import org.json.JSONObject;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -42,6 +46,26 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private final int[] centerPos = new int[2];
     private View.OnTouchListener touchListener;
     private CountDownTimer timer;
+    private AudioService audioService;
+    //boolean to check whether bound to audioservice or not
+    boolean mBound;
+
+    //define callbacks which are called in the AudioService,
+    //once binding is sucessful, but isn't called somehow.
+    //Todo: fix it.
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            AudioService.LocalBinder binder = (AudioService.LocalBinder) service;
+            audioService = binder.getService();
+            mBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
 
 
     @Override
@@ -87,6 +111,31 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         bomb.setLayoutParams(par);
 
         setUpBomb();
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        //audioService.stopAudio();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //audioService.resumeAudio();
+    }
+
+    //playsSound and changeBGM do not work yet, since serviceBinding is not successful.
+
+    //plays appropriate soundfile. There are sounds for: Receiving and Sending Bombs & bomb exploding
+    // use R.raw.filename for arguments
+    private void playSound(int soundfile){
+        audioService.playSound(soundfile);
+    }
+
+    //changes background music according to bombstages. use R.raw.filename for arguments
+    private void changeBGM(int musicfile){
+        audioService.startAudio(musicfile);
     }
 
     /* When a player gets disconnected call this method.
@@ -178,7 +227,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         for(int i=0; i<game.getPlayers().size(); i++){
             if (thisPlayer != game.getPlayers().get(i)) {
                 Button player_field = (Button) gameView.getChildAt(j);
-               //we include score in the name-string
+                //we include score in the name-string
                 player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
                 j++;
             }
@@ -236,7 +285,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1, getApplicationContext().getTheme()));
                 } else {
-                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1));
                 }
                 break;
@@ -244,7 +292,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2, getApplicationContext().getTheme()));
                 } else {
-                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2));
                 }
                 break;
@@ -252,7 +299,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3, getApplicationContext().getTheme()));
                 } else {
-                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3));
                 }
                 break;
@@ -260,7 +306,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4, getApplicationContext().getTheme()));
                 } else {
-                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4));
                 }
                 break;
@@ -268,7 +313,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5, getApplicationContext().getTheme()));
                 } else {
-                    //noinspection deprecation
                     bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5));
                 }
                 break;
@@ -633,10 +677,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     /** TODO? if user somehow manages to bring back the navigation bar,
-    ** should it not do anything, or
-    ** should it bring them back to the main menu or something
-    ** and kick him out of the game?
-    **/
+     ** should it not do anything, or
+     ** should it bring them back to the main menu or something
+     ** and kick him out of the game?
+     **/
     @Override
     public void onBackPressed(){
         //super.onBackPressed();
