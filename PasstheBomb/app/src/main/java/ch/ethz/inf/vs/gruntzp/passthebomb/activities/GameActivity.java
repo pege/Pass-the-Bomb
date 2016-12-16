@@ -74,9 +74,15 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
-        enableOnTouchAndDragging();
-        setUpBomb();
         setUpPlayers();
+        enableOnTouchAndDragging();
+
+        //set bomb to centre for the first time
+        FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
+        par.gravity = Gravity.CENTER;
+        bomb.setLayoutParams(par);
+
+        setUpBomb();
     }
 
     /* When a player gets disconnected call this method.
@@ -195,7 +201,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private void setBombInCenter(){
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
-        par.gravity = Gravity.CENTER;
         par.leftMargin = centerPos[0];
         par.topMargin = centerPos[1];
 
