@@ -93,6 +93,8 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
             gamesTable.removeAllViews();
             gamesTable.addView(headerRow, 0);
 
+            noGames.setVisibility(View.INVISIBLE);
+
             // add games into table
             DisplayMetrics metrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(metrics);
@@ -146,7 +148,9 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     private void addNumberOfPlayers(TableRow tableRow, Game game, int padding, DisplayMetrics metrics){
         // add number of players
         TextView numberOfPlayers = new TextView(this);
-        numberOfPlayers.setText(game.getNoPlayers() + " / 5");
+        int test = game.getNoPlayers();
+        String numberString = test + " / 5";
+        numberOfPlayers.setText(numberString);
         numberOfPlayers.setPadding(padding, padding, padding, padding);
         numberOfPlayers.setBackground(getDrawable(R.drawable.cell_shape_input));
         numberOfPlayers.setWidth((int) Math.ceil(80 * metrics.density));

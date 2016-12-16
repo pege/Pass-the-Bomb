@@ -197,7 +197,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             bomb.clearAnimation();
             bomb.setVisibility(View.INVISIBLE);
         } else {
+            //Adjust looks of the bomb
+            changeBombImage(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
+
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
 
                 public void onTick(long millisUntilFinished) {
@@ -222,6 +225,49 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
             }.start();
 
+        }
+
+    }
+
+    private void changeBombImage(int level) {
+        switch(level) {
+            case 1:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage1));
+                }
+                break;
+            case 2:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage2));
+                }
+                break;
+            case 3:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage3));
+                }
+                break;
+            case 4:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage4));
+                }
+                break;
+            case 5:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5, getApplicationContext().getTheme()));
+                } else {
+                    bomb.setImageDrawable(getResources().getDrawable(R.drawable.bomb_stage5));
+                }
+                break;
+            default:
+                break;
         }
 
     }
