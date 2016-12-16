@@ -351,4 +351,10 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
         super.onStop();
         controller.unbind(this);
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        onClickRefresh(findViewById(R.id.refresh));
+    }
 }

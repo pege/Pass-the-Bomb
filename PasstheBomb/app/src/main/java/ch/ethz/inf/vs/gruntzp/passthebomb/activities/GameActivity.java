@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.CountDownTimer;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -172,7 +171,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.target_36dp, 0, 0, 0);
     }
 
-    public void updateScore(){
+    public void updateScores(){
         int j = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
             if (thisPlayer != game.getPlayers().get(i)) {
@@ -320,6 +319,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void enableOnTouchAndDragging(){
         touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
+            private boolean hitPlayer = false;
             int prevX,prevY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -396,6 +396,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             //check if touching
                             if (touch[i] && playerfield.getVisibility() == View.VISIBLE) {
+                                hitPlayer = true;
                                 // run scale animation and make it smaller
                                 scaleOut(playerfield, i);
                                 touch[i] = false;
@@ -415,31 +416,31 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 thisPlayer.setHasBomb(false);
                                 setUpBomb();
                                 Log.i("up", "no!");
-                            } else { //Doesn't touch anything, so it decreases the bomb life
-                                moveBombToCenter();
-
-                                game.bombLock.lock();
-                                int ret = game.decreaseBomb();
-                                switch (ret) {
-                                    case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                                        thisPlayer.changeScore(game.TAP_VALUE);
-                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                        break;
-                                    case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                                        thisPlayer.changeScore(game.TAP_VALUE);
-                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                        controller.sendMessage(MessageFactory.exploded());
-                                        break;
-                                    case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                                        break;
-                                }
-                                game.bombLock.unlock();
-
                             }
                             break;
                         }
 
                     }
+                }
+                if(!hitPlayer) { //No player hit, decrease bomb and update score
+                    moveBombToCenter();
+
+                    game.bombLock.lock();
+                    int ret = game.decreaseBomb();
+                    switch (ret) {
+                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            break;
+                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            controller.sendMessage(MessageFactory.exploded());
+                            break;
+                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                            break;
+                    }
+                    game.bombLock.unlock();
                 }
                 return true;
             }
@@ -542,7 +543,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         //show winner/loser
         Boolean isWinner = true;
-        for(int i=0; i<game.getPlayers().size(); i++){
+        for(int i=0; i<game.getNoPlayers(); i++){
             isWinner &= (thisPlayer.getScore() >= game.getPlayers().get(i).getScore());
         }
         if(isWinner){
@@ -662,7 +663,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     e.printStackTrace();
                 }
                 setUpPlayers();
-                updateScore();
+                updateScores();
                 break;
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
@@ -678,7 +679,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
-                updateScore();
+                updateScores();
                 break;
             case MessageFactory.SC_PLAYER_MAYBEDC:
                 newGame = Game.createFromJSON(body);
