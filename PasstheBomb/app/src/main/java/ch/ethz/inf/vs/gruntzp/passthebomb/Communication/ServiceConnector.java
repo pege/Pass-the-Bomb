@@ -58,7 +58,7 @@ public class ServiceConnector {
             Intent intent = new Intent(activity, MessageService.class);
             intent.putExtra("ip", "54.213.92.251");
             //intent.putExtra("ip", "10.2.52.210");
-            //intent.putExtra("ip", "10.0.2.2");
+            //intent.putExtra("ip", "10.2.136.200");
 
             intent.putExtra("port", "8088");
 

@@ -3,6 +3,7 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private boolean registered;
     private boolean creating;
     private boolean joining;
+    private MediaPlayer bgm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);
+        bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
+        bgm.setLooping(true);
+        bgm.start();
     }
 
     public void onClickCreate(View view) {
