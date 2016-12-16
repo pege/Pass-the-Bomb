@@ -77,7 +77,7 @@ public final class Game {
 		if (numberOfPlayers() > 0) {
 			if (player == owner)
 				owner = players.get(0);
-			if (player.hasBomb())
+			if (bombOwner == player)
 				setBombOwner(pickRandom());
 		}	
 	}

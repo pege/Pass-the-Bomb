@@ -29,7 +29,8 @@ public class Game implements Parcelable{
     private Player bombOwner;
     private int numberOfPlayers;
 
-    public final int TAP_VALUE = 2;
+    public final int TAP_VALUE = 5;
+    public final int IDLE_VALUE = 1;
     public static final int DEC_OKAY = 1;
     public static final int DEC_LAST = 2;
     public static final int DEC_ERROR = 3;
