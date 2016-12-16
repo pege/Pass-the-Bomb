@@ -802,12 +802,16 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
+                setUpBomb();
                 for(Player p : game.getPlayers()) {
                     if(p.getScore() >= MessageFactory.FINAL_SCORE)
                         endGame();
                 }
                 //No player won, so we have to wait for next gameupdate
                 break;
+            case MessageFactory.SC_GAME_STARTED:
+                toast = Toast.makeText(this, "The bomb exploded, new round started.", Toast.LENGTH_SHORT);
+                toast.show();
 
             default:
                 break;
