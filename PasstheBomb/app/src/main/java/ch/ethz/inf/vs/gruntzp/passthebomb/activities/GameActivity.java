@@ -87,7 +87,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
-        //for testing only
+         //for testing only
 /*
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
