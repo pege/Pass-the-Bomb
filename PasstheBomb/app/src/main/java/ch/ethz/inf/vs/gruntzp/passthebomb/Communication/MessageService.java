@@ -76,7 +76,7 @@ public class MessageService extends Service {
     @OnClose
     public void onClose(Session session, CloseReason closeReason) throws IOException {
         System.out.println("Disconnected");
-    }
+        onMessage(MessageFactory.Connection_Failed(),null);}
 
     public void reconnect(String ip, String port)
     {

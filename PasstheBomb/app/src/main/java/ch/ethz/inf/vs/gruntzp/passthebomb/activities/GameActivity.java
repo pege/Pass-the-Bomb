@@ -137,21 +137,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
      * This method greys out the given player's field.
      */
     public void showPlayerAsDisconnected(String uuid) {
-        /** TODO add player ID in the parameter
-         ** -> iterate over the list of players and check which player has the same ID
-         *  then if game.getPlayers.get(i) has it call
-         *
-         *  Button playerField = (Button) gameView.getChildAt(i);
-         *
-         *  if i is smaller than where thisPlayer is in the list of players
-         *  else use i-1
-         *
-         *  and then call
-         *
-         *  playerField.setBackground(getDrawable(R.drawable.greyed_out_field)));
-         *
-         *  if i != 3, else use R.drawable.greyed_out_field_upsidedown instead
-         **/
+
 
         Player disco = game.getPlayerByID(uuid);
         int i = game.getPlayers().indexOf(disco);
@@ -638,10 +624,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         return rawX > x && rawX < (x+width) && rawY>y && rawY <(y+height);
     }
 
-    //TODO call this when the server sends information that the game has ended
-    /* finishes game; displays button to go to ScoreboardActivity
-     * call this when the server sends information that the game has ended
-     */
     public void endGame(){
         if(thisPlayer.isHasBomb()){
             //TODO make bomb explode
@@ -743,6 +725,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onBackPressed(){
         //super.onBackPressed();
+        //TODO: Maybe implement "Are you sure?"
+        controller.sendMessage(MessageFactory.leaveGame()); //Pressing back is surrendering
         finish();
     }
 
@@ -755,6 +739,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         //start next activity
         this.startActivity(myIntent);
+
+        if(!this.getParent().equals(null)) //Trying to get rid of lingering activity
+            this.getParent().finish();
 
         finish();
     }
@@ -774,7 +761,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onMessage(int type, JSONObject body) {
         Game newGame;
-        //TODO
         switch(type) {
             case 0:
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
@@ -845,7 +831,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 playSound(R.raw.bomb_explode);
                 setBackgroundMusic(1);
                 newGame = Game.createFromJSON(body);
-                game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
+                game.setPlayersAndRoles(newGame.getPlayers(), newGame.getCreator().getUuid(), "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
                 thisPlayer.setHasBomb(false);
@@ -875,6 +861,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.addPlayer(thisPlayer);
                 endGame();
                 break;
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }
