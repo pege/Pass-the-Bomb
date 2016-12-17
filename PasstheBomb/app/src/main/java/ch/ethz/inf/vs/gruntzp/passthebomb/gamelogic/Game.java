@@ -29,8 +29,8 @@ public class Game implements Parcelable{
     private Player bombOwner;
     private int numberOfPlayers;
 
-    public final int TAP_VALUE = 5;
-    public final int IDLE_VALUE = 1;
+    public final int TAP_VALUE = 2;
+    public final int IDLE_VALUE = 0;
     public static final int DEC_OKAY = 1;
     public static final int DEC_LAST = 2;
     public static final int DEC_ERROR = 3;
@@ -241,6 +241,7 @@ public class Game implements Parcelable{
                 p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
                 p.setScore(jArray.getJSONObject(i).getInt("score"));
                 p.setHasBomb(p.getUuid().equals(bombUuid));
+                p.setMaybeDC(jArray.getJSONObject(i).getBoolean("disconnected"));
                 if(bombUuid.equals(p.getUuid()))
                     game.setBombOwner(p);
                 if (uuid.equals(p.getUuid())) {

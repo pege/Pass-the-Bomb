@@ -29,6 +29,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
@@ -85,7 +87,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
-        //for testing only
+         //for testing only
 /*
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
@@ -287,6 +289,24 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
 
                 public void onFinish() {//Bomb explodes
+                    game.bombLock.lock();
+                    int ret = game.decreaseBomb();
+                    switch (ret) {
+                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            if (game.IDLE_VALUE > 0) {
+                                thisPlayer.changeScore(game.IDLE_VALUE);
+                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            }
+                            break;
+                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            controller.sendMessage(MessageFactory.exploded());
+                            break;
+                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                            this.cancel();
+                            break;
+                    }
+                    game.bombLock.unlock();
                 }
             }.start();
 
@@ -779,7 +799,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid(), newGame.getBombOwner().getUuid());
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 setUpPlayers();
-                if(oldBombOwner.equals(game.getBombOwner().getUuid()))
+                if(!oldBombOwner.equals(game.getBombOwner().getUuid()))
                     setUpBomb();
                 break;
             case MessageFactory.SC_UPDATE_SCORE:
@@ -842,6 +862,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 setUpBomb();
                 break;
             case MessageFactory.SC_InstantWin:
+                game.setPlayers(new LinkedList<Player>());
+                game.addPlayer(thisPlayer);
                 endGame();
                 break;
             default:

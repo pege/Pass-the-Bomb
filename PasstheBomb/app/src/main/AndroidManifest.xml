@@ -15,7 +15,7 @@
             android:name=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait"
-            android:launchMode="singleInstance">
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,7 +31,8 @@
             android:label="@string/game_settings"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".LobbyActivity"/>
+            android:name=".LobbyActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ScoreboardActivity"
             android:label="@string/scoreboard"

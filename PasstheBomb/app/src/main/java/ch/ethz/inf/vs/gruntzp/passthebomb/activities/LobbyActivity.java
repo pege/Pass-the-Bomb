@@ -74,6 +74,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         setStartButton();
         updateTable();
 
+        boolean renamed = extras.getBoolean("renamed");
+        if (renamed)
+            Toast.makeText(this.getApplicationContext(), "game already exists. it was renamed.", Toast.LENGTH_LONG).show();
+
+
     }
 
     private void setLobbyTitle(){
@@ -173,7 +178,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         this.startActivity(myIntent);
-
+        finish();
         // destroy intent with MainActivity
         //getParent().getParent().finish();
         // destroy intent with CreateActivity/JoinActivity

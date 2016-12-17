@@ -5,6 +5,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Message;
+import android.support.annotation.BoolRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 //import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
@@ -29,6 +31,7 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
     private Switch passwordSwitch;
     private EditText passwordField;
     private EditText gameName;
+    private String lastRequestedGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +87,9 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 toast.show();
             }else {
                 String password = passwordField.getText().toString();
-                String name = gameName.getText().toString();
+                lastRequestedGame = gameName.getText().toString();
 
-                controller.sendMessage(MessageFactory.createGame(name, password));
+                controller.sendMessage(MessageFactory.createGame(lastRequestedGame, password));
 
                 //TODO give the server the game information
                 //create the game
@@ -115,8 +118,15 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 break;
             case MessageFactory.SC_GAME_CREATED:
                 Intent myIntent = new Intent(this, LobbyActivity.class);
-                myIntent.putExtra("message", body.toString());
-                this.startActivity(myIntent);
+                try {
+                    String newname = body.getJSONObject("game").getString("name");
+                    boolean renamed = !lastRequestedGame.equals(newname);
+                    myIntent.putExtra("message", body.toString());
+                    myIntent.putExtra("renamed", renamed);
+                    this.startActivity(myIntent);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 break;
             default:
                 break;
