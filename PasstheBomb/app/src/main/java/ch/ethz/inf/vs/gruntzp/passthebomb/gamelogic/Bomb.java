@@ -35,7 +35,9 @@ public class Bomb implements Parcelable{ //Used because Java integers are immuta
 
     public void setCounter(int c){this.counter = c;}
 
-    public int getLevel() {return 6 - ((int) Math.ceil(5.0*(((double)counter)/((double)init_value))));}
+    public int getLevel() {
+        return 6 - ((int) Math.ceil(5.0*(((double)counter)/((double)init_value))));
+    }
 
     @Override
     public int describeContents() {

@@ -182,6 +182,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         stopService(intent);
 
         this.startActivity(myIntent);
+        //TODO: why?
         finish();
         // destroy intent with MainActivity
         //getParent().getParent().finish();

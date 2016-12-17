@@ -126,7 +126,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     //changes background music according to bombstages. use R.raw.filename for arguments
     private void changeBGM(int musicfile){
-        audioService.playAudio(musicfile);
+        //TODO: shitfix. audioService can be null, shortly after creation of gameActivity
+        if (audioService!= null)
+            audioService.playAudio(musicfile);
     }
     
     private void playTapSound(){
@@ -534,7 +536,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     if (dist < 10) {
                         Log.d("distance", Double.toString(dist));
                         game.bombLock.lock();
-                        playSound(R.raw.bomb_tap);
+                        //playSound(R.raw.bomb_tap);
+                        playTapSound();
                         int ret = game.decreaseBomb();
                         switch (ret) {
                             case Game.DEC_OKAY: //Bomb was decreased and game can go on

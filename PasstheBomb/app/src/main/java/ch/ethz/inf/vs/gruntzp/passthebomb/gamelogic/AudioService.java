@@ -6,6 +6,8 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 
+import java.io.IOException;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.activities.R;
 
 /**
@@ -91,7 +93,11 @@ public class AudioService extends Service {
     public void playTap(){
         if (tap.isPlaying()){
             tap.stop();
-            tap.prepare();
+            try {
+                tap.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         tap.start();
        
