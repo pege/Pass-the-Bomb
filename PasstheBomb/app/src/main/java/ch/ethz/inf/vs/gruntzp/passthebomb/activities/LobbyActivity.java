@@ -174,9 +174,10 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.putExtra("thisPlayer", thisPlayer);
 
         //These flags render GameActivity on top of the stack with no other activities on the backstack -> on finish() app closes
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        /*myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);*/
+        //TODO:Maybe this prevents lingering
 
         Intent intent = new Intent(this, AudioService.class);
         stopService(intent);
@@ -222,6 +223,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 isCreator = game.getCreatorName().equals(thisPlayer.getName());
                 setStartButton();
                 updateTable();
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }
