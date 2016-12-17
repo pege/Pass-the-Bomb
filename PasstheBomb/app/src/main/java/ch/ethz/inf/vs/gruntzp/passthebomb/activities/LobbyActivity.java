@@ -22,6 +22,7 @@ import org.json.JSONTokener;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -173,11 +174,16 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.putExtra("thisPlayer", thisPlayer);
 
         //These flags render GameActivity on top of the stack with no other activities on the backstack -> on finish() app closes
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        /*myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);*/
+        //TODO:Maybe this prevents lingering
+
+        Intent intent = new Intent(this, AudioService.class);
+        stopService(intent);
 
         this.startActivity(myIntent);
+        //TODO: why?
         finish();
         // destroy intent with MainActivity
         //getParent().getParent().finish();
@@ -217,6 +223,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 isCreator = game.getCreatorName().equals(thisPlayer.getName());
                 setStartButton();
                 updateTable();
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }

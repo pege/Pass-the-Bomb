@@ -2,6 +2,7 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
@@ -53,9 +54,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     //boolean to check whether bound to audioservice or not
     boolean mBound;
 
-    //define callbacks which are called in the AudioService,
-    //once binding is sucessful, but isn't called somehow.
-    //Todo: fix it.
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -63,6 +61,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             AudioService.LocalBinder binder = (AudioService.LocalBinder) service;
             audioService = binder.getService();
             mBound = true;
+            audioService.playAudio(R.raw.bomb_stage1);
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -114,21 +113,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         bomb.setLayoutParams(par);
 
         setUpBomb();
+
     }
 
-    @Override
-    public void onPause(){
-        super.onPause();
-        //audioService.stopAudio();
-    }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        //audioService.resumeAudio();
-    }
-
-    //playsSound and changeBGM do not work yet, since serviceBinding is not successful.
 
     //plays appropriate soundfile. There are sounds for: Receiving and Sending Bombs & bomb exploding
     // use R.raw.filename for arguments
@@ -138,28 +126,20 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     //changes background music according to bombstages. use R.raw.filename for arguments
     private void changeBGM(int musicfile){
-        audioService.startAudio(musicfile);
+        //TODO: shitfix. audioService can be null, shortly after creation of gameActivity
+        if (audioService!= null)
+            audioService.playAudio(musicfile);
+    }
+    
+    private void playTapSound(){
+        audioService.playTap();
     }
 
     /* When a player gets disconnected call this method.
      * This method greys out the given player's field.
      */
     public void showPlayerAsDisconnected(String uuid) {
-        /** TODO add player ID in the parameter
-         ** -> iterate over the list of players and check which player has the same ID
-         *  then if game.getPlayers.get(i) has it call
-         *
-         *  Button playerField = (Button) gameView.getChildAt(i);
-         *
-         *  if i is smaller than where thisPlayer is in the list of players
-         *  else use i-1
-         *
-         *  and then call
-         *
-         *  playerField.setBackground(getDrawable(R.drawable.greyed_out_field)));
-         *
-         *  if i != 3, else use R.drawable.greyed_out_field_upsidedown instead
-         **/
+
 
         Player disco = game.getPlayerByID(uuid);
         int i = game.getPlayers().indexOf(disco);
@@ -252,6 +232,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     }
 
+    //TODO: wird bei jedem Afruf von setBombVisibility() ein neuer Timer erstellt, der dann eventuell parallel zum alten läuft?
     private void setBombVisibility(){
         if(!thisPlayer.isHasBomb()){
             bomb.setAnimation(null);
@@ -263,29 +244,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             //Adjust looks of the bomb
             changeBombImage(game.bombLevel());
             setBombAnimation(game.bombLevel());
+            setBackgroundMusic(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
 
                 public void onTick(long millisUntilFinished) {
-                    game.bombLock.lock();
-                    int ret = game.decreaseBomb();
-                    switch (ret) {
-                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                            if (game.IDLE_VALUE > 0) {
-                                thisPlayer.changeScore(game.IDLE_VALUE);
-                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            }
-                            break;
-                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
-                            break;
-                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                            this.cancel();
-                            break;
-                    }
-                    game.bombLock.unlock();
+                    onFinish();
                 }
 
                 public void onFinish() {//Bomb explodes
@@ -299,8 +264,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             }
                             break;
                         case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
+                            explodeBomb();
                             break;
                         case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                             this.cancel();
@@ -312,6 +276,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         }
 
+    }
+
+    private void explodeBomb()
+    {
+        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore())); //TODO: nötig?
+        controller.sendMessage(MessageFactory.exploded());
+        playSound(R.raw.bomb_explode);
     }
 
     private void changeBombImage(int level) {
@@ -356,6 +327,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
+    private int[] musicArray = new int[] {R.raw.bomb_stage1, R.raw.bomb_stage2, R.raw.bomb_stage3, R.raw.bomb_stage4, R.raw.bomb_stage5};
+    private void setBackgroundMusic(int level)
+    {
+        changeBGM(musicArray[level - 1]);
+    }
+
     private void setBombAnimation(int level){
         Animation anim;
         switch(level) {
@@ -386,9 +363,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
         par.leftMargin = centerPos[0];
         par.topMargin = centerPos[1];
-
         bomb.setLayoutParams(par);
-
     }
 
     private void moveBombToCenter(){
@@ -526,6 +501,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     if(game.getPlayers().indexOf(thisPlayer)  <= i )
                                         ++i;
                                     controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
+                                    playSound(R.raw.bomb_send);
                                 }
                                 game.bombLock.unlock();
                                 thisPlayer.setHasBomb(false);
@@ -541,24 +517,28 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     }
                 }
                 eq = game.getNoPlayers()-1;
-                if(missedPlayer == eq) { //No player hit, decrease bomb and update score
-
-                    game.bombLock.lock();
-                    int ret = game.decreaseBomb();
-                    switch (ret) {
-                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                            thisPlayer.changeScore(game.TAP_VALUE);
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            break;
-                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            thisPlayer.changeScore(game.TAP_VALUE);
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
-                            break;
-                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                            break;
+                if(missedPlayer == eq) { //No player hit, decrease bomb and update score;
+                    double dist = Math.sqrt(Math.pow(par.leftMargin - centerPos[0], 2) + Math.pow(par.topMargin - centerPos[1], 2));
+                    if (dist < 10) {
+                        Log.d("distance", Double.toString(dist));
+                        game.bombLock.lock();
+                        //playSound(R.raw.bomb_tap);
+                        playTapSound();
+                        int ret = game.decreaseBomb();
+                        switch (ret) {
+                            case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                                thisPlayer.changeScore(game.TAP_VALUE);
+                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                                break;
+                            case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                                thisPlayer.changeScore(game.TAP_VALUE);
+                                explodeBomb();
+                                break;
+                            case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                                break;
+                        }
+                        game.bombLock.unlock();
                     }
-                    game.bombLock.unlock();
                 }
 
                 return true;
@@ -647,10 +627,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         return rawX > x && rawX < (x+width) && rawY>y && rawY <(y+height);
     }
 
-    //TODO call this when the server sends information that the game has ended
-    /* finishes game; displays button to go to ScoreboardActivity
-     * call this when the server sends information that the game has ended
-     */
     public void endGame(){
         if(thisPlayer.isHasBomb()){
             //TODO make bomb explode
@@ -684,6 +660,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             toScoreboard.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
         }
         toScoreboard.setVisibility(View.VISIBLE);
+        audioService.playAudio(R.raw.bomb_stage1);
+
     }
 
 
@@ -750,6 +728,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     @Override
     public void onBackPressed(){
         //super.onBackPressed();
+        //TODO: Maybe implement "Are you sure?"
+        controller.sendMessage(MessageFactory.leaveGame()); //Pressing back is surrendering
         finish();
     }
 
@@ -763,6 +743,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //start next activity
         this.startActivity(myIntent);
 
+        if(!this.getParent().equals(null)) //Trying to get rid of lingering activity
+            this.getParent().finish();
+
         finish();
     }
 
@@ -770,12 +753,17 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     protected void onStart() {
         super.onStart();
         controller.bind(this);
+        if (!mBound) {
+            Intent intent = new Intent(this, AudioService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
+        System.out.println("GameActivity bound to audioservice");
+
     }
 
     @Override
     public void onMessage(int type, JSONObject body) {
         Game newGame;
-        //TODO
         switch(type) {
             case 0:
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
@@ -828,6 +816,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
                     game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"), body.getJSONObject("game").getString("bombOwner"));
                     thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
+                    if (thisPlayer.isHasBomb())
+                    {
+                        playSound(R.raw.bomb_receive);
+                    }
+                    else
+                    {
+                        playSound(R.raw.bomb_send);
+                    }
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
@@ -835,8 +831,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 setUpBomb();
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
+                playSound(R.raw.bomb_explode);
+                setBackgroundMusic(1);
                 newGame = Game.createFromJSON(body);
-                game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
+                game.setPlayersAndRoles(newGame.getPlayers(), newGame.getCreator().getUuid(), "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
                 thisPlayer.setHasBomb(false);
@@ -866,6 +864,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.addPlayer(thisPlayer);
                 endGame();
                 break;
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }
@@ -876,6 +879,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     protected void onStop() {
         super.onStop();
         controller.unbind(this);
+        if (mBound){
+            unbindService(mConnection);
+        }
+        mBound = false;
+        System.out.println("GameActivity unbound from AudioService");
+
     }
 
 }

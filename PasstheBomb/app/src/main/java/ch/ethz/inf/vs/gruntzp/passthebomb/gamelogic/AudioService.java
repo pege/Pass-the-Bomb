@@ -6,6 +6,8 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 
+import java.io.IOException;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.activities.R;
 
 /**
@@ -16,6 +18,8 @@ public class AudioService extends Service {
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     private MediaPlayer bgm;
+    private MediaPlayer sound;
+    private MediaPlayer tap;
 
 
     /**
@@ -34,6 +38,7 @@ public class AudioService extends Service {
         bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
         bgm.setLooping(true);
         bgm.start();
+        tap = MediaPlayer.create(this, R.raw.bomb_tap);
     }
 
     @Override
@@ -55,7 +60,7 @@ public class AudioService extends Service {
     }
 
     /** method for clients */
-    public void startAudio(int audiofile){
+    public void playAudio(int audiofile){
         if (bgm != null) {
             bgm.stop();
             bgm.release();
@@ -68,17 +73,33 @@ public class AudioService extends Service {
     public void stopAudio(){
         if (bgm != null) {
             bgm.stop();
+            bgm.reset();
+            bgm.release();
+            bgm = null;
         }
     }
 
-    public void resumeAudio(){
-        if (bgm != null)
-            bgm.start();
-    }
 
     public void playSound(int soundfile){
-        MediaPlayer sound = MediaPlayer.create(this, soundfile);
+        if (sound != null) {
+            sound.stop();
+            sound.release();
+        }
+        sound = MediaPlayer.create(this, soundfile);
         sound.start();
-        sound.release();
+
+    }
+    
+    public void playTap(){
+        if (tap.isPlaying()){
+            tap.stop();
+            try {
+                tap.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        tap.start();
+       
     }
 }

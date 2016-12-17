@@ -375,6 +375,11 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 onClickRefresh(findViewById(R.id.refresh));
                 toast.show();
                 break;
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }

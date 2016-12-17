@@ -14,7 +14,7 @@ public final class Game {
 	private static final int maxBombLifeTime = 100; // max Lifetime of a bomb
 	private static final int minBombLifetime = 20;
 	
-	private static final int scoreIncrease = 20;
+	private static final int scoreIncrease = 5;
 	private static final int scoreDecrease = -20;
 
 	private Player owner;
@@ -116,7 +116,8 @@ public final class Game {
 
 	
 	public void bomb_exploded(Player p) {
-		p.changeScore(scoreDecrease);
+		p.changeScore(p.getScore() / 2);
+		//p.changeScore(scoreDecrease);
 		
 		for (Player player : players) {
 			if (p != player) {
