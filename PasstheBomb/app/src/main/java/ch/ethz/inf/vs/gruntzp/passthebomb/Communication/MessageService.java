@@ -126,6 +126,7 @@ public class MessageService extends Service {
                 }
                 catch(Exception ex){
                     ex.printStackTrace();
+                    onMessage(MessageFactory.Connection_Failed(), null);
                 }
             }
         });

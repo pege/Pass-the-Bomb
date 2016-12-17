@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -84,7 +85,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
 
         //for testing only
-        /*
+/*
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
         game.addPlayer(creator);
@@ -96,8 +97,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         thisPlayer.setHasBomb(true);
         thisPlayer.setScore(2000);
         //endGame();
-
 */
+
         //GUI stuff
         hideNavigationBar();
         gameView = (RelativeLayout) findViewById(R.id.game);
@@ -173,8 +174,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     //Issue: If names are too long, then they overlap with the borders of the buttons
     //probably because the button is actually a rectangle, but the visual button is a trapezoid
     private void setUpPlayers(){
+        for (int j = 0; j < 4; j++)
+        {
+            Button player_field = (Button) gameView.getChildAt(j);
+            player_field.setVisibility(View.INVISIBLE);
+        }
+
         int j = 0; //index for player field
-        for(int i=0; i<game.getPlayers().size(); i++){
+        for(int i = 0; i < game.getNoPlayers(); i++){
             Player curr = game.getPlayers().get(i);
             if (!thisPlayer.equals(curr)) {
                 Button player_field = (Button) gameView.getChildAt(j);
@@ -234,9 +241,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         if(!thisPlayer.isHasBomb()){
             bomb.clearAnimation();
             bomb.setVisibility(View.INVISIBLE);
+            bomb.clearAnimation();
+            bomb.invalidate();
+            bomb.setVisibility(View.INVISIBLE);
         } else {
             //Adjust looks of the bomb
             changeBombImage(game.bombLevel());
+            setBombAnimation(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
@@ -246,9 +257,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     int ret = game.decreaseBomb();
                     switch (ret) {
                         case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            if (game.IDLE_VALUE > 0) {
+                                thisPlayer.changeScore(game.IDLE_VALUE);
+                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            }
                             break;
                         case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            thisPlayer.changeScore(game.TAP_VALUE);
                             controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
                             controller.sendMessage(MessageFactory.exploded());
                             break;
@@ -307,7 +321,32 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             default:
                 break;
         }
+    }
 
+    private void setBombAnimation(int level){
+        Animation anim;
+        switch(level) {
+            case 1:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 2:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 3:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 4:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            case 5:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+            default:
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                break;
+        }
+        anim.setFillAfter(true);
+        bomb.startAnimation(anim);
     }
 
     private void setBombInCenter(){
@@ -347,6 +386,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         par.leftMargin = centerPos[0];
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
+
+                        setBombAnimation(game.bombLevel());
                     }
                 }
         );
@@ -358,10 +399,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void enableOnTouchAndDragging(){
         touchListener = new View.OnTouchListener() {
             private Boolean[] touch = {false, false, false, false};
-            private int missedPlayer = 0;
+            private int missedPlayer;
+            int eq;
             int prevX,prevY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                missedPlayer = 0;
 
                 final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
 
@@ -390,6 +433,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             v.setLayoutParams(par);
                             scaleIn(bomb, 5);
+                            setBombAnimation(game.bombLevel());
 
                             //check intersection
                             if(checkInterSection(playerfield, i,  event.getRawX(), event.getRawY())
@@ -435,7 +479,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             //check if touching
                             if (touch[i] && playerfield.getVisibility() == View.VISIBLE) {
-                                missedPlayer--;
                                 // run scale animation and make it smaller
                                 scaleOut(playerfield, i);
                                 touch[i] = false;
@@ -455,32 +498,34 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 thisPlayer.setHasBomb(false);
                                 setUpBomb();
                                 Log.i("up", "no!");
-                            }
-
-                            if(missedPlayer == game.getNoPlayers()-1) { //No player hit, decrease bomb and update score
+                            } else {
+                                missedPlayer++;
                                 moveBombToCenter();
-
-                                game.bombLock.lock();
-                                int ret = game.decreaseBomb();
-                                switch (ret) {
-                                    case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                                        thisPlayer.changeScore(game.TAP_VALUE);
-                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                        break;
-                                    case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                                        thisPlayer.changeScore(game.TAP_VALUE);
-                                        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                        controller.sendMessage(MessageFactory.exploded());
-                                        break;
-                                    case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                                        break;
-                                }
-                                game.bombLock.unlock();
                             }
                             break;
                         }
 
                     }
+                }
+                eq = game.getNoPlayers()-1;
+                if(missedPlayer == eq) { //No player hit, decrease bomb and update score
+
+                    game.bombLock.lock();
+                    int ret = game.decreaseBomb();
+                    switch (ret) {
+                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            break;
+                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            thisPlayer.changeScore(game.TAP_VALUE);
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            controller.sendMessage(MessageFactory.exploded());
+                            break;
+                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                            break;
+                    }
+                    game.bombLock.unlock();
                 }
 
                 return true;
@@ -725,9 +770,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
+                String oldBombOwner = game.getBombOwner().getUuid();
                 game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid(), newGame.getBombOwner().getUuid());
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 setUpPlayers();
+                if(oldBombOwner.equals(game.getBombOwner().getUuid()))
+                    setUpBomb();
                 break;
             case MessageFactory.SC_UPDATE_SCORE:
                 newGame = Game.createFromJSON(body);
@@ -766,13 +814,31 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 game.adoptScore(newGame);
+                thisPlayer.setHasBomb(false);
+                setUpBomb();
                 for(Player p : game.getPlayers()) {
                     if(p.getScore() >= MessageFactory.FINAL_SCORE)
                         endGame();
                 }
                 //No player won, so we have to wait for next gameupdate
                 break;
-
+            case MessageFactory.SC_GAME_STARTED:
+                toast = Toast.makeText(this, "The bomb exploded, new round started.", Toast.LENGTH_SHORT);
+                toast.show();
+                newGame = Game.createFromJSON(body);
+                try {
+                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+                    game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"), body.getJSONObject("game").getString("bombOwner"));
+                    thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+                setUpPlayers();
+                setUpBomb();
+                break;
+            case MessageFactory.SC_InstantWin:
+                endGame();
+                break;
             default:
                 break;
         }

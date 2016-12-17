@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 tryRegister(userName);
             else {
                 //Start next Activity
+                creating = false;
                 Intent myIntent = new Intent(this, CreateActivity.class);
                 myIntent.putExtra("creator_name", userName);
                 this.startActivity(myIntent);
@@ -152,18 +153,17 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
             joining = true;
 
-            if(!registered)
+            if(!registered) {
+                Toast.makeText(this.getApplicationContext(), "Currently not registered", Toast.LENGTH_SHORT).show();
                 tryRegister(userName);
+            }
             else {
                 //Start next Activity
+                joining = false;
                 Intent myIntent = new Intent(this, JoinActivity.class);
                 myIntent.putExtra("player_name", userName);
                 this.startActivity(myIntent);
             }
-
-
-
-
         }
     }
 
@@ -206,6 +206,15 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             case 0:
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
+                break;
+            case MessageFactory.SC_GAME_LIST:
+                //When getting first list go to next activity
+                Intent JoinIntent = new Intent(this, JoinActivity.class);
+                JoinIntent.putExtra("player_name", mEdit.getText().toString());
+                this.startActivity(JoinIntent);
+                break;
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection could not be established", Toast.LENGTH_LONG).show();
                 break;
             case MessageFactory.SC_RECONNECT_DENIED_ERROR: //Already registered, don't care and fall through
             case MessageFactory.SC_REGISTER_SUCCESSFUL: //Newly registered

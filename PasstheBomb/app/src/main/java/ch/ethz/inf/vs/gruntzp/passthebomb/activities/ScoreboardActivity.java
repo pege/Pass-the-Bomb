@@ -13,6 +13,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
 import java.util.Collection;
@@ -23,7 +24,7 @@ import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
-public class ScoreboardActivity extends AppCompatActivity /*implements MessageListener*/ {
+public class ScoreboardActivity extends AppCompatActivity implements MessageListener {
 
     private int currentApiVersion;
     private Game game;
@@ -150,15 +151,15 @@ public class ScoreboardActivity extends AppCompatActivity /*implements MessageLi
         finish();
     }
 
-    /*
+
         @Override
-    protected void onStart() {
+        protected void onStart() {
         super.onStart();
         controller.bind(this);
     }
 
     @Override
-    public void onMessage(String message) {
+    public void onMessage(int type, JSONObject body) {
         //TODO
     }
 
@@ -167,5 +168,5 @@ public class ScoreboardActivity extends AppCompatActivity /*implements MessageLi
         super.onStop();
         controller.unbind(this);
     }
-    */
+
 }
