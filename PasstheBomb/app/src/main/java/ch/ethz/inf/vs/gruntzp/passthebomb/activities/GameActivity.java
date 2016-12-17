@@ -525,9 +525,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     }
                 }
                 eq = game.getNoPlayers()-1;
-                if(missedPlayer == eq) { //No player hit, decrease bomb and update score
-
+                //TODO: wenn man dabei fehlschlägt, einem bestimmten Spieler die Bombe zu geben, zählt das als Tap. Wir sollten lieber prüfen, ob die Bombe nahe der Mitte geblieben ist, bevor wir einen Tap auslösen.
+                if(missedPlayer == eq) { //No player hit, decrease bomb and update score;
                     game.bombLock.lock();
+                    playSound(R.raw.bomb_tap);
                     int ret = game.decreaseBomb();
                     switch (ret) {
                         case Game.DEC_OKAY: //Bomb was decreased and game can go on
