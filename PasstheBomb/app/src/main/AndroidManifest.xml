@@ -31,7 +31,8 @@
             android:label="@string/game_settings"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".LobbyActivity"/>
+            android:name=".LobbyActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ScoreboardActivity"
             android:label="@string/scoreboard"
