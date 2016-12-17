@@ -289,6 +289,24 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
 
                 public void onFinish() {//Bomb explodes
+                    game.bombLock.lock();
+                    int ret = game.decreaseBomb();
+                    switch (ret) {
+                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                            if (game.IDLE_VALUE > 0) {
+                                thisPlayer.changeScore(game.IDLE_VALUE);
+                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            }
+                            break;
+                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                            controller.sendMessage(MessageFactory.exploded());
+                            break;
+                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                            this.cancel();
+                            break;
+                    }
+                    game.bombLock.unlock();
                 }
             }.start();
 
