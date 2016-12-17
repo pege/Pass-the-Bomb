@@ -525,24 +525,27 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     }
                 }
                 eq = game.getNoPlayers()-1;
-                //TODO: wenn man dabei fehlschlägt, einem bestimmten Spieler die Bombe zu geben, zählt das als Tap. Wir sollten lieber prüfen, ob die Bombe nahe der Mitte geblieben ist, bevor wir einen Tap auslösen.
                 if(missedPlayer == eq) { //No player hit, decrease bomb and update score;
-                    game.bombLock.lock();
-                    playSound(R.raw.bomb_tap);
-                    int ret = game.decreaseBomb();
-                    switch (ret) {
-                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                            thisPlayer.changeScore(game.TAP_VALUE);
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            break;
-                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            thisPlayer.changeScore(game.TAP_VALUE);
-                            explodeBomb();
-                            break;
-                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                            break;
+                    double dist = Math.sqrt(Math.pow(par.leftMargin - centerPos[0], 2) + Math.pow(par.topMargin - centerPos[1], 2));
+                    if (dist < 10) {
+                        Log.d("distance", Double.toString(dist));
+                        game.bombLock.lock();
+                        playSound(R.raw.bomb_tap);
+                        int ret = game.decreaseBomb();
+                        switch (ret) {
+                            case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                                thisPlayer.changeScore(game.TAP_VALUE);
+                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                                break;
+                            case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                                thisPlayer.changeScore(game.TAP_VALUE);
+                                explodeBomb();
+                                break;
+                            case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                                break;
+                        }
+                        game.bombLock.unlock();
                     }
-                    game.bombLock.unlock();
                 }
 
                 return true;
