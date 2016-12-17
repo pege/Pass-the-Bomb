@@ -378,6 +378,7 @@ public final class Connection {
 
 						if (game.hasStarted() && game.numberOfPlayers() == 1) {
 							sendMess(game.getPlayers().get(0).getSession(), MessageFactory.SC_InstantWin());
+							game.destroy(); //Necessary, because else the winner will be inGame forever
 							games.remove(game);
 						} else {
 							// TODO if one player and already started?

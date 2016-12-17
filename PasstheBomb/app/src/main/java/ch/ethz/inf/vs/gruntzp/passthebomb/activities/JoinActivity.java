@@ -357,6 +357,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.ALREADY_STARTED_ERROR:
                 toast = Toast.makeText(this, "That game already started", Toast.LENGTH_SHORT);
+                onClickRefresh(findViewById(R.id.refresh));
                 try {
                     String gameName = body.getString("game_id");
                 } catch(JSONException e) {
@@ -370,6 +371,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.GAME_NOT_FOUND_ERROR:
                 toast = Toast.makeText(this, "The game was not found", Toast.LENGTH_SHORT);
+                onClickRefresh(findViewById(R.id.refresh));
                 toast.show();
                 break;
             default:

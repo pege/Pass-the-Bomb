@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 tryRegister(userName);
             else {
                 //Start next Activity
+                creating = false;
                 Intent myIntent = new Intent(this, CreateActivity.class);
                 myIntent.putExtra("creator_name", userName);
                 this.startActivity(myIntent);
@@ -148,6 +149,10 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             }
             else {
                 //Start next Activity
+                joining = false;
+                Intent myIntent = new Intent(this, JoinActivity.class);
+                myIntent.putExtra("player_name", userName);
+                this.startActivity(myIntent);
             }
         }
     }
