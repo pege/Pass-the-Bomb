@@ -128,6 +128,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void changeBGM(int musicfile){
         audioService.playAudio(musicfile);
     }
+    
+    private void playTapSound(){
+        audioService.playTap();
+    }
 
     /* When a player gets disconnected call this method.
      * This method greys out the given player's field.
