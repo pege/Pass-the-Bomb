@@ -16,6 +16,7 @@ public class AudioService extends Service {
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
     private MediaPlayer bgm;
+    private MediaPlayer sound;
 
 
     /**
@@ -55,7 +56,7 @@ public class AudioService extends Service {
     }
 
     /** method for clients */
-    public void startAudio(int audiofile){
+    public void playAudio(int audiofile){
         if (bgm != null) {
             bgm.stop();
             bgm.release();
@@ -68,17 +69,20 @@ public class AudioService extends Service {
     public void stopAudio(){
         if (bgm != null) {
             bgm.stop();
+            bgm.reset();
+            bgm.release();
+            bgm = null;
         }
     }
 
-    public void resumeAudio(){
-        if (bgm != null)
-            bgm.start();
-    }
 
     public void playSound(int soundfile){
-        MediaPlayer sound = MediaPlayer.create(this, soundfile);
+        if (sound != null) {
+            sound.stop();
+            sound.release();
+        }
+        sound = MediaPlayer.create(this, soundfile);
         sound.start();
-        sound.release();
+
     }
 }

@@ -22,6 +22,7 @@ import org.json.JSONTokener;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
@@ -171,6 +172,9 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+        Intent intent = new Intent(this, AudioService.class);
+        stopService(intent);
 
         this.startActivity(myIntent);
 

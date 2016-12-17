@@ -2,6 +2,7 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
@@ -50,9 +51,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     //boolean to check whether bound to audioservice or not
     boolean mBound;
 
-    //define callbacks which are called in the AudioService,
-    //once binding is sucessful, but isn't called somehow.
-    //Todo: fix it.
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -60,6 +58,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             AudioService.LocalBinder binder = (AudioService.LocalBinder) service;
             audioService = binder.getService();
             mBound = true;
+            audioService.playAudio(R.raw.bomb_stage1);
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -111,21 +110,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         bomb.setLayoutParams(par);
 
         setUpBomb();
+
     }
 
-    @Override
-    public void onPause(){
-        super.onPause();
-        //audioService.stopAudio();
-    }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-        //audioService.resumeAudio();
-    }
-
-    //playsSound and changeBGM do not work yet, since serviceBinding is not successful.
 
     //plays appropriate soundfile. There are sounds for: Receiving and Sending Bombs & bomb exploding
     // use R.raw.filename for arguments
@@ -135,7 +123,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     //changes background music according to bombstages. use R.raw.filename for arguments
     private void changeBGM(int musicfile){
-        audioService.startAudio(musicfile);
+        audioService.playAudio(musicfile);
     }
 
     /* When a player gets disconnected call this method.
@@ -618,6 +606,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             toScoreboard.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
         }
         toScoreboard.setVisibility(View.VISIBLE);
+        audioService.playAudio(R.raw.bomb_stage1);
+
     }
 
 
@@ -704,6 +694,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     protected void onStart() {
         super.onStart();
         controller.bind(this);
+        if (!mBound) {
+            Intent intent = new Intent(this, AudioService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        }
+        System.out.println("GameActivity bound to audioservice");
+
     }
 
     @Override
@@ -787,6 +783,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     protected void onStop() {
         super.onStop();
         controller.unbind(this);
+        if (mBound){
+            unbindService(mConnection);
+        }
+        mBound = false;
+        System.out.println("GameActivity unbound from AudioService");
+
     }
 
 }

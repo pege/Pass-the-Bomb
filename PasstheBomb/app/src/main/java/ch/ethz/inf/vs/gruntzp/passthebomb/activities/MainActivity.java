@@ -41,8 +41,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private boolean joining;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,8 +97,20 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);
-        Intent intent = new Intent(this, AudioService.class);
-        startService(intent);
+
+
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
     }
 
     public void onClickCreate(View view) {
@@ -158,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     public void onClickTutorial(View view) {
-        // save username
+       // save username
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("user_name", mEdit.getText().toString());
         editor.commit();
@@ -184,6 +194,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         super.onStart();
         controller.startService(this); // Only do this in MainActivity
         controller.bind(this);
+        Intent intent = new Intent(this, AudioService.class);
+        startService(intent);
+
     }
 
     @Override
@@ -245,6 +258,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     protected void onStop() {
         super.onStop();
         controller.unbind(this);
+
     }
 
     protected void tryRegister(String userName) {
