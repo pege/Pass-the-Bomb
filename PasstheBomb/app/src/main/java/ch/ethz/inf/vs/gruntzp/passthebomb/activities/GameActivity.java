@@ -29,6 +29,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.LinkedList;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
@@ -842,6 +844,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 setUpBomb();
                 break;
             case MessageFactory.SC_InstantWin:
+                game.setPlayers(new LinkedList<Player>());
+                game.addPlayer(thisPlayer);
                 endGame();
                 break;
             default:

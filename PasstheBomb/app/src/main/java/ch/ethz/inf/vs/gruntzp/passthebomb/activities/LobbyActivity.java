@@ -173,7 +173,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
 
         this.startActivity(myIntent);
-
+        finish();
         // destroy intent with MainActivity
         //getParent().getParent().finish();
         // destroy intent with CreateActivity/JoinActivity

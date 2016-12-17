@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         editor.putString("user_name", mEdit.getText().toString());
         editor.commit();
 
-        finish();
     }
 
     @Override
