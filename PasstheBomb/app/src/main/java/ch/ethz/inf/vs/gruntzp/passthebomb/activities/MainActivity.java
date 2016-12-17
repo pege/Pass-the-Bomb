@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             joining = true;
 
             if(!registered) {
-                Toast.makeText(this.getApplicationContext(), "Currently not registered", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this.getApplicationContext(), "Currently not registered", Toast.LENGTH_SHORT).show();
                 tryRegister(userName);
             }
             else {
