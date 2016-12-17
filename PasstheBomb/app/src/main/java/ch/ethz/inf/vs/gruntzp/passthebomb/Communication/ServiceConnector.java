@@ -60,7 +60,8 @@ public class ServiceConnector {
             //intent.putExtra("ip", "10.2.136.200");
             //intent.putExtra("ip", "10.0.2.2");
 
-            intent.putExtra("port", "8088");
+            //intent.putExtra("port", "8088");
+            intent.putExtra("port", "8080");
 
             Reference r = new Reference();
             r.setActivity((MessageListener) activity);

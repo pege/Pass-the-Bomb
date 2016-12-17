@@ -14,7 +14,7 @@ public class Bomb implements Parcelable{ //Used because Java integers are immuta
     public static final int blank_initializer = 10;
 
     public Bomb(int value, int init) {
-        counter = value;
+        counter = Math.min(value, init);
         init_value = init;
     }
 

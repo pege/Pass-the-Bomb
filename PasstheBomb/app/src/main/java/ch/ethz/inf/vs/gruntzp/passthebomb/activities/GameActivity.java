@@ -240,6 +240,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     }
 
+    //TODO: wird bei jedem Afruf von setBombVisibility() ein neuer Timer erstellt, der dann eventuell parallel zum alten läuft?
     private void setBombVisibility(){
         if(!thisPlayer.isHasBomb()){
             bomb.setAnimation(null);
@@ -251,29 +252,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             //Adjust looks of the bomb
             changeBombImage(game.bombLevel());
             setBombAnimation(game.bombLevel());
+            setBackgroundMusic(game.bombLevel());
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
 
                 public void onTick(long millisUntilFinished) {
-                    game.bombLock.lock();
-                    int ret = game.decreaseBomb();
-                    switch (ret) {
-                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                            if (game.IDLE_VALUE > 0) {
-                                thisPlayer.changeScore(game.IDLE_VALUE);
-                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            }
-                            break;
-                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
-                            break;
-                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                            this.cancel();
-                            break;
-                    }
-                    game.bombLock.unlock();
+                    onFinish();
                 }
 
                 public void onFinish() {//Bomb explodes
@@ -287,8 +272,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             }
                             break;
                         case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
+                            explodeBomb();
                             break;
                         case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                             this.cancel();
@@ -300,6 +284,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         }
 
+    }
+
+    private void explodeBomb()
+    {
+        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore())); //TODO: nötig?
+        controller.sendMessage(MessageFactory.exploded());
+        playSound(R.raw.bomb_explode);
     }
 
     private void changeBombImage(int level) {
@@ -344,6 +335,12 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
+    private int[] musicArray = new int[] {R.raw.bomb_stage1, R.raw.bomb_stage2, R.raw.bomb_stage3, R.raw.bomb_stage4, R.raw.bomb_stage5};
+    private void setBackgroundMusic(int level)
+    {
+        changeBGM(musicArray[level - 1]);
+    }
+
     private void setBombAnimation(int level){
         Animation anim;
         switch(level) {
@@ -374,9 +371,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
         par.leftMargin = centerPos[0];
         par.topMargin = centerPos[1];
-
         bomb.setLayoutParams(par);
-
     }
 
     private void moveBombToCenter(){
@@ -514,6 +509,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     if(game.getPlayers().indexOf(thisPlayer)  <= i )
                                         ++i;
                                     controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
+                                    playSound(R.raw.bomb_send);
                                 }
                                 game.bombLock.unlock();
                                 thisPlayer.setHasBomb(false);
@@ -540,8 +536,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             break;
                         case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
                             thisPlayer.changeScore(game.TAP_VALUE);
-                            controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            controller.sendMessage(MessageFactory.exploded());
+                            explodeBomb();
                             break;
                         case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
                             break;
@@ -824,6 +819,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
                     game.setPlayersAndRoles(newGame.getPlayers(), body.getJSONObject("game").getString("owner"), body.getJSONObject("game").getString("bombOwner"));
                     thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
+                    if (thisPlayer.isHasBomb())
+                    {
+                        playSound(R.raw.bomb_receive);
+                    }
+                    else
+                    {
+                        playSound(R.raw.bomb_send);
+                    }
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
@@ -831,6 +834,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 setUpBomb();
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
+                playSound(R.raw.bomb_explode);
+                setBackgroundMusic(1);
                 newGame = Game.createFromJSON(body);
                 game.setPlayersAndRoles(newGame.getPlayers(), "" /*No bomb owner exists*/, "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
