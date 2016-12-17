@@ -189,6 +189,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         for (int j = 0; j < 4; j++)
         {
             Button player_field = (Button) gameView.getChildAt(j);
+            player_field.clearAnimation();
             player_field.setVisibility(View.INVISIBLE);
         }
 
@@ -251,9 +252,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private void setBombVisibility(){
         if(!thisPlayer.isHasBomb()){
+            bomb.setAnimation(null);
             bomb.clearAnimation();
             bomb.setVisibility(View.INVISIBLE);
-            bomb.clearAnimation();
             bomb.invalidate();
             bomb.setVisibility(View.INVISIBLE);
         } else {
