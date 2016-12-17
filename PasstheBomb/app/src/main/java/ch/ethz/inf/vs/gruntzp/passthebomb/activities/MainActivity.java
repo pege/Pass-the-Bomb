@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         editor.commit();
 
         //Start next Activity
-        Intent myIntent = new Intent(this, TutorialActivity.class);
+        Intent myIntent = new Intent(this, HowToPlayActivity.class);
         this.startActivity(myIntent);
 
     }
