@@ -781,7 +781,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid(), newGame.getBombOwner().getUuid());
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 setUpPlayers();
-                if(oldBombOwner.equals(game.getBombOwner().getUuid()))
+                if(!oldBombOwner.equals(game.getBombOwner().getUuid()))
                     setUpBomb();
                 break;
             case MessageFactory.SC_UPDATE_SCORE:
