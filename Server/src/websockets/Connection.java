@@ -301,7 +301,7 @@ public final class Connection {
 	}
 
 	private String makeUnique(String proposed, int level) {
-		if (games.stream().anyMatch(game -> game.getGamename().equals(proposed)))
+		if (games.stream().filter(g -> !g.hasStarted()).anyMatch(game -> game.getGamename().equals(proposed)))
 			return makeUnique(proposed + (level == 0 ? "_x" : "x"), level + 1);
 		else
 			return proposed;
