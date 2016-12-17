@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimationDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -48,6 +51,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private RelativeLayout gameView;
     private ImageView bomb;
     private final int[] centerPos = new int[2];
+    private Boolean bombExplode = false;
     private View.OnTouchListener touchListener;
     private CountDownTimer timer;
     private AudioService audioService;
@@ -280,9 +284,16 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private void explodeBomb()
     {
+        bombExplode = true;
         controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore())); //TODO: nötig?
         controller.sendMessage(MessageFactory.exploded());
-        playSound(R.raw.bomb_explode);
+
+        Log.d("bomb","exploding");
+        moveBombToCenter();
+
+
+
+
     }
 
     private void changeBombImage(int level) {
@@ -395,13 +406,70 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
 
-                        setBombAnimation(game.bombLevel());
+                        if (bombExplode){
+                            disableOnTouchAndDragging();
+                            final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
+                            explosionView.setVisibility(View.VISIBLE);
+                            explosionView.setBackgroundResource(R.drawable.explosion);
+                            explosionView.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    AnimationDrawable explosionAnimation =
+                                                            (AnimationDrawable) explosionView.getBackground();
+                                                    explosionAnimation.start();
+                                                    checkIfAnimationDone(explosionAnimation);
+                                                    playSound(R.raw.bomb_explode);
+                                                }
+                                            });
+                            bombExplode= false;
+                        }else {
+                            setBombAnimation(game.bombLevel());
+                        }
                     }
                 }
         );
         bomb.startAnimation(anim);
 
 
+    }
+
+    private void checkIfAnimationDone(AnimationDrawable anim){
+        final AnimationDrawable a = anim;
+        int timeBetweenChecks = 66;
+        Handler h = new Handler();
+        h.postDelayed(new Runnable(){
+            final Drawable frame = getResources().getDrawable(R.drawable.explosion0010);
+            public void run(){
+                if (a.getCurrent() != a.getFrame(a.getNumberOfFrames() - 1)){
+                    checkIfAnimationDone(a);
+                    if(a.getCurrent() != a.getFrame(9)
+                        || a.getCurrent() != a.getFrame(8)
+                            || a.getCurrent() != a.getFrame(7)
+                            || a.getCurrent() != a.getFrame(6)
+                            || a.getCurrent() != a.getFrame(5)
+                            || a.getCurrent() != a.getFrame(4)
+                            || a.getCurrent() != a.getFrame(3)
+                            || a.getCurrent() != a.getFrame(2)
+                            || a.getCurrent() != a.getFrame(1)
+                            || a.getCurrent() != a.getFrame(0))
+                        bomb.setVisibility(View.INVISIBLE);
+                } else {
+                    final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
+                    explosionView.setVisibility(View.GONE);
+                    enableOnTouchAndDragging();
+
+                }
+            }
+        }, timeBetweenChecks);
+    };
+
+    private void disableOnTouchAndDragging(){
+        touchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        };
     }
 
     private void enableOnTouchAndDragging(){
