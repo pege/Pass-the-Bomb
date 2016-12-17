@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         creating = false;
         joining = false;
 
-        //TODO: save the username in the text field -> use preferences or something
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);
@@ -154,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             joining = true;
 
             if(!registered) {
-                Toast.makeText(this.getApplicationContext(), "Currently not registered", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this.getApplicationContext(), "Currently not registered", Toast.LENGTH_SHORT).show();
                 tryRegister(userName);
             }
             else {
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         editor.commit();
 
         //Start next Activity
-        Intent myIntent = new Intent(this, TutorialActivity.class);
+        Intent myIntent = new Intent(this, HowToPlayActivity.class);
         this.startActivity(myIntent);
 
     }
@@ -186,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         editor.putString("user_name", mEdit.getText().toString());
         editor.commit();
 
-        finish();
     }
 
     @Override

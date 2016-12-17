@@ -353,6 +353,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_PLAYER_JOINED: //I joined
                 Intent myIntent = new Intent(this, LobbyActivity.class);
                 myIntent.putExtra("message", body.toString());
+                myIntent.putExtra("renamed", false);
                 this.startActivity(myIntent);
                 break;
             case MessageFactory.ALREADY_STARTED_ERROR:
