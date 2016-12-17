@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         creating = false;
         joining = false;
 
-        //TODO: save the username in the text field -> use preferences or something
         preferences = getSharedPreferences("Pref", Context.MODE_PRIVATE);
         String username = preferences.getString("user_name", "");
         mEdit.setText(username);

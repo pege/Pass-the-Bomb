@@ -241,6 +241,7 @@ public class Game implements Parcelable{
                 p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
                 p.setScore(jArray.getJSONObject(i).getInt("score"));
                 p.setHasBomb(p.getUuid().equals(bombUuid));
+                p.setMaybeDC(jArray.getJSONObject(i).getBoolean("disconnected"));
                 if(bombUuid.equals(p.getUuid()))
                     game.setBombOwner(p);
                 if (uuid.equals(p.getUuid())) {
