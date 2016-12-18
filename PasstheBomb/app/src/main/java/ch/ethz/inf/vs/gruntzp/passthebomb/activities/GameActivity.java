@@ -582,7 +582,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                         ++i;
                                     controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
                                     Animation anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.super_scale_out);
-                                    anim.setFillAfter(true);
+                                    anim.setFillAfter(false);
                                     anim.setAnimationListener(new Animation.AnimationListener() {
                                         @Override
                                         public void onAnimationStart(Animation animation) {
