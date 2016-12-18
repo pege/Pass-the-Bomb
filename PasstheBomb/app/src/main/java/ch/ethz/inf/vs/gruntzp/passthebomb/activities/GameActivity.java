@@ -53,6 +53,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private RelativeLayout gameView;
     private ImageView bomb;
     private final int[] centerPos = new int[2];
+    private int screenBombLevel;
     private Boolean bombExplode = false;
     private View.OnTouchListener touchListener;
     private CountDownTimer timer;
@@ -256,9 +257,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             bomb.setVisibility(View.INVISIBLE);
         } else {
             //Adjust looks of the bomb
-            changeBombImage(game.bombLevel());
-            setBombAnimation(game.bombLevel());
-            setBackgroundMusic(game.bombLevel());
+            screenBombLevel = game.bombLevel();
+            changeBombImage(screenBombLevel);
+            setBombAnimation(screenBombLevel);
+            setBackgroundMusic(screenBombLevel);
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
@@ -448,7 +450,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             bombExplode= false;
                             bomb.setVisibility(View.INVISIBLE);
                         }else {
-                            setBombAnimation(game.bombLevel());
+                            setBombAnimation(screenBombLevel);
                         }
                     }
                 }
@@ -527,7 +529,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                             v.setLayoutParams(par);
                             scaleIn(bomb, 5);
-                            setBombAnimation(game.bombLevel());
+                            setBombAnimation(screenBombLevel);
 
                             //check intersection
                             if(checkInterSection(playerfield, i,  event.getRawX(), event.getRawY())
@@ -625,7 +627,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 eq = game.getNoPlayers()-1;
                 if(missedPlayer == eq) { //No player hit, decrease bomb and update score;
                     double dist = Math.sqrt(Math.pow(par.leftMargin - centerPos[0], 2) + Math.pow(par.topMargin - centerPos[1], 2));
-                    if (dist < 10) {
+                    if (dist < 50) {
                         Log.d("distance", Double.toString(dist));
                         game.bombLock.lock();
                         //playSound(R.raw.bomb_tap);
