@@ -447,7 +447,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         );
         bomb.startAnimation(anim);
 
-        if (bombExplode && !explosionAnimation.isRunning()) {
+        if (bombExplode) {
 
             explosionView.setVisibility(View.VISIBLE);
             explosionView.post(new Runnable() {
