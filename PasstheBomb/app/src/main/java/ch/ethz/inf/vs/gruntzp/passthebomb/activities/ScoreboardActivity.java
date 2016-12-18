@@ -59,6 +59,7 @@ public class ScoreboardActivity extends AppCompatActivity implements MessageList
         //game=new Game("herp derp", "theBest", false, ""); // only for testing purposes
 
         //sort players by their scores
+
         LinkedList<Player> sortedPlayers = new LinkedList<>(game.getPlayers());
         Collections.sort(sortedPlayers);
 

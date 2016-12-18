@@ -10,10 +10,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class Game {
-	
+
 	private static final int maxBombLifeTime = 100; // max Lifetime of a bomb
 	private static final int minBombLifetime = 20;
-	
+
 	private static final int scoreIncrease = 5;
 	private static final int scoreDecrease = -20;
 
@@ -73,19 +73,24 @@ public final class Game {
 	}
 
 	public void removePlayer(Player player) {
-		players.remove(player);
-		if (numberOfPlayers() > 0) {
-			if (player == owner)
-				owner = players.get(0);
-			if (bombOwner == player)
+		if (started) {
+			players.set(players.indexOf(player), null);
+			if (numberOfPlayers() > 0 && bombOwner == player)
 				setBombOwner(pickRandom());
-		}	
+			if (numberOfPlayers() > 0 && player == owner)
+				owner = pickRandom();
+		} else {// still in Lobby
+			players.remove(player);
+			if (numberOfPlayers() > 0 && player == owner)
+				owner = players.get(0);
+		}
 	}
 
 	public String getPlayersName() {
 		String s = "";
 		for (Player p : players) {
-			s = s + p.getName() + ", ";
+			if (p != null)
+				s = s + p.getName() + ", ";
 		}
 		return s;
 	}
@@ -98,12 +103,13 @@ public final class Game {
 		return players;
 	}
 
-	public boolean playerInGame(Player p) {
-		return players.contains(p);
-	}
-
 	public int numberOfPlayers() {
-		return players.size();
+		int size = 0;
+		for (Player player : players) {
+			if (player != null)
+				size++;
+		}
+		return size;
 	}
 
 	public void startGame() {
@@ -114,13 +120,12 @@ public final class Game {
 		System.out.println(getGamename() + " has started");
 	}
 
-	
 	public void bomb_exploded(Player p) {
 		p.changeScore(p.getScore() / 2);
-		//p.changeScore(scoreDecrease);
-		
+		// p.changeScore(scoreDecrease);
+
 		for (Player player : players) {
-			if (p != player) {
+			if (player != null && p != player) {
 				player.changeScore(scoreIncrease);
 			}
 		}
@@ -129,22 +134,25 @@ public final class Game {
 	private static Random random = new Random();
 
 	private static int createBomb() {
-		//TODO: Gauss
+		// TODO: Gauss
 		return random.nextInt(maxBombLifeTime - minBombLifetime) + minBombLifetime;
 	}
 
-	private Player pickRandom() {
+	public Player pickRandom() {
 		int size = players.size();
 		int choice = random.nextInt(size);
+		while (players.get(choice) == null) {
+			choice = random.nextInt(size);
+		}
 		return players.get(choice);
 	}
 
 	public int indexOfPlayer(Player player) {
 		return players.indexOf(player);
-	}
+	}//
 
 	public void broadcast_detailed_state(int type) {
-		switch(type) {
+		switch (type) {
 		case MessageFactory.SC_UPDATE_SCORE:
 			broadcast(MessageFactory.SC_UpdateScore(this.toJSON(1)));
 			break;
@@ -159,39 +167,42 @@ public final class Game {
 			break;
 		case MessageFactory.SC_BOMB_EXPLODED:
 			broadcast(MessageFactory.SC_BombExploded(this.toJSON(1)));
-			break;	
+			break;
 		default:
 			break;
 		}
-		
+
 	}
 
 	public void broadcast(String message) {
 		System.out.println(message);
 		for (Player player : players) {
-			Session s = player.getSession();
+			if (player != null) {
+				Session s = player.getSession();
 
-			try {
-				if (s.isOpen())
-					s.getBasicRemote().sendText(message);
-			} catch (IOException e) {
-				e.printStackTrace();
+				try {
+					if (s.isOpen())
+						s.getBasicRemote().sendText(message);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
 
 	public boolean isFinished() {
 		for (Player p : players) {
-			if (p.getScore() >= MessageFactory.FINAL_SCORE)
+			if (p != null && p.getScore() >= MessageFactory.FINAL_SCORE)
 				return true;
 		}
 		return false;
 	}
 
-	
 	public void destroy() {
 		for (Player p : players) {
-			p.leaveGame();
+			if (p != null) {
+				p.leaveGame();
+			}
 		}
 	}
 
@@ -208,12 +219,16 @@ public final class Game {
 
 		if (level > 0) {
 			body.put("owner", owner.getUuid());
-			body.put("bombOwner", bombOwner==null ? -1 : bombOwner.getUuid());
+			body.put("bombOwner", bombOwner == null ? -1 : bombOwner.getUuid());
 			body.put("bomb", bomb);
 			body.put("initial_bomb", initialbomb);
 			JSONArray players = new JSONArray();
 			for (Player player : this.getPlayers())
-				players.put(player.toJSON());
+				if (player == null) {
+					players.put("left");
+				} else {
+					players.put(player.toJSON());
+				}
 
 			body.put("players", players);
 		}

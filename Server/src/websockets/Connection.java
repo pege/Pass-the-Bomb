@@ -377,11 +377,10 @@ public final class Connection {
 						game.removePlayer(player);
 
 						if (game.hasStarted() && game.numberOfPlayers() == 1) {
-							sendMess(game.getPlayers().get(0).getSession(), MessageFactory.SC_InstantWin());
+							sendMess(game.pickRandom().getSession(), MessageFactory.SC_InstantWin());
 							game.destroy(); //Necessary, because else the winner will be inGame forever
 							games.remove(game);
 						} else {
-							// TODO if one player and already started?
 							System.out.println(player.getName() + "left the game " + game.getGamename());
 							game.broadcast(MessageFactory.SC_PlayerLeft(game.toJSON(1)));
 						}
@@ -440,7 +439,7 @@ public final class Connection {
 						String targetUUID = (String) body.get("target");
 
 						for (Player p : game.getPlayers()) {
-							if (p.getUuid().equals(targetUUID)) {
+							if (p!=null && p.getUuid().equals(targetUUID)) {
 								game.setBombOwner(p);
 								game.broadcast_detailed_state(MessageFactory.SC_BOMB_PASSED);
 								transfered = true;
