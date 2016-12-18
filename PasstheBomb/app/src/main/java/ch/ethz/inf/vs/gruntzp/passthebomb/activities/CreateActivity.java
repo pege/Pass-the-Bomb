@@ -128,6 +128,11 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                     e.printStackTrace();
                 }
                 break;
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }

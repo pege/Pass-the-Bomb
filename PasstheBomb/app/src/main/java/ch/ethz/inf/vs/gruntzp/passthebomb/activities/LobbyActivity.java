@@ -114,7 +114,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         // places player names
         for (int i = 1; i<=game.getPlayers().size(); i++){
             TextView text = (TextView) ((TableRow)tableLayout.getChildAt(i)).getChildAt(0);
-            text.setText(game.getPlayers().get(i-1).getName());
+            String playerName = game.getPlayers().get(i-1).getName();
+            if(playerName.length()>33){
+                playerName = playerName.substring(0,31) + "...";
+            }
+            text.setText(playerName);
             if(Build.VERSION.SDK_INT >= 23) {
                 text.setTextColor(getColor(R.color.black));
             }else{
@@ -174,14 +178,16 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         myIntent.putExtra("thisPlayer", thisPlayer);
 
         //These flags render GameActivity on top of the stack with no other activities on the backstack -> on finish() app closes
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        /*myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        myIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);*/
+        //TODO:Maybe this prevents lingering
 
         Intent intent = new Intent(this, AudioService.class);
         stopService(intent);
 
         this.startActivity(myIntent);
+        //TODO: why?
         finish();
         // destroy intent with MainActivity
         //getParent().getParent().finish();
@@ -221,6 +227,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 isCreator = game.getCreatorName().equals(thisPlayer.getName());
                 setStartButton();
                 updateTable();
+            case MessageFactory.CONNECTION_FAILED:
+                Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
+                Intent retMain = new Intent(this, MainActivity.class);
+                this.startActivity(retMain);
+                finish();
             default:
                 break;
         }

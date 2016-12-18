@@ -15,6 +15,10 @@ import android.util.Log;
 public class ServiceConnector {
     static private MessageService mService;
     static private boolean mBound = false;
+    private static final String ip = "54.213.92.251";
+    //private static final String ip = "10.2.136.200";
+    //private static final String ip = "10.0.2.2";
+    private static final String port = "8080";
 
     private static ServiceConnector instance;
 
@@ -45,6 +49,7 @@ public class ServiceConnector {
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
             System.out.println("DISCONNECTED FROM SERVICE");
+            startService((AppCompatActivity) mService.activity);
         }
     };
 
@@ -56,11 +61,11 @@ public class ServiceConnector {
         if(!mBound)
         {
             Intent intent = new Intent(activity, MessageService.class);
-            intent.putExtra("ip", "54.213.92.251");
-            //intent.putExtra("ip", "10.2.136.200");
-            //intent.putExtra("ip", "10.0.2.2");
 
-            intent.putExtra("port", "8088");
+            intent.putExtra("ip", ip);
+
+            intent.putExtra("port", port);
+
 
             Reference r = new Reference();
             r.setActivity((MessageListener) activity);
@@ -70,6 +75,9 @@ public class ServiceConnector {
 
             // Start service (this is done only by main activity)
             activity.startService(intent);
+        } else {
+            System.out.println("Trying to reconnect MessageService");
+            mService.reconnect(ip, port); //Try to reconnect with current activity as listener
         }
     }
 
@@ -106,4 +114,8 @@ public class ServiceConnector {
         mService.sendMessage(message);
     }
 
+    public void tryReconnecting() {
+        System.out.println("Trying to restart");
+        mService.reconnect(ip, port); //Try to reconnect with current activity as listener
+    }
 }

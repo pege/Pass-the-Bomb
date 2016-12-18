@@ -39,6 +39,11 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private boolean registered;
     private boolean creating;
     private boolean joining;
+    private int reconnect_counter;
+    private final int TOAST_WAIT = 10; //5 seconds between toasts that inform about reconnecting
+
+
+    //TODO: What happens if this activity is started by an intent? (Because of launchMode: singleTask)
 
 
     @Override
@@ -46,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mEdit   = (EditText)findViewById(R.id.text_field);
+
+        reconnect_counter = 0; //Used to display reconnect message every so often
 
         //change status bar colour
         Window window = getWindow();
@@ -197,9 +204,12 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     }
 
+    private void tryConnect() { //Should already be bound from onStart, this is only if we tyr to connect several times
+        controller.startService(this);
+    }
+
     @Override
     public void onMessage(int type, JSONObject body) {
-        //TODO
         switch(type) {
             case 0:
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
@@ -212,9 +222,23 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 this.startActivity(JoinIntent);
                 break;
             case MessageFactory.CONNECTION_FAILED:
-                Toast.makeText(this.getApplicationContext(), "Connection could not be established", Toast.LENGTH_LONG).show();
+                try {//Try connecting every 0.5 seconds
+                    Thread.sleep(500);
+                } catch(InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(reconnect_counter == 0)
+                    Toast.makeText(this.getApplicationContext(), "Trying to connect", Toast.LENGTH_SHORT).show();
+                tryConnect();
+                reconnect_counter = ++reconnect_counter % TOAST_WAIT;
                 break;
-            case MessageFactory.SC_RECONNECT_DENIED_ERROR: //Already registered, don't care and fall through
+            case MessageFactory.SC_RECONNECT_DENIED_ERROR:
+                if(creating || joining) {//We were already registered and trying to create or join
+                    onMessage(MessageFactory.SC_REGISTER_SUCCESSFUL, body);
+                } else {//We were ingame but disconnected for too long
+                    Toast.makeText(this.getApplicationContext(), "Kicked from game: timeout too long", Toast.LENGTH_SHORT).show();
+                }
+                break;
             case MessageFactory.SC_REGISTER_SUCCESSFUL: //Newly registered
                 registered = true;
                 if (creating) {
@@ -265,7 +289,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     protected void onStop() {
         super.onStop();
         controller.unbind(this);
-
     }
 
     protected void tryRegister(String userName) {

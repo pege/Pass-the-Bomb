@@ -6,6 +6,8 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 
+import java.io.IOException;
+
 import ch.ethz.inf.vs.gruntzp.passthebomb.activities.R;
 
 /**
@@ -17,6 +19,7 @@ public class AudioService extends Service {
     private final IBinder mBinder = new LocalBinder();
     private MediaPlayer bgm;
     private MediaPlayer sound;
+    private MediaPlayer tap;
 
 
     /**
@@ -35,6 +38,7 @@ public class AudioService extends Service {
         bgm = MediaPlayer.create(this, R.raw.bomb_stage1);
         bgm.setLooping(true);
         bgm.start();
+        tap = MediaPlayer.create(this, R.raw.bomb_tap);
     }
 
     @Override
@@ -84,5 +88,18 @@ public class AudioService extends Service {
         sound = MediaPlayer.create(this, soundfile);
         sound.start();
 
+    }
+    
+    public void playTap(){
+        if (tap.isPlaying()){
+            tap.stop();
+            try {
+                tap.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        tap.start();
+       
     }
 }

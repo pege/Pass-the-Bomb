@@ -76,7 +76,7 @@ public class MessageService extends Service {
     @OnClose
     public void onClose(Session session, CloseReason closeReason) throws IOException {
         System.out.println("Disconnected");
-    }
+        onMessage(MessageFactory.Connection_Failed(),null);}
 
     public void reconnect(String ip, String port)
     {
@@ -121,7 +121,8 @@ public class MessageService extends Service {
                 ClientManager client = ClientManager.createClient();
                 try{
                     URI uri = null;
-                    uri = new URI("ws://" + ip + ":" + port + "/websockets/passTheBomb");
+                    //uri = new URI("ws://" + ip + ":" + port + "/websockets/passTheBomb");
+                    uri = new URI("ws://" + ip + ":" + port + "/websockets/echo");
                     wsSession = client.connectToServer(MessageService.class, uri);
                 }
                 catch(Exception ex){

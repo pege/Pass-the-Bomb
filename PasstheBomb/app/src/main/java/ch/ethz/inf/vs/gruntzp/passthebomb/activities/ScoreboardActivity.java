@@ -70,7 +70,11 @@ public class ScoreboardActivity extends AppCompatActivity implements MessageList
 
             // display player's name
             TextView playerName = (TextView) tableRow.getChildAt(0);
-            playerName.setText(sortedPlayers.get(i).getName());
+            String name = sortedPlayers.get(i).getName();
+            if(name.length()>27){
+                name = name.substring(0,24) + "...";
+            }
+            playerName.setText(name);
 
 
             // display player's score
