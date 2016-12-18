@@ -36,7 +36,7 @@ public class ClientSide {
 			ClientManager client = ClientManager.createClient();
 			URI uri;
 
-			uri = new URI("ws://localhost:8081/websockets/passTheBomb");
+			uri = new URI("ws://localhost:8088/websockets/passTheBomb");
 			//uri = new URI("ws://10.2.136.200:8088/websockets/passTheBomb");
 			//uri = new URI("ws://54.213.92.251:8080/websockets/echo");
 			
@@ -86,11 +86,11 @@ public class ClientSide {
 					break;
 				case "create":
 					sess.getBasicRemote()
-							.sendText(MessageFactory.createGame(message[1], message.length == 3 ? message[2] : ""));
+							.sendText(MessageFactory.createGame(message[1], message.length == 3 ? message[2] : "",message[3]));
 					break;
 				case "join":
 					sess.getBasicRemote()
-							.sendText(MessageFactory.joinGame(message[1], message.length == 3 ? message[2] : ""));
+							.sendText(MessageFactory.joinGame(message[1], message.length == 3 ? message[2] : "", message[3]));
 					break;
 				case "leave":
 					sess.getBasicRemote().sendText(MessageFactory.leaveGame());

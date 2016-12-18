@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.CountDownLatch;
 
+import javax.websocket.CloseReason;
 import javax.websocket.DeploymentException;
 
 import org.glassfish.tyrus.server.Server;

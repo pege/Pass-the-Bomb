@@ -155,7 +155,8 @@ public class Game implements Parcelable {
         LinkedList<Player> p2 = other.getPlayers();
         if (this.getNoPlayers() == other.getNoPlayers()) {
             for (int i = 0; i < this.getNoPlayers(); i++) { //Players are never shuffled, so we don't check if uuids match
-                p1.get(i).setScore(p2.get(i).getScore());
+                if(p1.get(i)!=null)
+                    p1.get(i).setScore(p2.get(i).getScore());
             }
         }
     }

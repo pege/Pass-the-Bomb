@@ -187,7 +187,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
 
         int guiPos = 0; //index for player field
-        for(int i = 0; i < game.getNoPlayers(); i++){
+        for(int i = 0; i < game.getPlayers().size(); i++){
             Player curr = game.getPlayers().get(i);
             if (curr != null && !thisPlayer.equals(curr)) {
                 Button player_field = (Button) gameView.getChildAt(guiPos);
@@ -231,7 +231,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     public void updateScores(){
         int guiPos = 0; //index for player field
-        for(int i=0; i<game.getNoPlayers(); i++){
+        for(int i=0; i<game.getPlayers().size(); i++){
             if (game.getPlayers().get(i) != null && thisPlayer != game.getPlayers().get(i)) {
                 Button player_field = (Button) gameView.getChildAt(guiPos);
                 //we include score in the name-string
@@ -508,7 +508,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                 final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
 
-                for(int i=0; i<game.getNoPlayers()-1; i++) {
+                for(int i=0; i<game.getPlayers().size()-1; i++) {
                     Button playerfield = (Button) gameView.getChildAt(i);
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN: {
@@ -899,6 +899,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 newGame = Game.createFromJSON(body);
                 String oldBombOwner = game.getBombOwner().getUuid();
                 game.setPlayersAndRoles(newGame.getPlayers(),newGame.getCreator().getUuid(), newGame.getBombOwner().getUuid());
+                game.setNumberOfPlayers(game.getNoPlayers()-1);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 setUpPlayers();
                 if(!oldBombOwner.equals(game.getBombOwner().getUuid()))
