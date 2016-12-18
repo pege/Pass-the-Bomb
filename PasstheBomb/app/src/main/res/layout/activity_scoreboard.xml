@@ -23,7 +23,6 @@
                 android:text="@string/score"
                 android:padding="16dip"
                 android:textColor="#fff"
-                android:textAlignment="viewEnd"
                 android:background="@drawable/cell_shape_dark"/>
         </TableRow>
         <TableRow>

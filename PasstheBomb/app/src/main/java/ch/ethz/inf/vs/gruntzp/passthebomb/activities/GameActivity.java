@@ -95,13 +95,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         Player creator = new Player("Senpai", "0");
         game = new Game("herp derp", creator, false, true);
         game.addPlayer(creator);
-        game.addPlayer(new Player("herp", "1"));
+        game.addPlayer(new Player("OOOOOOOOOOOOOOOOOOOOOOOOO...", "1"));
         game.addPlayer(new Player("derp", "2"));
         game.addPlayer(new Player("somebody", "3"));
-        game.getPlayers().get(1).setScore(9000);
+        game.getPlayers().get(1).setScore(20);
         thisPlayer = game.getPlayers().get(0);
-        thisPlayer.setHasBomb(true);
-        thisPlayer.setScore(2000);
+        game.getPlayers().get(1).setHasBomb(true);
+        thisPlayer.setHasBomb(false);
+        thisPlayer.setScore(50);
         //endGame();
 */
 
@@ -117,7 +118,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         bomb.setLayoutParams(par);
 
         setUpBomb();
-
     }
 
 
@@ -185,7 +185,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             if (!thisPlayer.equals(curr)) {
                 Button player_field = (Button) gameView.getChildAt(j);
                 player_field.setVisibility(View.VISIBLE);
-                player_field.setText(curr.getName() + "\n" + curr.getScore());
+                String playerName = curr.getName();
+                if(playerName.length()>17){
+                    playerName = playerName.substring(0,15) + "...";
+                }
+                player_field.setText(playerName + "\n" + curr.getScore());
                 if(curr.isHasBomb())
                     addBombIcon(j);
                 else
@@ -712,7 +716,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     public void endGame(){
         if(thisPlayer.isHasBomb()){
-            //TODO make bomb explode
+            //TODO make bomb explode <-- is this still necessary? (the bomb explodes before the game is ended, right?
         }
 
         //darken rest of the screen
@@ -826,7 +830,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //start next activity
         this.startActivity(myIntent);
 
-        if(!this.getParent().equals(null)) //Trying to get rid of lingering activity
+        if(this.getParent() != null) //Trying to get rid of lingering activity
             this.getParent().finish();
 
         finish();
