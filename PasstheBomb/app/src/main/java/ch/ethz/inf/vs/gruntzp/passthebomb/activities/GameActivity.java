@@ -448,10 +448,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                                     explosionAnimation.start();
                                                     checkIfAnimationDone(explosionAnimation);
                                                     playSound(R.raw.bomb_explode);
+                                                    bomb.setVisibility(View.INVISIBLE);
                                                 }
                                             });
-                            bombExplode= false;
-                            bomb.setVisibility(View.INVISIBLE);
                         }else {
                             setBombAnimation(screenBombLevel);
                         }
@@ -468,11 +467,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         int timeBetweenChecks = 66;
         Handler h = new Handler();
         h.postDelayed(new Runnable(){
-            final Drawable frame = getResources().getDrawable(R.drawable.explosion0010);
             public void run(){
                 if (a.getCurrent() != a.getFrame(a.getNumberOfFrames() - 1)){
                     checkIfAnimationDone(a);
                 } else {
+                    bombExplode= false;
                     final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
                     explosionView.setVisibility(View.GONE);
                     enableOnTouchAndDragging();
