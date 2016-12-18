@@ -183,12 +183,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             player_field.setVisibility(View.INVISIBLE);
         }
 
-        int j = 0; //index for player field
+        int guiPos = 0; //index for player field
         for(int i = 0; i < game.getNoPlayers(); i++){
             Player curr = game.getPlayers().get(i);
             if (curr != null && !thisPlayer.equals(curr)) {
-                int pos = game.getPlayers().indexOf(curr);
-                Button player_field = (Button) gameView.getChildAt(pos);
+                Button player_field = (Button) gameView.getChildAt(guiPos);
                 player_field.setVisibility(View.VISIBLE);
                 String playerName = curr.getName();
                 if(playerName.length()>17){
@@ -196,11 +195,13 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 player_field.setText(playerName + "\n" + curr.getScore());
                 if(curr.isHasBomb())
-                    addBombIcon(j);
+                    addBombIcon(guiPos);
                 else
-                    removeDrawableIcon(j);
-                j++;
+                    removeDrawableIcon(guiPos);
+                guiPos++;
             }
+            if(curr == null)
+                guiPos++;
         }
         TextView own_score = (TextView) findViewById(R.id.Score_number);
         own_score.setText(thisPlayer.getScore()+"");
