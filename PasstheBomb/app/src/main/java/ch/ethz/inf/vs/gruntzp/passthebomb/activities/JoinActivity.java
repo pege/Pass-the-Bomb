@@ -268,6 +268,11 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                     // Get a reference for the popup window view input password field
                     final EditText inputPassword = (EditText) passwordPopUp.findViewById(R.id.input_password);
 
+                    //font
+                    inputPassword.setTypeface(font);
+                    TextView askForPassword = (TextView) passwordPopUp.findViewById(R.id.ask_for_password);
+                    askForPassword.setTypeface(font);
+
 
 
                     // Set a click listener for the popup window join button
