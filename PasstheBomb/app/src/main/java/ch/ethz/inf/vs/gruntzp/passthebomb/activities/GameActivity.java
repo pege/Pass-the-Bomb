@@ -441,21 +441,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         par.leftMargin = centerPos[0]+x;
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
-
-                        if (bombExplode) {
-                            explosionView.setVisibility(View.VISIBLE);
-                            explosionView.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    explosionAnimation.start();
-                                    checkIfAnimationDone(explosionAnimation);
-                                    playSound(R.raw.bomb_explode);
-                                    bomb.setVisibility(View.INVISIBLE);
-                                }
-                            });
-                        }else {
-                            setBombAnimation(screenBombLevel);
-                        }
+                        setBombAnimation(screenBombLevel);
                     }
                 }
         );
