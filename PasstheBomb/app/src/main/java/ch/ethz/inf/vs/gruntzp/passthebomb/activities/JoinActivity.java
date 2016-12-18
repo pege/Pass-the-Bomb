@@ -148,7 +148,11 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
     private void addGameName(TableRow tableRow, Game game, int padding){
         // put in the game's name
         TextView gameName = new TextView(this);
-        gameName.setText(game.getName());
+        String name = game.getName();
+        if(name.length()>11){
+            name = name.substring(0,9)+"...";
+        }
+        gameName.setText(name);
         gameName.setPadding(padding, padding, padding, padding);
         gameName.setBackground(getDrawable(R.drawable.cell_shape_input));
         if(Build.VERSION.SDK_INT >= 23) {

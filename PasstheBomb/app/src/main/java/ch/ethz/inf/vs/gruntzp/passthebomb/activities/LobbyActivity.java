@@ -114,7 +114,11 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
         // places player names
         for (int i = 1; i<=game.getPlayers().size(); i++){
             TextView text = (TextView) ((TableRow)tableLayout.getChildAt(i)).getChildAt(0);
-            text.setText(game.getPlayers().get(i-1).getName());
+            String playerName = game.getPlayers().get(i-1).getName();
+            if(playerName.length()>33){
+                playerName = playerName.substring(0,31) + "...";
+            }
+            text.setText(playerName);
             if(Build.VERSION.SDK_INT >= 23) {
                 text.setTextColor(getColor(R.color.black));
             }else{
