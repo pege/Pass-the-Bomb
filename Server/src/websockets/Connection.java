@@ -240,8 +240,14 @@ public final class Connection {
 							} catch (IOException e) {
 								e.printStackTrace();
 							}
+							
+							if(player.getJoinedGame().equals(null)){
+								sendMess(session, MessageFactory.sc_registerSuccessful());
+							} else {
+								sendMess(session, MessageFactory.SC_GameUpdate(player.getJoinedGame().toJSON(1)));
+							}
 
-							MessageFactory.SC_GameUpdate(player.getJoinedGame().toJSON(1));
+							
 
 							System.out.println("=== " + username + " has reconnected ===");
 							reconnect = true;
