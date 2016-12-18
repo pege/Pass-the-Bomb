@@ -264,6 +264,9 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                     // Get a reference for the popup window view input password field
                     final EditText inputPassword = (EditText) passwordPopUp.findViewById(R.id.input_password);
 
+                    Bundle extras = getIntent().getExtras();
+                    final String user_name = extras.getString("user_name");
+
                     // Set a click listener for the popup window join button
                     joinButton.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -281,8 +284,9 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                                     // Make the screen colour turn back to normal
                                     blackout.setVisibility(View.INVISIBLE);
 
+
                                     // create a new intent
-                                    controller.sendMessage(MessageFactory.joinGame(thisGame.getName(),password));
+                                    controller.sendMessage(MessageFactory.joinGame(thisGame.getName(),password, user_name));
 
                                     //TODO: pass information to server that the player is entering that game
 

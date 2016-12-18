@@ -22,6 +22,7 @@ public class MessageFactory {
     public static final int EXPLODED = 8;		// server
     public static final int START_GAME = 9;	// server
     public static final int UPDATE_SCORE = 10;
+    public static final int NAME_CHANGED = 25;
     
  // FROM SERVER TO CLIENT
     public static final int SC_GAME_LIST = 11;
@@ -67,7 +68,7 @@ public class MessageFactory {
 	
 
 
-    public static String createGame(String game_id, String password)
+    public static String createGame(String game_id, String password, String username)
     {
         try {
             JSONObject header = new JSONObject();
@@ -76,6 +77,7 @@ public class MessageFactory {
             JSONObject body = new JSONObject();
             body.put("game_id", game_id);
             body.put("password", password);
+            body.put("username", username);
 
             return compose(header, body);
         } catch (JSONException e) {
@@ -100,8 +102,9 @@ public class MessageFactory {
         }
         return null;
     }
+    
 
-    public static String joinGame(String game_id, String password) {
+    public static String joinGame(String game_id, String password, String username) {
         try {
             JSONObject header = new JSONObject();
             JSONObject body = new JSONObject();
@@ -109,6 +112,7 @@ public class MessageFactory {
             header.put("type", JOIN_GAME);
             body.put("game_id", game_id);
             body.put("pw", password);
+            body.put("username", username);
 
             return compose(header,body);
         } catch (JSONException e) {
@@ -117,8 +121,8 @@ public class MessageFactory {
         return null;
     }
     
-    public static String joinGame(String game_id) {
-        return joinGame(game_id, null);
+    public static String joinGame(String game_id, String username) {
+        return joinGame(game_id, null, username);
     }
 
     public static String leaveGame() {
