@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 tryRegister(userName);
             else {
                 //Start next Activity
+
                 creating = false;
                 Intent myIntent = new Intent(this, CreateActivity.class);
                 myIntent.putExtra("creator_name", userName);

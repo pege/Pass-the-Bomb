@@ -89,13 +89,16 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
                 String password = passwordField.getText().toString();
                 lastRequestedGame = gameName.getText().toString();
 
-                controller.sendMessage(MessageFactory.createGame(lastRequestedGame, password));
+                Bundle extras = getIntent().getExtras();
+                String creatorName = extras.getString("creator_name");
+
+                controller.sendMessage(MessageFactory.createGame(lastRequestedGame, password, creatorName));
 
                 //TODO give the server the game information
                 //create the game
 
-                Bundle extras = getIntent().getExtras();
-                String creatorName = extras.getString("creator_name");
+
+
                 Boolean locked = passwordSwitch.isChecked();
             }
         }
