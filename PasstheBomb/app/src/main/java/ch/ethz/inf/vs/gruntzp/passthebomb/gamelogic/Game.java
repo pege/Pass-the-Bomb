@@ -8,7 +8,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 // implements Parcelable so that it can be put in putExtra()
-public class Game implements Parcelable{
+public class Game implements Parcelable {
 
     private String name;
     private Player creator;
@@ -36,21 +38,22 @@ public class Game implements Parcelable{
     public static final int DEC_ERROR = 3;
     public Lock bombLock = new ReentrantLock();
 
-    public Game(String name, Player creator, Boolean locked, boolean started){
+    public Game(String name, Player creator, Boolean locked, boolean started) {
         this.name = name;
         this.creator = creator;
 
         this.players = new LinkedList<>();
-        players.addFirst(creator);
+        if(creator != null)
+            players.addFirst(creator);
 
         this.locked = locked;
         this.started = started;
-        this.bomb = new Bomb(Bomb.blank_initializer,Bomb.blank_initializer);
+        this.bomb = new Bomb(Bomb.blank_initializer, Bomb.blank_initializer);
         this.bombOwner = null;
         this.numberOfPlayers = 0;
     }
 
-    public Game(Parcel in){
+    public Game(Parcel in) {
         name = in.readString();
         creator = in.readParcelable(Player.class.getClassLoader());
         players = new LinkedList<>();
@@ -68,7 +71,9 @@ public class Game implements Parcelable{
         this.name = name;
     }
 
-    public String getCreatorName() {return creator.getName();}
+    public String getCreatorName() {
+        return creator.getName();
+    }
 
     public void setCreator(Player creator) {
         this.creator = creator;
@@ -76,11 +81,13 @@ public class Game implements Parcelable{
 
     public void newCreator(Player creator) {
         this.creator = creator;
-        players.remove(0);
-        players.addFirst(creator);
+        //players.remove(0);
+        //players.addFirst(creator);
     }
 
-    public Player getCreator() {return creator;}
+    public Player getCreator() {
+        return creator;
+    }
 
     public LinkedList<Player> getPlayers() {
         return players;
@@ -92,25 +99,27 @@ public class Game implements Parcelable{
 
     public void setPlayersAndRoles(LinkedList<Player> nplayers, String creatorUuid, String bombUuid) {
         this.players = nplayers;
-        for(Player p : this.players) {
-            if(p.getUuid().equals(bombUuid)){
-                this.bombOwner = p;
-                this.bombOwner.setHasBomb(true);
-            }   else {
-                p.setHasBomb(false);
+        for (Player p : this.players) {
+            if (p != null) {
+                if (p.getUuid().equals(bombUuid)) {
+                    this.bombOwner = p;
+                    this.bombOwner.setHasBomb(true);
+                } else {
+                    p.setHasBomb(false);
+                }
+                if (p.getUuid().equals(creatorUuid))
+                    this.creator = p;
             }
-            if(p.getUuid().equals(creatorUuid))
-                this.creator = p;
         }
     }
 
-    public void addPlayer(Player player){
+    public void addPlayer(Player player) {
         players.add(player);
     }
 
-    public void removePlayer (Player player){
-        players.remove(player);
-    }
+    //public void removePlayer (Player player){
+    //    players.remove(player);
+    //}
 
     public Boolean getLocked() {
         return locked;
@@ -120,15 +129,20 @@ public class Game implements Parcelable{
         this.locked = locked;
     }
 
-    public int bombLevel() { return bomb.getLevel();}
+    public int bombLevel() {
+        return bomb.getLevel();
+    }
 
-    public boolean hasStarted() {return started;}
+    public boolean hasStarted() {
+        return started;
+    }
 
     public int getNoPlayers() {
-        if (players.get(0) == null) //Players not initialized
-            return numberOfPlayers;
-        else
-            return players.size();
+        return numberOfPlayers;
+        //if (players.get(0) == null) //Players not initialized
+        //    return numberOfPlayers;
+        //else
+        //    return players.size();
 
     }
 
@@ -139,8 +153,8 @@ public class Game implements Parcelable{
     public void adoptScore(Game other) {
         LinkedList<Player> p1 = this.getPlayers();
         LinkedList<Player> p2 = other.getPlayers();
-        if(this.getNoPlayers() == other.getNoPlayers()) {
-            for(int i = 0; i < this.getNoPlayers(); i++) { //Players are never shuffled, so we don't check if uuids match
+        if (this.getNoPlayers() == other.getNoPlayers()) {
+            for (int i = 0; i < this.getNoPlayers(); i++) { //Players are never shuffled, so we don't check if uuids match
                 p1.get(i).setScore(p2.get(i).getScore());
             }
         }
@@ -148,8 +162,8 @@ public class Game implements Parcelable{
 
     public Player getPlayerByID(String uuid) {
         Player ret = null;
-        for(int i = 0; i < players.size(); i++) {
-            if(players.get(i).getUuid().equals(uuid))
+        for (int i = 0; i < players.size(); i++) {
+            if (players.get(i) != null && players.get(i).getUuid().equals(uuid))
                 ret = players.get(i);
         }
         return ret;
@@ -167,7 +181,9 @@ public class Game implements Parcelable{
         this.bomb.setCounter(bomb);
     }
 
-    public void newBomb(Bomb b) {this.bomb = b;}
+    public void newBomb(Bomb b) {
+        this.bomb = b;
+    }
 
     public int getBombInitValue() {
         return bomb.initValue();
@@ -186,7 +202,7 @@ public class Game implements Parcelable{
         if (v > 1) { //No problem, score increase allowed
             bomb.decrease();
             return DEC_OKAY;
-        } else if(v == 1) { //Last decrement, score increase allowed but the bomb explodes
+        } else if (v == 1) { //Last decrement, score increase allowed but the bomb explodes
             bomb.decrease();
             return DEC_LAST;
         } else { //Bomb already set to zero by another thread
@@ -210,14 +226,12 @@ public class Game implements Parcelable{
         dest.writeParcelable(bombOwner, flags);
     }
 
-    public static final Parcelable.Creator<Game> CREATOR = new Parcelable.Creator<Game>()
-    {
-        public Game createFromParcel(Parcel in)
-        {
+    public static final Parcelable.Creator<Game> CREATOR = new Parcelable.Creator<Game>() {
+        public Game createFromParcel(Parcel in) {
             return new Game(in);
         }
-        public Game[] newArray(int size)
-        {
+
+        public Game[] newArray(int size) {
             return new Game[size];
         }
     };
@@ -232,22 +246,26 @@ public class Game implements Parcelable{
             JSONArray jArray = gameInfo.getJSONArray("players");
             Player p;
             Player c = null;
-            String uuid = gameInfo.getString("owner");
-            String bombUuid = gameInfo.getString("bombOwner");
+            String gameOwnerUuid = gameInfo.getString("owner");
+            String bombOwnerUuid = gameInfo.getString("bombOwner");
             Game game = new Game(gameInfo.getString("name"), null,
                     gameInfo.getBoolean("hasPassword"),
                     gameInfo.getBoolean("started")); //This is evil, null creator should usually be avoided and is okay here because it is set just afterwards
-            for(int i = 0; i < jArray.length(); i++) {
-                p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
-                p.setScore(jArray.getJSONObject(i).getInt("score"));
-                p.setHasBomb(p.getUuid().equals(bombUuid));
-                p.setMaybeDC(jArray.getJSONObject(i).getBoolean("disconnected"));
-                if(bombUuid.equals(p.getUuid()))
-                    game.setBombOwner(p);
-                if (uuid.equals(p.getUuid())) {
-                    c = p;
-                    game.newCreator(c);
+            game.setNumberOfPlayers(gameInfo.getInt("noP"));
+            for (int i = 0; i < jArray.length(); i++) {
+                if (jArray.get(i).toString().equals("left")) {
+                    game.addPlayer(null);
                 } else {
+                    p = new Player(jArray.getJSONObject(i).getString("name"), jArray.getJSONObject(i).getString("uuid"));
+                    p.setScore(jArray.getJSONObject(i).getInt("score"));
+                    p.setHasBomb(p.getUuid().equals(bombOwnerUuid));
+                    p.setMaybeDC(jArray.getJSONObject(i).getBoolean("disconnected"));
+                    if (bombOwnerUuid.equals(p.getUuid()))
+                        game.setBombOwner(p);
+                    if (gameOwnerUuid.equals(p.getUuid())) {
+                        c = p;
+                        game.newCreator(c);
+                    }
                     game.addPlayer(p);
                 }
             }
@@ -260,7 +278,7 @@ public class Game implements Parcelable{
     }
 
     public static Game createFromJSON(JSONObject gameInfo) {
-            return createFromJSON(gameInfo.toString());
+        return createFromJSON(gameInfo.toString());
     }
 
     public static Game createFromJSON0(JSONObject gameInfo) {

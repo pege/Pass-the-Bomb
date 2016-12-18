@@ -34,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.LinkedList;
+import java.util.Set;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
@@ -86,6 +87,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         game = extras.getParcelable("game");
         game.setPlayersAndRoles(game.getPlayers(),game.getCreator().getUuid(),game.getBombOwner().getUuid());
+        game.setNumberOfPlayers(game.getPlayers().size());
         game.getBombOwner().setHasBomb(true);
         thisPlayer = extras.getParcelable("thisPlayer");
         thisPlayer = game.getPlayerByID(thisPlayer.getUuid()); //Want a reference, not a copy
@@ -146,13 +148,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
 
         Player disco = game.getPlayerByID(uuid);
-        int i = game.getPlayers().indexOf(disco);
-        int pos = game.getPlayers().indexOf(thisPlayer);
-        Button playerField = (Button) gameView.getChildAt((i < pos) ? i : (i - 1));
-        playerField.setBackground((i != 3) ?
-                getDrawable(R.drawable.greyed_out_field) : getDrawable(R.drawable.greyed_out_field_upsidedown));
+        if(disco != null) {
+            int i = game.getPlayers().indexOf(disco);
+            int pos = game.getPlayers().indexOf(thisPlayer);
+            Button playerField = (Button) gameView.getChildAt((i < pos) ? i : (i - 1));
+            playerField.setBackground((i != 3) ?
+                    getDrawable(R.drawable.greyed_out_field) : getDrawable(R.drawable.greyed_out_field_upsidedown));
 
-
+        }
 
 
         /* Testing that the positions of the fields don't get messed up
@@ -182,8 +185,9 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         int j = 0; //index for player field
         for(int i = 0; i < game.getNoPlayers(); i++){
             Player curr = game.getPlayers().get(i);
-            if (!thisPlayer.equals(curr)) {
-                Button player_field = (Button) gameView.getChildAt(j);
+            if (curr != null && !thisPlayer.equals(curr)) {
+                int pos = game.getPlayers().indexOf(curr);
+                Button player_field = (Button) gameView.getChildAt(pos);
                 player_field.setVisibility(View.VISIBLE);
                 String playerName = curr.getName();
                 if(playerName.length()>17){
@@ -222,8 +226,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     public void updateScores(){
         int j = 0; //index for player field
-        for(int i=0; i<game.getPlayers().size(); i++){
-            if (thisPlayer != game.getPlayers().get(i)) {
+        for(int i=0; i<game.getNoPlayers()-1; i++){
+            if (game.getPlayers().get(i) != null && thisPlayer != game.getPlayers().get(i)) {
                 Button player_field = (Button) gameView.getChildAt(j);
                 //we include score in the name-string
                 player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
@@ -496,7 +500,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                 final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
 
-                for(int i=0; i<game.getPlayers().size()-1; i++) {
+                for(int i=0; i<game.getNoPlayers()-1; i++) {
                     Button playerfield = (Button) gameView.getChildAt(i);
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN: {
@@ -739,7 +743,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         //show winner/loser
         Boolean isWinner = true;
         for(int i=0; i<game.getNoPlayers(); i++){
-            isWinner &= (thisPlayer.getScore() >= game.getPlayers().get(i).getScore());
+            if(game.getPlayers().get(i) != null)
+                isWinner &= (thisPlayer.getScore() >= game.getPlayers().get(i).getScore());
         }
         if(isWinner){
             ImageView showWinner = (ImageView) findViewById(R.id.you_win_image);
@@ -869,18 +874,18 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
-            case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist. Actually never called xD
-                newGame = Game.createFromJSON(body);
-                try {
-                    game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
-                    game.setBombOwner(newGame.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
-                    thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
-                } catch(JSONException e) {
-                    e.printStackTrace();
-                }
-                setUpPlayers();
-                updateScores();
-                break;
+            //case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist. Actually never called xD
+            //    newGame = Game.createFromJSON(body);
+            //    try {
+            //        game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
+            //        game.setBombOwner(newGame.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
+            //        thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
+            //    } catch(JSONException e) {
+            //        e.printStackTrace();
+            //    }
+            //    setUpPlayers();
+            //    updateScores();
+            //    break;
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
                 String oldBombOwner = game.getBombOwner().getUuid();
@@ -905,7 +910,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 game.setPlayersAndRoles(newGame.getPlayers(),game.getCreator().getUuid(), game.getCreator().getUuid());
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                 for(Player p : game.getPlayers()) {
-                    if(p.getMaybeDC()) {
+                    if(p != null && p.getMaybeDC()) {
                         showPlayerAsDisconnected(p.getUuid());
                     }
                 }
@@ -940,7 +945,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 thisPlayer.setHasBomb(false);
                 setUpBomb();
                 for(Player p : game.getPlayers()) {
-                    if(p.getScore() >= MessageFactory.FINAL_SCORE)
+                    if(p!=null && p.getScore() >= MessageFactory.FINAL_SCORE)
                         endGame();
                 }
                 //No player won, so we have to wait for next gameupdate
@@ -962,6 +967,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             case MessageFactory.SC_InstantWin:
                 game.setPlayers(new LinkedList<Player>());
                 game.addPlayer(thisPlayer);
+                game.setNumberOfPlayers(1);
                 endGame();
                 break;
             case MessageFactory.CONNECTION_FAILED:
