@@ -63,6 +63,7 @@ public class AudioService extends Service {
     public void playAudio(int audiofile){
         if (bgm != null) {
             bgm.stop();
+            bgm.reset();
             bgm.release();
         }
         bgm = MediaPlayer.create(this, audiofile);
@@ -83,6 +84,7 @@ public class AudioService extends Service {
     public void playSound(int soundfile){
         if (sound != null) {
             sound.stop();
+            sound.reset();
             sound.release();
         }
         sound = MediaPlayer.create(this, soundfile);
@@ -101,5 +103,16 @@ public class AudioService extends Service {
         }
         tap.start();
        
+    }
+
+    public void pauseMusic(){
+        if (bgm != null && bgm.isPlaying()){
+            bgm.pause();
+        }
+    }
+
+    public void resumeMusic(){
+        if (bgm != null && !bgm.isPlaying())
+            bgm.start();
     }
 }
