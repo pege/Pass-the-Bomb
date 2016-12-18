@@ -14,6 +14,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -53,6 +54,17 @@ public class CreateActivity extends AppCompatActivity implements MessageListener
             //noinspection deprecation
             create.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
         }
+
+        //text font
+        gameName.setTypeface(font);
+        TextView gameText = (TextView) findViewById(R.id.game_name);
+        gameText.setTypeface(font);
+        TextView passwordText = (TextView) findViewById(R.id.edit_password);
+        passwordText.setTypeface(font);
+        Switch passwordSwitch = (Switch) findViewById(R.id.switch_password);
+        passwordSwitch.setTypeface(font);
+
+
     }
 
 
