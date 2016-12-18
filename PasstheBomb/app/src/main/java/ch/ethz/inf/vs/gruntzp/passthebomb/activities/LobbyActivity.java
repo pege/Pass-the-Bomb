@@ -227,6 +227,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
                 isCreator = game.getCreatorName().equals(thisPlayer.getName());
                 setStartButton();
                 updateTable();
+                break;
             case MessageFactory.CONNECTION_FAILED:
                 Toast.makeText(this.getApplicationContext(), "Connection lost", Toast.LENGTH_SHORT).show();
                 Intent retMain = new Intent(this, MainActivity.class);
