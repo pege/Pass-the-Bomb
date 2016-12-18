@@ -18,7 +18,7 @@ public class ServiceConnector {
     private static final String ip = "54.213.92.251";
     //private static final String ip = "10.2.136.200";
     //private static final String ip = "10.0.2.2";
-    private static final String port = "8088";
+    private static final String port = "8080";
 
     private static ServiceConnector instance;
 
