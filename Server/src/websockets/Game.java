@@ -121,7 +121,7 @@ public final class Game {
 	}
 
 	public void bomb_exploded(Player p) {
-		p.changeScore(p.getScore() / 2);
+		p.changeScore((-1)*p.getScore() / 2);
 		// p.changeScore(scoreDecrease);
 
 		for (Player player : players) {
