@@ -233,6 +233,10 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                 */
                 //Answer: we send a join request to the server and only start LobbyActivity if we get a positive response :)
 
+                Bundle extras = getIntent().getExtras();
+                final String user_name = extras.getString("player_name");
+
+
                 if(thisGame.getLocked()){
                     // Initialize a new instance of LayoutInflater service
                     LayoutInflater inflater = (LayoutInflater) v.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -264,8 +268,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
                     // Get a reference for the popup window view input password field
                     final EditText inputPassword = (EditText) passwordPopUp.findViewById(R.id.input_password);
 
-                    Bundle extras = getIntent().getExtras();
-                    final String user_name = extras.getString("user_name");
+
 
                     // Set a click listener for the popup window join button
                     joinButton.setOnClickListener(new View.OnClickListener() {
@@ -319,7 +322,7 @@ public class JoinActivity extends AppCompatActivity implements MessageListener {
 
                 } else {
 
-                    controller.sendMessage(MessageFactory.joinGame(thisGame.getName(),password));
+                    controller.sendMessage(MessageFactory.joinGame(thisGame.getName(),password, user_name));
 
                     //TODO: pass information to server that the player is entering that game
                 }

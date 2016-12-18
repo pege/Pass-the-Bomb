@@ -120,10 +120,7 @@ public class MessageFactory {
         }
         return null;
     }
-    
-    public static String joinGame(String game_id, String username) {
-        return joinGame(game_id, null, username);
-    }
+
 
     public static String leaveGame() {
         try {
