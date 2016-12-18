@@ -100,11 +100,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         game.addPlayer(new Player("somebody", "3"));
         game.getPlayers().get(1).setScore(20);
         thisPlayer = game.getPlayers().get(0);
-        game.getPlayers().get(1).setHasBomb(true);
-        thisPlayer.setHasBomb(false);
+        thisPlayer.setHasBomb(true);
         thisPlayer.setScore(50);
-        //endGame();
 */
+        //endGame();
+
 
         //GUI stuff
         hideNavigationBar();
@@ -355,16 +355,16 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
                 break;
             case 2:
-                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage2);
                 break;
             case 3:
-                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage3);
                 break;
             case 4:
-                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage4);
                 break;
             case 5:
-                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
+                anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage5);
                 break;
             default:
                 anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.bomb_stage1);
@@ -384,7 +384,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     /**
      * @param x - is the offset on the x-axis from the centre
      */
-    private void moveBombToCenter(int x){
+    private void moveBombToCenter(final int x){
         if(bombExplode){
             disableOnTouchAndDragging();
         }
@@ -421,12 +421,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         bomb.clearAnimation();
 
                         FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
-                        par.leftMargin = centerPos[0];
+                        par.leftMargin = centerPos[0]+x;
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
 
                         if (bombExplode){
-                            disableOnTouchAndDragging();
                             final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
                             explosionView.setVisibility(View.VISIBLE);
                             explosionView.setBackgroundResource(R.drawable.explosion);
@@ -441,6 +440,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                                 }
                                             });
                             bombExplode= false;
+                            bomb.setVisibility(View.INVISIBLE);
                         }else {
                             setBombAnimation(game.bombLevel());
                         }
@@ -461,21 +461,14 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             public void run(){
                 if (a.getCurrent() != a.getFrame(a.getNumberOfFrames() - 1)){
                     checkIfAnimationDone(a);
-                    if(a.getCurrent() != a.getFrame(9)
-                        || a.getCurrent() != a.getFrame(8)
-                            || a.getCurrent() != a.getFrame(7)
-                            || a.getCurrent() != a.getFrame(6)
-                            || a.getCurrent() != a.getFrame(5)
-                            || a.getCurrent() != a.getFrame(4)
-                            || a.getCurrent() != a.getFrame(3)
-                            || a.getCurrent() != a.getFrame(2)
-                            || a.getCurrent() != a.getFrame(1)
-                            || a.getCurrent() != a.getFrame(0))
-                        bomb.setVisibility(View.INVISIBLE);
                 } else {
                     final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
                     explosionView.setVisibility(View.GONE);
                     enableOnTouchAndDragging();
+                    FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
+                    par.gravity = Gravity.NO_GRAVITY;
+                    bomb.setLayoutParams(par);
+                    setBombInCenter();
 
                 }
             }
