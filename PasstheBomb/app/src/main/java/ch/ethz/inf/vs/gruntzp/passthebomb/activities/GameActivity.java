@@ -11,6 +11,7 @@ import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -61,7 +62,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             AudioService.LocalBinder binder = (AudioService.LocalBinder) service;
             audioService = binder.getService();
             mBound = true;
-            audioService.playAudio(R.raw.bomb_stage1);
+
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -762,6 +763,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         controller.bind(this);
         if (!mBound) {
             Intent intent = new Intent(this, AudioService.class);
+            startService(intent);
             bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         }
         System.out.println("GameActivity bound to audioservice");
