@@ -912,6 +912,11 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 } catch(JSONException e) {
                     e.printStackTrace();
                 }
+                if (!thisPlayer.isHasBomb())
+                {
+                    playSound(R.raw.bomb_tap);
+                }
+
                 updateScores();
                 break;
             case MessageFactory.SC_PLAYER_MAYBEDC:
