@@ -228,13 +228,16 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
     public void updateScores(){
-        int j = 0; //index for player field
-        for(int i=0; i<game.getNoPlayers()-1; i++){
+        int guiPos = 0; //index for player field
+        for(int i=0; i<game.getNoPlayers(); i++){
             if (game.getPlayers().get(i) != null && thisPlayer != game.getPlayers().get(i)) {
-                Button player_field = (Button) gameView.getChildAt(j);
+                Button player_field = (Button) gameView.getChildAt(guiPos);
                 //we include score in the name-string
                 player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
-                j++;
+                guiPos++;
+            }
+            if (game.getPlayers().get(i) == null){
+                guiPos++;
             }
         }
         TextView own_score = (TextView) findViewById(R.id.Score_number);
