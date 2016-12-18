@@ -45,7 +45,7 @@ public final class Player {
 	}
 		
 	public void changeScore(int amount){
-		score = amount;
+		score = score - amount;
 	}
 	
 	public void reset(){
