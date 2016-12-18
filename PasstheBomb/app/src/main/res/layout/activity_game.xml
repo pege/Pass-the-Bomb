@@ -120,14 +120,22 @@
             android:textAlignment="textEnd"
             android:textColor="#FFFFFFFF" />
 
-        <ImageView
-            android:id="@+id/explosion_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:elevation="15dp"
-            android:src="@drawable/explosion0000"
-            android:layout_marginEnd="50dp"
-            android:visibility="gone"/>
+        <RelativeLayout
+            android:id="@+id/explosion_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="15dp">
+
+            <ImageView
+                android:id="@+id/explosion_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:scaleX="2.5"
+                android:scaleY="2.5"
+                android:src="@drawable/explosion0000"
+                android:visibility="gone" />
+        </RelativeLayout>
 
     </RelativeLayout>
 

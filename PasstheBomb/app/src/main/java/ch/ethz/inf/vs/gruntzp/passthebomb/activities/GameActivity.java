@@ -289,7 +289,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         controller.sendMessage(MessageFactory.exploded());
 
         Log.d("bomb","exploding");
-        moveBombToCenter();
+        moveBombToCenter(50);
 
 
 
@@ -377,8 +377,23 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         bomb.setLayoutParams(par);
     }
 
-    private void moveBombToCenter(){
+    /**
+     * @param x - is the offset on the x-axis from the centre
+     */
+    private void moveBombToCenter(int x){
+        if(bombExplode){
+            disableOnTouchAndDragging();
+        }
+
         RelativeLayout root = (RelativeLayout) findViewById( R.id.game );
+
+        FrameLayout.LayoutParams par = (FrameLayout.LayoutParams) bomb.getLayoutParams();
+        if(par.gravity == Gravity.CENTER) {
+            int[] location = new int[2];
+            bomb.getLocationOnScreen(location);
+            centerPos[0] = location[0]+x;
+            centerPos[1] = location[1];
+        }
 
         int originalPos[] = new int[2];
         bomb.getLocationOnScreen( originalPos );
@@ -577,7 +592,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 Log.i("up", "no!");
                             } else {
                                 missedPlayer++;
-                                moveBombToCenter();
+                                moveBombToCenter(0);
                             }
                             break;
                         }
