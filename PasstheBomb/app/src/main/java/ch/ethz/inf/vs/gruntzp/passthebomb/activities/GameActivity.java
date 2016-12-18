@@ -285,6 +285,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                             }
                             break;
                         case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                            bombExplode = true;
                             explodeBomb();
                             break;
                         case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
@@ -408,17 +409,20 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         if(par.gravity == Gravity.CENTER) {
             int[] location = new int[2];
             bomb.getLocationOnScreen(location);
-            centerPos[0] = location[0]+x;
+            centerPos[0] = location[0];
             centerPos[1] = location[1];
         }
 
         int originalPos[] = new int[2];
         bomb.getLocationOnScreen( originalPos );
 
-        TranslateAnimation anim = new TranslateAnimation( 0, centerPos[0] - originalPos[0] , 0, centerPos[1] - originalPos[1] );
+        TranslateAnimation anim = new TranslateAnimation( 0, centerPos[0]+ x - originalPos[0] , 0, centerPos[1] - originalPos[1] );
         anim.setDuration(500);
         anim.setFillAfter(true);
 
+        final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
+        explosionView.setBackgroundResource(R.drawable.explosion);
+        final AnimationDrawable explosionAnimation =(AnimationDrawable) explosionView.getBackground();
         anim.setAnimationListener(
                 new Animation.AnimationListener() {
 
@@ -438,21 +442,17 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                         par.topMargin = centerPos[1];
                         bomb.setLayoutParams(par);
 
-                        if (bombExplode){
-                            final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
+                        if (bombExplode) {
                             explosionView.setVisibility(View.VISIBLE);
-                            explosionView.setBackgroundResource(R.drawable.explosion);
                             explosionView.post(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    AnimationDrawable explosionAnimation =
-                                                            (AnimationDrawable) explosionView.getBackground();
-                                                    explosionAnimation.start();
-                                                    checkIfAnimationDone(explosionAnimation);
-                                                    playSound(R.raw.bomb_explode);
-                                                    bomb.setVisibility(View.INVISIBLE);
-                                                }
-                                            });
+                                @Override
+                                public void run() {
+                                    explosionAnimation.start();
+                                    checkIfAnimationDone(explosionAnimation);
+                                    playSound(R.raw.bomb_explode);
+                                    bomb.setVisibility(View.INVISIBLE);
+                                }
+                            });
                         }else {
                             setBombAnimation(screenBombLevel);
                         }
@@ -460,6 +460,20 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
         );
         bomb.startAnimation(anim);
+
+        if (bombExplode && !explosionAnimation.isRunning()) {
+
+            explosionView.setVisibility(View.VISIBLE);
+            explosionView.post(new Runnable() {
+                @Override
+                public void run() {
+                    explosionAnimation.start();
+                    checkIfAnimationDone(explosionAnimation);
+                    playSound(R.raw.bomb_explode);
+                    bomb.setVisibility(View.INVISIBLE);
+                }
+            });
+        }
 
 
     }
@@ -475,7 +489,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 } else {
                     bombExplode= false;
                     final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
-                    explosionView.setVisibility(View.GONE);
+                    explosionView.setVisibility(View.INVISIBLE);
                     enableOnTouchAndDragging();
                     FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)bomb.getLayoutParams();
                     par.gravity = Gravity.NO_GRAVITY;
@@ -644,6 +658,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                 break;
                             case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
                                 thisPlayer.changeScore(game.TAP_VALUE);
+                                bombExplode=true;
                                 explodeBomb();
                                 break;
                             case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
@@ -838,13 +853,31 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
      ** should it bring them back to the main menu or something
      ** and kick him out of the game?
      **/
+    boolean doubleBackToExitPressedOnce = false;
+
+
     @Override
     public void onBackPressed(){
         //super.onBackPressed();
         //TODO: Maybe implement "Are you sure?"
-        controller.sendMessage(MessageFactory.leaveGame()); //Pressing back is surrendering
-        finish();
+        if (doubleBackToExitPressedOnce) {
+            controller.sendMessage(MessageFactory.leaveGame()); //Pressing back is surrendering
+            finish();
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
+
     }
+
 
     public void onClickContinue(View view) {
         Intent myIntent = new Intent(this, ScoreboardActivity.class);
@@ -951,7 +984,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 setUpBomb();
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
-                playSound(R.raw.bomb_explode);
+                if(!thisPlayer.isHasBomb())
+                    playSound(R.raw.bomb_explode);
                 setBackgroundMusic(1);
                 newGame = Game.createFromJSON(body);
                 game.setPlayersAndRoles(newGame.getPlayers(), newGame.getCreator().getUuid(), "" /*No bomb owner*/);
