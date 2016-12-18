@@ -3,6 +3,9 @@
     package="ch.ethz.inf.vs.gruntzp.passthebomb.activities">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
 
     <application
         android:allowBackup="true"
@@ -49,6 +52,10 @@
         <service
             android:name="ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService"
             android:enabled="true"
+            android:stopWithTask="true" />
+        <service android:name="ch.ethz.inf.vs.gruntzp.passthebomb.Communication.ConnectivityService"
+            android:enabled="true"
+            android:exported="true"
             android:stopWithTask="true" />
 
         <activity android:name=".HowToPlayActivity"></activity>

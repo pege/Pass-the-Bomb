@@ -8,10 +8,13 @@ import android.content.SharedPreferences;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -40,7 +43,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     private boolean creating;
     private boolean joining;
     private int reconnect_counter;
-    private final int TOAST_WAIT = 10; //5 seconds between toasts that inform about reconnecting
+    private final int TOAST_WAIT = 20; //15 seconds between toasts that inform about reconnecting
+    private static ConnectivityManager cm;
+    private static NetworkInfo ni;
 
 
     //TODO: What happens if this activity is started by an intent? (Because of launchMode: singleTask)
@@ -52,7 +57,6 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
         setContentView(R.layout.activity_main);
         mEdit   = (EditText)findViewById(R.id.text_field);
 
-        reconnect_counter = 0; //Used to display reconnect message every so often
 
         //change status bar colour
         Window window = getWindow();
@@ -120,10 +124,15 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
     }
 
     public void onClickCreate(View view) {
+        cm = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        ni = cm.getActiveNetworkInfo();
         if(mEdit.getText().toString().isEmpty()) {
             Toast toast = Toast.makeText(this, R.string.username_required, Toast.LENGTH_SHORT);
             toast.show();
-        }else{
+        }else if(ni == null || !ni.isConnected()) { //Only contact server if we have connection
+            Toast.makeText(this, "You aren't connected to the server.", Toast.LENGTH_SHORT).show();
+            Log.d("NOCONNECTION", String.valueOf(ni == null) + String.valueOf(controller.isSessionNull()));
+        }else {
             // save username
             SharedPreferences.Editor editor = preferences.edit();
             String userName = mEdit.getText().toString();
@@ -133,25 +142,32 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             creating = true; //So we know in onMessage
 
             //attempt to register if not yet registered
-            if(!registered)
+            if (!registered)
                 tryRegister(userName);
-            else {
-                //Start next Activity
 
-                creating = false;
-                Intent myIntent = new Intent(this, CreateActivity.class);
-                myIntent.putExtra("creator_name", userName);
-                this.startActivity(myIntent);
-            }
+            //Start next Activit
+
+            creating = false;
+            Intent myIntent = new Intent(this, CreateActivity.class);
+            myIntent.putExtra("creator_name", userName);
+            this.startActivity(myIntent);
+
 
         }
     }
 
     public void onClickJoin(View view) {
+        cm = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        ni = cm.getActiveNetworkInfo();
         if(mEdit.getText().toString().isEmpty()) {
             Toast toast = Toast.makeText(this, R.string.username_required, Toast.LENGTH_SHORT);
             toast.show();
-        }else{
+        }else if(ni == null || !ni.isConnected() || controller.isSessionNull()) { //Only contact server if we have connection
+            Toast.makeText(this, "You aren't connected to the server.", Toast.LENGTH_SHORT).show();
+            Log.d("NOCONNECTION", String.valueOf(ni == null) + String.valueOf(controller.isSessionNull()));
+
+        }else {
+
             // save username
             SharedPreferences.Editor editor = preferences.edit();
             String userName = mEdit.getText().toString();
@@ -160,17 +176,16 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
             joining = true;
 
-            if(!registered) {
+            if(!registered)
                 //Toast.makeText(this.getApplicationContext(), "Currently not registered", Toast.LENGTH_SHORT).show();
                 tryRegister(userName);
-            }
-            else {
-                //Start next Activity
-                joining = false;
-                Intent myIntent = new Intent(this, JoinActivity.class);
-                myIntent.putExtra("player_name", userName);
-                this.startActivity(myIntent);
-            }
+
+            //Start next Activity
+            joining = false;
+            Intent myIntent = new Intent(this, JoinActivity.class);
+            myIntent.putExtra("player_name", userName);
+            this.startActivity(myIntent);
+
         }
     }
 
@@ -205,12 +220,14 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
 
     }
 
-    private void tryConnect() { //Should already be bound from onStart, this is only if we tyr to connect several times
-        controller.startService(this);
+    private void tryConnect() { //Should already be bound from onStart, this is only if we try to connect several times
+        controller.tryReconnecting();
     }
 
     @Override
     public void onMessage(int type, JSONObject body) {
+        Toast.makeText(this, "Received message", Toast.LENGTH_SHORT).show();
+
         switch(type) {
             case 0:
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
@@ -223,15 +240,18 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
                 this.startActivity(JoinIntent);
                 break;
             case MessageFactory.CONNECTION_FAILED:
-                try {//Try connecting every 0.5 seconds
-                    Thread.sleep(500);
+                Toast.makeText(this.getApplicationContext(), "No connection to the server", Toast.LENGTH_SHORT).show();
+                registered = false;
+                controller.resetConnection();
+                /*try {//Try connecting every 0.5 seconds
+                    Thread.sleep(1000);
                 } catch(InterruptedException e) {
                     e.printStackTrace();
                 }
                 if(reconnect_counter == 0)
                     Toast.makeText(this.getApplicationContext(), "Trying to connect", Toast.LENGTH_SHORT).show();
                 tryConnect();
-                reconnect_counter = ++reconnect_counter % TOAST_WAIT;
+                reconnect_counter = ++reconnect_counter % TOAST_WAIT;*/
                 break;
             case MessageFactory.SC_RECONNECT_DENIED_ERROR:
                 if(creating || joining) {//We were already registered and trying to create or join
@@ -299,6 +319,9 @@ public class MainActivity extends AppCompatActivity implements MessageListener {
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("userID", userID);
             editor.apply();
+        }
+        if(controller.isSessionNull()) {
+            controller.tryReconnecting();
         }
         controller.sendMessage(MessageFactory.register(userID, userName));
     }

@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import org.glassfish.tyrus.client.ClientManager;
 
@@ -70,24 +71,28 @@ public class MessageService extends Service {
                     activity.onMessage(copy_type, copy_body);
                 }
             });
-        }
+        } else
+            System.out.println("No activity in MessageService");
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) throws IOException {
         System.out.println("Disconnected");
-        onMessage(MessageFactory.Connection_Failed(),null);}
+        Log.d("MessageService", closeReason.toString());
+        onMessage(MessageFactory.Connection_Failed(),null);
+        wsSession = null;
+    }
 
     public void reconnect(String ip, String port)
     {
-        if(wsSession != null)
+        /*if(wsSession != null)
         {
             try {
                 wsSession.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/
 
         initializeConnection(ip, port);
     }
@@ -95,6 +100,11 @@ public class MessageService extends Service {
 
     public void sendMessage(final String message)
     {
+        try {
+            wsSession.getBasicRemote().getSendStream().flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if(wsSession != null)
         {
             Thread t = new Thread(new Runnable() {
@@ -103,6 +113,7 @@ public class MessageService extends Service {
                     ClientManager client = ClientManager.createClient();
                     try {
                         wsSession.getBasicRemote().sendText(message);
+                        System.out.println("Sending: " + message.toString());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -127,6 +138,7 @@ public class MessageService extends Service {
                 }
                 catch(Exception ex){
                     ex.printStackTrace();
+                    Log.d("MessageService", "Exception in initializeConnection");
                     onMessage(MessageFactory.Connection_Failed(), null);
                 }
             }

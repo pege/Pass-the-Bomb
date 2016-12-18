@@ -8,17 +8,23 @@ import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import java.io.IOException;
+
+import ch.ethz.inf.vs.gruntzp.passthebomb.activities.R;
+
 /**
  * Created by Marc on 25.11.2016.
  */
 
 public class ServiceConnector {
     static private MessageService mService;
+    private static ConnectivityService cService;
     static private boolean mBound = false;
+    private static boolean cBound = false;
     private static final String ip = "54.213.92.251";
     //private static final String ip = "10.2.136.200";
     //private static final String ip = "10.0.2.2";
-    private static final String port = "8080";
+    private static final String port = "8088";
 
     private static ServiceConnector instance;
 
@@ -47,9 +53,32 @@ public class ServiceConnector {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+
             mBound = false;
             System.out.println("DISCONNECTED FROM SERVICE");
             startService((AppCompatActivity) mService.activity);
+
+        }
+    };
+
+    public ServiceConnection cConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+
+            ConnectivityService.LocalBinder binder = (ConnectivityService.LocalBinder) service;
+            cService = binder.getService();
+            cBound = true;
+            Log.d("ServiceConnector", "Bound to ConnectivityService");
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+
+            Log.d("ServiceConnector", "Disconnected from ConnectivityService");
+
         }
     };
 
@@ -98,6 +127,16 @@ public class ServiceConnector {
         if(b){
             MessageService.activity = (MessageListener) activity;
         }
+
+        intent = new Intent(activity, ConnectivityService.class);
+        intent.putExtra("activity", r);
+        b = activity.bindService(intent, cConnection, Context.BIND_AUTO_CREATE);
+
+        if(b) {
+            Log.d("ServiceConnector", "Setting activity of ConnectivityService");
+            ConnectivityService.setListener((MessageListener) activity);
+        }
+
     }
 
     public void unbind(AppCompatActivity activity)
@@ -107,15 +146,41 @@ public class ServiceConnector {
             mBound = false;
             System.out.println("Did unbind activity from service.");
         }
+        if(cBound) {
+            cService.interruptThread();
+            activity.unbindService(cConnection);
+            cBound = false;
+            Log.d("ServiceConnector", "Unbound from ConnectivityService");
+        }
     }
 
     public void sendMessage(String message)
     {
+        System.out.println(String.valueOf(mBound)+String.valueOf(isSessionNull()));
         mService.sendMessage(message);
     }
 
     public void tryReconnecting() {
         System.out.println("Trying to restart");
         mService.reconnect(ip, port); //Try to reconnect with current activity as listener
+
+    }
+
+    public boolean isSessionNull() {
+        if(mService == null)
+            return true;
+        else
+            return mService.wsSession == null;
+
+    }
+
+    public void resetConnection() {
+        if(!(mService == null) && !isSessionNull()) {
+            try {
+                mService.wsSession.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

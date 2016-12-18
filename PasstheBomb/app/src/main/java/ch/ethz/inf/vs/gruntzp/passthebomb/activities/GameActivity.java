@@ -303,7 +303,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void explodeBomb()
     {
         bombExplode = true;
-        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore())); //TODO: nötig?
+        controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
         controller.sendMessage(MessageFactory.exploded());
 
         Log.d("bomb","exploding");

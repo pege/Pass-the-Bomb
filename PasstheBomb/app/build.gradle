@@ -29,4 +29,9 @@ dependencies {
     compile 'org.glassfish.tyrus:tyrus-client:1.13'
     compile 'org.glassfish.tyrus:tyrus-container-grizzly-client:1.13'
     testCompile 'junit:junit:4.12'
+    compile 'com.novoda:merlin:0.8.0'
+}
+
+repositories {
+    jcenter()
 }

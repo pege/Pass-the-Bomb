@@ -40,6 +40,8 @@
     <string name="score">Score</string>
     <string name="game_over">Game over!</string>
     <string name="to_scoreboard">Continue to scoreboard</string>
+    <string name="MSname">MessageService.class</string>
+    <string name="CSname">ConnectivityService.class</string>
 
     <string name="title_activity_tutorial">TutorialActivity</string>
     <string name="action_settings">Settings</string>
