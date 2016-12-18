@@ -39,7 +39,7 @@ public final class Connection {
 	static {
 		new Thread() {
 			public void run() {
-				//checkConnection();
+				checkConnection();
 			};
 		}.start();
 		System.out.println("Thread started");
