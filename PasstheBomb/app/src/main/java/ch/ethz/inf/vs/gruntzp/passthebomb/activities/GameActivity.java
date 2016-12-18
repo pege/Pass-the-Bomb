@@ -581,12 +581,32 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     if(game.getPlayers().indexOf(thisPlayer)  <= i )
                                         ++i;
                                     controller.sendMessage(MessageFactory.passBomb(game.getPlayers().get(i).getUuid(), game.getBombValue()));
-                                    playSound(R.raw.bomb_send);
+                                    Animation anim = AnimationUtils.loadAnimation(bomb.getContext(), R.anim.super_scale_out);
+                                    anim.setFillAfter(true);
+                                    anim.setAnimationListener(new Animation.AnimationListener() {
+                                        @Override
+                                        public void onAnimationStart(Animation animation) {
+                                            playSound(R.raw.bomb_send);
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animation animation) {
+                                            thisPlayer.setHasBomb(false);
+                                            setUpBomb();
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animation animation) {
+
+                                        }
+                                    });
+                                    bomb.clearAnimation();
+                                    bomb.startAnimation(anim);
+                                } else {
+                                    thisPlayer.setHasBomb(false);
+                                    setUpBomb();
                                 }
                                 game.bombLock.unlock();
-                                thisPlayer.setHasBomb(false);
-                                setUpBomb();
-                                Log.i("up", "no!");
                             } else {
                                 missedPlayer++;
                                 moveBombToCenter(0);
