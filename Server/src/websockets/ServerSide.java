@@ -22,5 +22,18 @@ public class ServerSide {
 		serverRunning.await();
 
 	}
+	
+	//TODO
+	//rework app code ->interfaces
+	//reconnect
+	//music should stop when app is not open
+	//connect while shaking
+	//bot players
+	//set the max lifetime of the bombs (short, medium, long) or say game length (long, short)
+	//Correct disconnecting?
+	//settings with changing ip adresses?
+	//chat?
+	//local high scores
+	//achievments
 
 }

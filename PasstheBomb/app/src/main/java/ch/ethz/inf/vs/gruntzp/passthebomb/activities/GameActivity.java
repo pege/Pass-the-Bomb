@@ -628,7 +628,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                     }
                 }
-                eq = game.getNoPlayers()-1;
+                eq = game.getPlayers().size()-1;
                 if(missedPlayer == eq) { //No player hit, decrease bomb and update score;
                     double dist = Math.sqrt(Math.pow(par.leftMargin - centerPos[0], 2) + Math.pow(par.topMargin - centerPos[1], 2));
                     if (dist < 100) {

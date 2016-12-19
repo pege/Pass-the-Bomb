@@ -39,7 +39,7 @@ public final class Connection {
 	static {
 		new Thread() {
 			public void run() {
-				checkConnection();
+				//checkConnection();
 			};
 		}.start();
 		System.out.println("Thread started");
@@ -273,7 +273,8 @@ public final class Connection {
 	private void createGame(Session session, JSONObject body) {
 		final String gamename = (String) body.get("game_id");
 		final String password = (String) body.get("password");
-
+		final String username = (String) body.get("username");
+		
 		registerLock.lock();
 		Player owner = map.get(session);
 
@@ -284,6 +285,9 @@ public final class Connection {
 
 		synchronized (owner) {
 			registerLock.unlock();
+			if(!owner.getName().equals(username)){ //user changed his name
+				owner.setName(username);
+			}
 			if (!alreadyInGame(session, owner)) {
 				String newname = gamename;
 				Game game;
@@ -328,7 +332,11 @@ public final class Connection {
 				if (!alreadyInGame(session, player)) {
 					String gamename = (String) body.get("game_id");
 					String password = (String) body.get("pw");
+					String username = (String) body.get("username");
 
+					if(!player.getName().equals(username)){ //user changed his name
+						player.setName(username);
+					}
 					Game game = null;
 					for (Game g : games) {
 						if (g.getGamename().equals(gamename)) {

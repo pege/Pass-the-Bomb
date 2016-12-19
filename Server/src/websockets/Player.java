@@ -7,7 +7,7 @@ import org.json.JSONObject;
 public final class Player {
 	
 	private final String uuid;
-	private final String name;
+	private String name;
 	private int score;
 	
 	private boolean maybeDC;
@@ -32,6 +32,10 @@ public final class Player {
 		return name;
 	}
 	
+	public void setName(String newName){
+		this.name = newName;
+	}
+	
 	public String getUuid(){
 		return uuid;
 	}
@@ -45,7 +49,7 @@ public final class Player {
 	}
 		
 	public void changeScore(int amount){
-		score = score - amount;
+		score = score + amount;
 	}
 	
 	public void reset(){
