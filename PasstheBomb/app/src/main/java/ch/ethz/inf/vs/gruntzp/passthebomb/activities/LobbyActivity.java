@@ -67,7 +67,7 @@ public class LobbyActivity extends AppCompatActivity implements MessageListener 
 
         game = Game.createFromJSON(extras.getString("message"));
         thisPlayer = game.getPlayerByID(preferences.getString("userID", ""));
-        isCreator = game.getCreatorName().equals(thisPlayer.getName());
+        isCreator = game.getCreator().getUuid().equals(thisPlayer.getUuid());
 
 
         setLobbyTitle();
