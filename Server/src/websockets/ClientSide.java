@@ -53,26 +53,6 @@ public class ClientSide {
 
 				System.out.println("Something to send?");
 				mess = sc.nextLine();
-
-				/*if(i % 4 == 0)
-					mess = "list";
-				if(i % 4 == 1)
-					mess = "list";
-				if(i % 4 == 2)
-					mess = "list";
-				if(i % 4 == 3)
-					mess = "list";
-				try {
-					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					
-					e.printStackTrace();
-				}
-				if(start){
-					start = false;
-					mess = "register p2";
-				}
-				i++;*/
 				
 				String[] message = mess.split("\\s+");
 

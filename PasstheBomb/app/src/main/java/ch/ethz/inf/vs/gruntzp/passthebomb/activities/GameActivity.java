@@ -8,13 +8,10 @@ import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,14 +33,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.LinkedList;
-import java.util.Set;
 
-import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
+
+import org.passthebomb.library.MessageFactory;
+import org.passthebomb.library.Constants;
 
 //TODO make the bomb and the layout for the players and the score
 public class GameActivity extends AppCompatActivity implements MessageListener {
@@ -980,7 +978,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 thisPlayer.setHasBomb(false);
                 setUpBomb();
                 for(Player p : game.getPlayers()) {
-                    if(p!=null && p.getScore() >= MessageFactory.FINAL_SCORE)
+                    if(p!=null && p.getScore() >= Constants.FINAL_SCORE)
                         endGame();
                 }
                 //No player won, so we have to wait for next gameupdate

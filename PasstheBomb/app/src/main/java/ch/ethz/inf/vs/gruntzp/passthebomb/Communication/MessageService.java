@@ -22,6 +22,7 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 
 import org.json.*;
+import org.passthebomb.library.MessageFactory;
 
 /**
  * Created by Marc on 24.11.2016.

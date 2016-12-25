@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.os.Message;
-import android.support.annotation.BoolRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,12 +18,9 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.passthebomb.library.MessageFactory;
 //import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
-import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageFactory;
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
-import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.ServiceConnector;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
 
 public class CreateActivity extends AppCompatActivity implements MessageListener{
 
