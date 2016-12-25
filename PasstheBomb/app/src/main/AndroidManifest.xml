@@ -28,6 +28,7 @@
         <activity
             android:name=".CreateActivity"
             android:label="@string/game_settings"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="portrait" />
         <activity
             android:name=".LobbyActivity"
