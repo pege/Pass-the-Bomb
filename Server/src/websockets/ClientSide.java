@@ -37,7 +37,7 @@ public class ClientSide {
 			URI uri;
 
 			//uri = new URI("ws://10.2.136.200:8088/websockets/passTheBomb");
-			//uri = new URI("ws://54.213.92.251:8088/websockets/passTheBomb");
+			uri = new URI("ws://54.213.92.251:8088/websockets/passTheBomb");
 			
 			client.connectToServer(ClientSide.class, uri);
 
@@ -121,7 +121,7 @@ public class ClientSide {
 			sc.close();
 			sess.close();
 
-		} catch (URISyntaxException | IOException | DeploymentException e) {
+		} catch (IOException | DeploymentException | URISyntaxException e) {
 			return -1;
 		}
 		return 0;

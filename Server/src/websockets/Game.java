@@ -9,6 +9,10 @@ import javax.websocket.Session;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import org.passthebomb.library.MessageFactory;
+import org.passthebomb.library.Constants;
+
+
 public final class Game {
 
 	private static final int maxBombLifeTime = 100; // max Lifetime of a bomb
@@ -149,7 +153,8 @@ public final class Game {
 
 	public int indexOfPlayer(Player player) {
 		return players.indexOf(player);
-	}//
+		
+	}
 
 	public void broadcast_detailed_state(int type) {
 		switch (type) {
@@ -192,7 +197,7 @@ public final class Game {
 
 	public boolean isFinished() {
 		for (Player p : players) {
-			if (p != null && p.getScore() >= MessageFactory.FINAL_SCORE)
+			if (p != null && p.getScore() >= Constants.FINAL_SCORE)
 				return true;
 		}
 		return false;
