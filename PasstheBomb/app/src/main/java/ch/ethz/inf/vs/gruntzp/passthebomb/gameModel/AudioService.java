@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic;
+package ch.ethz.inf.vs.gruntzp.passthebomb.gameModel;
 
 import android.app.Service;
 import android.content.Intent;

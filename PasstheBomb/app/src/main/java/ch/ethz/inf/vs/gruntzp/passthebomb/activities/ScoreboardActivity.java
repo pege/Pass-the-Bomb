@@ -14,15 +14,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Player;
 
 public class ScoreboardActivity extends AppCompatActivity implements MessageListener {
 

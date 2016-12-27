@@ -35,9 +35,12 @@ public class ClientSide {
 		try {
 			ClientManager client = ClientManager.createClient();
 			URI uri;
-
+			//Local
+			uri = new URI("ws://127.0.0.1:8080/websockets/passTheBomb");
+			//Without Timeout
 			//uri = new URI("ws://10.2.136.200:8088/websockets/passTheBomb");
-			uri = new URI("ws://54.213.92.251:8080/websockets/passTheBomb");
+			//Ready To Ship
+			//uri = new URI("ws://54.213.92.251:8080/websockets/passTheBomb");
 			
 			client.connectToServer(ClientSide.class, uri);
 

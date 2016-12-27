@@ -1,8 +1,7 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic;
+package ch.ethz.inf.vs.gruntzp.passthebomb.gameModel;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 
 /**
  * Created by Michelle on 20.11.2016.

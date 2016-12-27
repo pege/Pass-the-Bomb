@@ -19,12 +19,20 @@ public class ServiceConnector {
     private static final String port;
 
     static {
-        if (DEBUG.DEBUGGING) {
-            ip = "10.0.2.2";
-            port = "8080";
-        } else {
-            ip = "54.213.92.251";
-            port = "8080";
+        switch (DEBUG.settings) {
+            case Local:
+                ip = "10.0.2.2";
+                port = "8080";
+                break;
+            case WithoutTimeout:
+                ip = "54.213.92.251";
+                port = "8088";
+                break;
+            case ReadyToShip:
+            default:
+                ip = "54.213.92.251";
+                port = "8080";
+                break;
         }
     }
 
