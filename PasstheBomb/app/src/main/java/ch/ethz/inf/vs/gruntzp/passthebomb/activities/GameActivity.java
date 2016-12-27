@@ -272,7 +272,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     private void onBombTapped() {
         game.bombLock.lock();
-        playTapSound();
+        gameView.Sound().playTapSound();
         int ret = ScoreActionHandleBomb(game.TAP_VALUE);
         game.bombLock.unlock();
     }
