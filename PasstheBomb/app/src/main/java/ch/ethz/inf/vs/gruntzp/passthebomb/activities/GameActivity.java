@@ -35,10 +35,10 @@ import org.json.JSONObject;
 import java.util.LinkedList;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.AudioService;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Bomb;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Player;
 
 import org.passthebomb.library.MessageFactory;
 import org.passthebomb.library.Constants;
@@ -241,7 +241,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             }
         }
         TextView own_score = (TextView) findViewById(R.id.Score_number);
-        own_score.setText(thisPlayer.getScore() + "");
+        own_score.setText(Integer.toString(thisPlayer.getScore()));
     }
 
     private void setUpBomb(){
@@ -274,29 +274,45 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
                 public void onFinish() {//Bomb explodes
                     game.bombLock.lock();
-                    int ret = game.decreaseBomb();
-                    switch (ret) {
-                        case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                            if (game.IDLE_VALUE > 0) {
-                                thisPlayer.changeScore(game.IDLE_VALUE);
-                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                            }
-                            break;
-                        case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                            bombExplode = true;
-                            explodeBomb();
-                            break;
-                        case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                            this.cancel();
-                            break;
-                    }
+                    int bombResponse = ScoreActionHandleBomb(game.IDLE_VALUE);
+                    if (bombResponse == game.DEC_ERROR || bombResponse == game.DEC_LAST)
+                        this.cancel();
                     game.bombLock.unlock();
                 }
             }.start();
 
         }
-
     }
+
+    private final int ScoreActionHandleBomb(int score) {
+        // game.bombLock needs to be hold before entering and to be released after returning from this method
+        // Maybe this synchronized method is enough?
+        final int bombResponse = game.decreaseBomb();
+        switch (bombResponse) {
+            case Game.DEC_OKAY: //Bomb was decreased and game can go on
+                if (score > 0) {
+                    thisPlayer.changeScore(score);
+                    controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
+                }
+                break;
+            case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
+                if (score > 0)
+                    thisPlayer.changeScore(score);
+                explodeBomb();
+                break;
+            case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
+                break;
+        }
+        return bombResponse;
+    }
+
+    private void onBombTapped() {
+        game.bombLock.lock();
+        playTapSound();
+        int ret = ScoreActionHandleBomb(game.TAP_VALUE);
+        game.bombLock.unlock();
+    }
+
 
     private void explodeBomb()
     {
@@ -627,24 +643,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     double dist = Math.sqrt(Math.pow(par.leftMargin - centerPos[0], 2) + Math.pow(par.topMargin - centerPos[1], 2));
                     if (dist < 100) {
                         Log.d("distance", Double.toString(dist));
-                        game.bombLock.lock();
-
-                        playTapSound();
-                        int ret = game.decreaseBomb();
-                        switch (ret) {
-                            case Game.DEC_OKAY: //Bomb was decreased and game can go on
-                                thisPlayer.changeScore(game.TAP_VALUE);
-                                controller.sendMessage(MessageFactory.updateScore(game.getBombValue(), thisPlayer.getScore()));
-                                break;
-                            case Game.DEC_LAST: //Bomb was decreased for the last time, it explodes now. New scores given by server
-                                thisPlayer.changeScore(game.TAP_VALUE);
-                                bombExplode=true;
-                                explodeBomb();
-                                break;
-                            case Game.DEC_ERROR: //Bomb already zero, other thread sent message to server
-                                break;
-                        }
-                        game.bombLock.unlock();
+                        onBombTapped();
                     }
                 }
 
@@ -653,6 +652,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         };
         bomb.setOnTouchListener(touchListener);
     }
+
 
     private void scaleIn(View v, int childID){
         Animation anim;

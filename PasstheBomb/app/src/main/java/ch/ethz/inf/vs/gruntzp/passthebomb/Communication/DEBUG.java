@@ -5,5 +5,11 @@ package ch.ethz.inf.vs.gruntzp.passthebomb.Communication;
  */
 
 public  final class DEBUG {
-    public static final boolean DEBUGGING = false;
+    public static final DEBUG_SETTINGS settings = DEBUG_SETTINGS.Local;
+
+    public static enum DEBUG_SETTINGS {
+        ReadyToShip,
+        WithoutTimeout,
+        Local
+    }
 }

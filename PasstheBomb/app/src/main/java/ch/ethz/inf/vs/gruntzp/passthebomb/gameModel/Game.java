@@ -1,4 +1,4 @@
-package ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic;
+package ch.ethz.inf.vs.gruntzp.passthebomb.gameModel;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,9 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 

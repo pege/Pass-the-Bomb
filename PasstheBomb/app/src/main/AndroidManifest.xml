@@ -48,7 +48,7 @@
             android:exported="true"
             android:stopWithTask="true" />
         <service
-            android:name="ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService"
+            android:name="ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.AudioService"
             android:enabled="true"
             android:stopWithTask="true" />
 
