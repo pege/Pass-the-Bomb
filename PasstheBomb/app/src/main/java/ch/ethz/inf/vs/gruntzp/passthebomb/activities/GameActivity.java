@@ -734,7 +734,15 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         return rawX > x && rawX < (x+width) && rawY>y && rawY <(y+height);
     }
 
+    private GameState gameState = GameState.Running;
+    private enum GameState {
+        Running,
+        Finished
+    }
+
     public void endGame(){
+        gameState = GameState.Finished;
+
         if(thisPlayer.isHasBomb()){
             //TODO make bomb explode <-- is this still necessary? (the bomb explodes before the game is ended, right?
         }
@@ -838,23 +846,33 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     @Override
     public void onBackPressed(){
-        //super.onBackPressed();
-        //TODO: Maybe implement "Are you sure?"
-        if (doubleBackToExitPressedOnce) {
-            controller.sendMessage(MessageFactory.leaveGame()); //Pressing back is surrendering
-            finish();
+        switch (gameState) {
+
+            case Finished:
+                onClickContinue(null);
+                break;
+
+            default:
+                //super.onBackPressed();
+                //TODO: Maybe implement "Are you sure?"
+                if (doubleBackToExitPressedOnce) {
+                    controller.sendMessage(MessageFactory.leaveGame()); //Pressing back is surrendering
+                    finish();
+                }
+
+                this.doubleBackToExitPressedOnce = true;
+                Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
+
+                new Handler().postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        doubleBackToExitPressedOnce=false;
+                    }
+                }, 2000);
+                break;
         }
 
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Click back again to exit", Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
 
     }
 
@@ -978,8 +996,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 thisPlayer.setHasBomb(false);
                 setUpBomb();
                 for(Player p : game.getPlayers()) {
-                    if(p!=null && p.getScore() >= Constants.FINAL_SCORE)
+                    if(p!=null && p.getScore() >= Constants.FINAL_SCORE) {
                         endGame();
+                        break;
+                    }
                 }
                 //No player won, so we have to wait for next gameupdate
                 break;
