@@ -35,10 +35,10 @@ import org.json.JSONObject;
 import java.util.LinkedList;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.AudioService;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Bomb;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Player;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.AudioService;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Bomb;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Player;
 
 import org.passthebomb.library.MessageFactory;
 import org.passthebomb.library.Constants;

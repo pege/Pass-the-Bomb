@@ -29,7 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import ch.ethz.inf.vs.gruntzp.passthebomb.Communication.MessageListener;
-import ch.ethz.inf.vs.gruntzp.passthebomb.gamelogic.Game;
+import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Game;
 import org.passthebomb.library.MessageFactory;
 
 public class JoinActivity extends AppCompatActivity implements MessageListener {
