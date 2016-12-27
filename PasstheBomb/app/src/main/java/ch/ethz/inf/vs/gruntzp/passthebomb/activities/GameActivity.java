@@ -1,17 +1,14 @@
 package ch.ethz.inf.vs.gruntzp.passthebomb.activities;
 
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +36,8 @@ import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.AudioService;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Bomb;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Game;
 import ch.ethz.inf.vs.gruntzp.passthebomb.gameModel.Player;
+import ch.ethz.inf.vs.gruntzp.passthebomb.newmodel.GameView;
+
 
 import org.passthebomb.library.MessageFactory;
 import org.passthebomb.library.Constants;
@@ -49,32 +48,15 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private int currentApiVersion;
     private Game game;
     private Player thisPlayer;
-    private RelativeLayout gameView;
+    private RelativeLayout gameViewLayout;
     private ImageView bomb;
     private final int[] centerPos = new int[2];
     private int screenBombLevel;
     private Boolean bombExplode = false;
     private View.OnTouchListener touchListener;
     private CountDownTimer timer;
-    private AudioService audioService;
-    //boolean to check whether bound to audioservice or not
-    boolean mBound;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            AudioService.LocalBinder binder = (AudioService.LocalBinder) service;
-            audioService = binder.getService();
-            mBound = true;
-
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
-
+    private GameView gameView = new GameView(this);
 
     @Override
     @SuppressLint("NewApi")
@@ -112,7 +94,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         //GUI stuff
         hideNavigationBar();
-        gameView = (RelativeLayout) findViewById(R.id.game);
+        gameViewLayout = (RelativeLayout) findViewById(R.id.game);
         setUpPlayers();
         enableOnTouchAndDragging();
 
@@ -125,24 +107,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     }
 
 
-
-    //plays appropriate soundfile. There are sounds for: Receiving and Sending Bombs & bomb exploding
-    // use R.raw.filename for arguments
-    private void playSound(int soundfile){
-        audioService.playSound(soundfile);
-    }
-
-    //changes background music according to bombstages. use R.raw.filename for arguments
-    private void changeBGM(int musicfile){
-        //TODO: shitfix. audioService can be null, shortly after creation of gameActivity
-        if (audioService!= null)
-            audioService.playAudio(musicfile);
-    }
-    
-    private void playTapSound(){
-        audioService.playTap();
-    }
-
     /* When a player gets disconnected call this method.
      * This method greys out the given player's field.
      */
@@ -153,7 +117,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         if(disco != null) {
             int i = game.getPlayers().indexOf(disco);
             int pos = game.getPlayers().indexOf(thisPlayer);
-            Button playerField = (Button) gameView.getChildAt((i < pos) ? i : (i - 1));
+            Button playerField = (Button) gameViewLayout.getChildAt((i < pos) ? i : (i - 1));
             playerField.setBackground((i != 3) ?
                     getDrawable(R.drawable.greyed_out_field) : getDrawable(R.drawable.greyed_out_field_upsidedown));
 
@@ -163,7 +127,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         /* Testing that the positions of the fields don't get messed up
          *
           for(int i = 0; i<game.getPlayers().size()-1; i++){
-            Button playerField = (Button) gameView.getChildAt(i);
+            Button playerField = (Button) gameViewLayout.getChildAt(i);
             if(i!=3) {
                 playerField.setBackground(getDrawable(R.drawable.greyed_out_field));
             }else{
@@ -179,7 +143,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     private void setUpPlayers(){
         for (int j = 0; j < 4; j++)
         {
-            Button player_field = (Button) gameView.getChildAt(j);
+            Button player_field = (Button) gameViewLayout.getChildAt(j);
             player_field.clearAnimation();
             player_field.setVisibility(View.INVISIBLE);
         }
@@ -188,7 +152,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         for(int i = 0; i < game.getPlayers().size(); i++){
             Player curr = game.getPlayers().get(i);
             if (curr != null && !thisPlayer.equals(curr)) {
-                Button player_field = (Button) gameView.getChildAt(guiPos);
+                Button player_field = (Button) gameViewLayout.getChildAt(guiPos);
                 player_field.setVisibility(View.VISIBLE);
                 String playerName = curr.getName();
                 if(playerName.length()>17){
@@ -210,20 +174,20 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
     //adds "has bomb"-Icon to player_field
     public void addBombIcon (int player_number) {
-        Button player_field = (Button) gameView.getChildAt(player_number);
+        Button player_field = (Button) gameViewLayout.getChildAt(player_number);
         player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.bomb_36dp, 0, 0, 0);
     }
 
     //removes (not invisible, but removed!) "has bomb"-Icon or "target"-icon from player_field
     public void removeDrawableIcon (int player_number){
-        Button player_field = (Button) gameView.getChildAt(player_number);
+        Button player_field = (Button) gameViewLayout.getChildAt(player_number);
         player_field.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
     }
 
     //analogous to addBombIcon, This icon shows that the bomb is currently on it's way to target player
     //but has not arrived yet
     public void addTargetIcon (int player_number) {
-        Button player_field = (Button) gameView.getChildAt(player_number);
+        Button player_field = (Button) gameViewLayout.getChildAt(player_number);
         player_field.setCompoundDrawablesWithIntrinsicBounds(R.drawable.target_36dp, 0, 0, 0);
     }
 
@@ -231,7 +195,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         int guiPos = 0; //index for player field
         for(int i=0; i<game.getPlayers().size(); i++){
             if (game.getPlayers().get(i) != null && thisPlayer != game.getPlayers().get(i)) {
-                Button player_field = (Button) gameView.getChildAt(guiPos);
+                Button player_field = (Button) gameViewLayout.getChildAt(guiPos);
                 //we include score in the name-string
                 player_field.setText(game.getPlayers().get(i).getName() + "\n" + game.getPlayers().get(i).getScore());
                 guiPos++;
@@ -263,7 +227,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             screenBombLevel = game.bombLevel();
             changeBombImage(screenBombLevel);
             setBombAnimation(screenBombLevel);
-            setBackgroundMusic(screenBombLevel);
+            gameView.Sound().setBackgroundMusicByBombLevel(screenBombLevel);
             bomb.setVisibility(View.VISIBLE);
 
             timer = new CountDownTimer(game.getBombValue()*1000 /*max ticks*/, 1000) {
@@ -366,11 +330,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
         }
     }
 
-    private int[] musicArray = new int[] {R.raw.bomb_stage1, R.raw.bomb_stage2, R.raw.bomb_stage3, R.raw.bomb_stage4, R.raw.bomb_stage5};
-    private void setBackgroundMusic(int level)
-    {
-        changeBGM(musicArray[level - 1]);
-    }
 
     private void setBombAnimation(int level){
         Animation anim;
@@ -465,7 +424,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 public void run() {
                     explosionAnimation.start();
                     checkIfAnimationDone(explosionAnimation);
-                    playSound(R.raw.bomb_explode);
+
+                    gameView.Sound().playSound(R.raw.bomb_explode);
                     bomb.setVisibility(View.INVISIBLE);
                 }
             });
@@ -519,7 +479,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 final FrameLayout.LayoutParams par=(FrameLayout.LayoutParams)v.getLayoutParams();
 
                 for(int i=0; i<game.getPlayers().size()-1; i++) {
-                    Button playerfield = (Button) gameView.getChildAt(i);
+                    Button playerfield = (Button) gameViewLayout.getChildAt(i);
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN: {
 
@@ -608,7 +568,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                                     anim.setAnimationListener(new Animation.AnimationListener() {
                                         @Override
                                         public void onAnimationStart(Animation animation) {
-                                            playSound(R.raw.bomb_send);
+                                            gameView.Sound().playSound(R.raw.bomb_send);
                                         }
 
                                         @Override
@@ -776,8 +736,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             toScoreboard.getBackground().setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.OVERLAY);
         }
         toScoreboard.setVisibility(View.VISIBLE);
-        audioService.playAudio(R.raw.bomb_stage1);
-
+        gameView.Sound().setBackgroundMusicByBombLevel(1);
     }
 
 
@@ -897,10 +856,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     protected void onStart() {
         super.onStart();
         controller.bind(this);
-        if (!mBound) {
+        if (!gameView.Sound().isSoundServiceBound()) {
             Intent intent = new Intent(this, AudioService.class);
             startService(intent);
-            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            bindService(intent, gameView.Sound().getSoundServiceConnection(), Context.BIND_AUTO_CREATE);
         }
         System.out.println("GameActivity bound to audioservice");
 
@@ -914,18 +873,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 Toast toast = Toast.makeText(this, "Message receipt parsing error", Toast.LENGTH_SHORT);
                 toast.show();
                 break;
-            //case MessageFactory.SC_GAME_UPDATE: //Diverse Moeglichkeiten was für ein Update das ist. Actually never called xD
-            //    newGame = Game.createFromJSON(body);
-            //    try {
-            //        game.newBomb(new Bomb(body.getJSONObject("game").getInt("bomb"),body.getJSONObject("game").getInt("initial_bomb")));
-            //        game.setBombOwner(newGame.getPlayerByID(body.getJSONObject("game").getString("bombOwner")));
-            //        thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
-            //    } catch(JSONException e) {
-            //        e.printStackTrace();
-            //    }
-            //    setUpPlayers();
-            //    updateScores();
-            //    break;
             case MessageFactory.SC_PLAYER_LEFT:
                 newGame = Game.createFromJSON(body);
                 String oldBombOwner = game.getBombOwner().getUuid();
@@ -946,7 +893,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 }
                 if (!thisPlayer.isHasBomb())
                 {
-                    playSound(R.raw.bomb_tap);
+                    gameView.Sound().playSound(R.raw.bomb_tap);
                 }
 
                 updateScores();
@@ -969,7 +916,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
                     if (thisPlayer.isHasBomb())
                     {
-                        playSound(R.raw.bomb_receive);
+                        gameView.Sound().playSound(R.raw.bomb_receive);
                         //TODO: check if exploded
                         //game.bombLock.lock();
                         //int ret = ScoreActionHandleBomb(Game.RECEIVE_DECREASE);
@@ -977,7 +924,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     }
                     else
                     {
-                        playSound(R.raw.bomb_send);
+                        gameView.Sound().playSound(R.raw.bomb_send);
                     }
                 } catch(JSONException e) {
                     e.printStackTrace();
@@ -987,8 +934,8 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 break;
             case MessageFactory.SC_BOMB_EXPLODED: //Have to check if game is over or just new round
                 if(!thisPlayer.isHasBomb())
-                    playSound(R.raw.bomb_explode);
-                setBackgroundMusic(1);
+                    gameView.Sound().playSound(R.raw.bomb_explode);
+                gameView.Sound().setBackgroundMusicByBombLevel(1);
                 newGame = Game.createFromJSON(body);
                 game.setPlayersAndRoles(newGame.getPlayers(), newGame.getCreator().getUuid(), "" /*No bomb owner*/);
                 thisPlayer = game.getPlayerByID(thisPlayer.getUuid());
@@ -1038,10 +985,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
     protected void onStop() {
         super.onStop();
         controller.unbind(this);
-        if (mBound){
-            unbindService(mConnection);
+        if (gameView.Sound().isSoundServiceBound()){
+            unbindService(gameView.Sound().getSoundServiceConnection());
         }
-        mBound = false;
+        gameView.Sound().unboundSoundService();
         System.out.println("GameActivity unbound from AudioService");
 
     }
