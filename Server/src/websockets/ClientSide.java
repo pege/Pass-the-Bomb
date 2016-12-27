@@ -37,7 +37,7 @@ public class ClientSide {
 			URI uri;
 
 			//uri = new URI("ws://10.2.136.200:8088/websockets/passTheBomb");
-			uri = new URI("ws://54.213.92.251:8088/websockets/passTheBomb");
+			uri = new URI("ws://54.213.92.251:8080/websockets/passTheBomb");
 			
 			client.connectToServer(ClientSide.class, uri);
 
@@ -46,7 +46,7 @@ public class ClientSide {
 			Random r = new Random();
 			int uuid = r.nextInt(1000);
 			System.out.println(
-					"register [playername], create [gamename, pw], join [gamename, pw], leave, list, start, passBomb [targetID, bomb], explode, updateScore [bomb, score]");
+					"register [playername], create [gamename, username, [pw]], join [gamename, username, [pw]], leave, list, start, passBomb [targetID, bomb], explode, updateScore [bomb, score]");
 			int i = 0;
 			boolean start = true;
 			while (!mess.equals("exit")) {
@@ -65,11 +65,11 @@ public class ClientSide {
 					break;
 				case "create":
 					sess.getBasicRemote()
-							.sendText(MessageFactory.createGame(message[1], message.length == 3 ? message[2] : "",message[3]));
+							.sendText(MessageFactory.createGame(message[1], message.length == 4 ? message[3] : "",message[2]));
 					break;
 				case "join":
 					sess.getBasicRemote()
-							.sendText(MessageFactory.joinGame(message[1], message.length == 3 ? message[2] : "", message[3]));
+							.sendText(MessageFactory.joinGame(message[1], message.length == 4 ? message[3] : "", message[2]));
 					break;
 				case "leave":
 					sess.getBasicRemote().sendText(MessageFactory.leaveGame());
