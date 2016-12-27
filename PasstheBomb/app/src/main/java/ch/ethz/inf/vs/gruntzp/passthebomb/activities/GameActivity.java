@@ -241,7 +241,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
             }
         }
         TextView own_score = (TextView) findViewById(R.id.Score_number);
-        own_score.setText(thisPlayer.getScore()+"");
+        own_score.setText(thisPlayer.getScore() + "");
     }
 
     private void setUpBomb(){
@@ -306,10 +306,6 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
 
         Log.d("bomb","exploding");
         moveBombToCenter(50);
-
-
-
-
     }
 
     private void changeBombImage(int level) {
@@ -471,7 +467,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                 if (a.getCurrent() != a.getFrame(a.getNumberOfFrames() - 1)){
                     checkIfAnimationDone(a);
                 } else {
-                    bombExplode= false;
+                    bombExplode = false;
                     final ImageView explosionView = (ImageView) findViewById(R.id.explosion_view);
                     explosionView.setVisibility(View.INVISIBLE);
                     enableOnTouchAndDragging();
@@ -632,7 +628,7 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     if (dist < 100) {
                         Log.d("distance", Double.toString(dist));
                         game.bombLock.lock();
-                        //playSound(R.raw.bomb_tap);
+
                         playTapSound();
                         int ret = game.decreaseBomb();
                         switch (ret) {
@@ -956,6 +952,10 @@ public class GameActivity extends AppCompatActivity implements MessageListener {
                     if (thisPlayer.isHasBomb())
                     {
                         playSound(R.raw.bomb_receive);
+                        //TODO: check if exploded
+                        //game.bombLock.lock();
+                        //int ret = ScoreActionHandleBomb(Game.RECEIVE_DECREASE);
+                        //game.bombLock.unlock();
                     }
                     else
                     {

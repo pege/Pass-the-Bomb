@@ -31,8 +31,9 @@ public class Game implements Parcelable {
     private Player bombOwner;
     private int numberOfPlayers;
 
-    public final int TAP_VALUE = 2;
-    public final int IDLE_VALUE = 0;
+    public static final int TAP_VALUE = 2;
+    public static final int IDLE_VALUE = 0;
+    public static final int RECEIVE_DECREASE = 1;
     public static final int DEC_OKAY = 1;
     public static final int DEC_LAST = 2;
     public static final int DEC_ERROR = 3;
@@ -104,6 +105,8 @@ public class Game implements Parcelable {
                 if (p.getUuid().equals(bombUuid)) {
                     this.bombOwner = p;
                     this.bombOwner.setHasBomb(true);
+                    //bomb.decrease();
+                    //TODO: decrease Bomb
                 } else {
                     p.setHasBomb(false);
                 }
